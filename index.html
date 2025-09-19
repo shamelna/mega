@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEGA LEAN Assessment Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #1e3c72;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e3c72;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: #1e3c72;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            background: #f8f9fa;
+        }
+
+        .form-section h3 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #1e3c72;
+            padding-bottom: 10px;
+        }
+
+        .question-group {
+            margin-bottom: 20px;
+        }
+
+        .question-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover {
+            border-color: #1e3c72;
+            background: #f0f4ff;
+        }
+
+        .radio-option input[type="radio"]:checked + .radio-option {
+            border-color: #1e3c72;
+            background: #1e3c72;
+            color: white;
+        }
+
+        .radio-option input[type="radio"] {
+            margin: 0;
+        }
+
+        .form-actions {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn-primary {
+            background: #1e3c72;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2a5298;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dimension-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .dimension-card h4 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .progress-container {
+            position: relative;
+            background: #e9ecef;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.8s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-novice { background: linear-gradient(45deg, #dc3545, #c82333); }
+        .status-emerging { background: linear-gradient(45deg, #fd7e14, #e55a00); }
+        .status-developing { background: linear-gradient(45deg, #ffc107, #e0a800); }
+        .status-advanced { background: linear-gradient(45deg, #28a745, #1e7e34); }
+
+        .status-label {
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .spider-chart {
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+        }
+
+        .overall-status {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .status-gauge {
+            display: inline-block;
+            position: relative;
+            width: 200px;
+            height: 100px;
+            margin: 20px auto;
+        }
+
+        .gauge-arc {
+            width: 200px;
+            height: 100px;
+            background: conic-gradient(
+                from 180deg at 50% 100%,
+                #dc3545 0deg 36deg,
+                #fd7e14 36deg 86.4deg,
+                #ffc107 86.4deg 151.2deg,
+                #28a745 151.2deg 180deg
+            );
+            border-radius: 200px 200px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gauge-arc::after {
+            content: '';
+            position: absolute;
+            width: 160px;
+            height: 80px;
+            background: white;
+            border-radius: 160px 160px 0 0;
+            top: 20px;
+            left: 20px;
+        }
+
+        .gauge-needle {
+            position: absolute;
+            width: 2px;
+            height: 80px;
+            background: #333;
+            bottom: 0;
+            left: 50%;
+            transform-origin: bottom center;
+            transition: transform 1s ease-out;
+        }
+
+        .gauge-center {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #333;
+            border-radius: 50%;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .status-text {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+
+        .print-view {
+            background: white;
+            padding: 40px;
+            border-radius: 0;
+            box-shadow: none;
+            font-size: 12px;
+        }
+
+        .print-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #1e3c72;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .company-info {
+            flex: 1;
+        }
+
+        .assessment-info {
+            text-align: right;
+        }
+
+        .results-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .summary-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .recommendations {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .saved-assessments {
+            margin-bottom: 20px;
+        }
+
+        .assessment-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .assessment-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            
+            .navigation, .form-actions, .btn {
+                display: none !important;
+            }
+            
+            .container {
+                max-width: 100%;
+                padding: 0;
+            }
+            
+            .panel {
+                background: white;
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .results-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .dimension-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏭 MEGA LEAN Assessment Tool</h1>
+            <p>Comprehensive evaluation of your organization's LEAN maturity across 7 key dimensions</p>
+        </div>
+
+        <!-- User Management -->
+        <div id="loginSection" class="panel active" style="display: block;">
+            <div style="max-width: 400px; margin: 0 auto; text-align: center;">
+                <h2>User Access</h2>
+                <p>Please identify yourself to access your assessments</p>
+                
+                <div style="margin: 30px 0;">
+                    <label for="userEmail" style="display: block; margin-bottom: 10px; font-weight: 600;">Email Address:</label>
+                    <input type="email" id="userEmail" placeholder="Enter your email" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px;">
+                    
+                    <label for="userRole" style="display: block; margin-bottom: 10px; font-weight: 600;">Access Level:</label>
+                    <select id="userRole" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px;">
+                        <option value="user">Regular User</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                    
+                    <div id="adminPassword" style="display: none;">
+                        <label for="adminPass" style="display: block; margin-bottom: 10px; font-weight: 600;">Admin Password:</label>
+                        <input type="password" id="adminPass" placeholder="Enter admin password" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px;">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="userLogin()" style="width: 100%;">Access Assessments</button>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 14px; color: #666;">
+                    <p><strong>Regular Users:</strong> Create and manage your own assessments</p>
+                    <p><strong>Administrators:</strong> View all assessments and organization analytics</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation (hidden until logged in) -->
+        <div class="navigation" id="mainNavigation" style="display: none;">
+            <button class="nav-btn active" onclick="showPanel('assessment')">New Assessment</button>
+            <button class="nav-btn" onclick="showPanel('dashboard')">My Dashboard</button>
+            <button class="nav-btn" onclick="showPanel('saved')">My Assessments</button>
+            <button class="nav-btn" id="adminNav" onclick="showPanel('admin')" style="display: none;">Admin Panel</button>
+            <button class="nav-btn" onclick="userLogout()" style="background: #dc3545;">Logout</button>
+        </div>
+
+        <!-- Assessment Panel -->
+        <div id="assessmentPanel" class="panel">
+            <form id="assessmentForm">
+                <div class="form-section">
+                    <h3>Company Information</h3>
+                    <div class="question-group">
+                        <label for="companyName">Company Name:</label>
+                        <input type="text" id="companyName" name="companyName" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div class="question-group">
+                        <label for="assessorName">Assessor Name:</label>
+                        <input type="text" id="assessorName" name="assessorName" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div class="question-group">
+                        <label for="assessmentDate">Assessment Date:</label>
+                        <input type="date" id="assessmentDate" name="assessmentDate" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <!-- Leadership & Culture -->
+                <div class="form-section">
+                    <h3>1. Leadership & Culture</h3>
+                    <div class="question-group">
+                        <label>Leaders actively promote LEAN principles across all levels.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q1" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q1" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q1" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q1" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q1" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Continuous improvement is embedded in our organizational culture.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q2" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q2" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q2" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q2" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q2" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Employees are empowered to identify and solve problems.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q3" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q3" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q3" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q3" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q3" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>LEAN thinking is part of strategic decision-making.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q4" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q4" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q4" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q4" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q4" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Failures are treated as learning opportunities.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q5" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q5" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q5" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q5" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q5" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Value Focus -->
+                <div class="form-section">
+                    <h3>2. Customer Value Focus</h3>
+                    <div class="question-group">
+                        <label>We clearly understand what our customers value most.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q6" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q6" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q6" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q6" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q6" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Processes are designed to maximize customer value.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q7" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q7" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q7" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q7" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q7" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Feedback loops from customers are frequent and actionable.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q8" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q8" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q8" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q8" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q8" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Waste that does not add customer value is systematically eliminated.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q9" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q9" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q9" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q9" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q9" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>We regularly review our offerings to align with evolving customer needs.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q10" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q10" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q10" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q10" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q10" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Process Efficiency -->
+                <div class="form-section">
+                    <h3>3. Process Efficiency</h3>
+                    <div class="question-group">
+                        <label>Standardized work is documented and followed consistently.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q11" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q11" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q11" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q11" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q11" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Bottlenecks and inefficiencies are quickly identified and addressed.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q12" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q12" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q12" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q12" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q12" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Visual management tools are used effectively.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q13" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q13" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q13" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q13" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q13" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Value stream mapping is used to optimize workflows.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q14" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q14" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q14" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q14" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q14" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>We use metrics to monitor and improve process performance.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q15" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q15" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q15" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q15" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q15" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Waste Elimination -->
+                <div class="form-section">
+                    <h3>4. Waste Elimination (Muda)</h3>
+                    <div class="question-group">
+                        <label>We actively identify and eliminate the 8 types of waste.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q16" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q16" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q16" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q16" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q16" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Employees are trained to recognize waste in their daily work.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q17" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q17" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q17" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q17" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q17" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Waste reduction initiatives are tracked and reviewed.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q18" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q18" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q18" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q18" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q18" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Inventory levels are optimized to reduce excess.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q19" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q19" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q19" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q19" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q19" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>We use 5S to maintain organized and efficient workspaces.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q20" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q20" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q20" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q20" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q20" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Continuous Improvement -->
+                <div class="form-section">
+                    <h3>5. Continuous Improvement (Kaizen)</h3>
+                    <div class="question-group">
+                        <label>Improvement ideas are regularly submitted by frontline staff.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q21" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q21" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q21" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q21" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q21" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Cross-functional teams work on improvement projects.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q22" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q22" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q22" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q22" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q22" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>PDCA (Plan-Do-Check-Act) cycles are used consistently.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q23" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q23" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q23" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q23" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q23" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Improvements are documented and shared across teams.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q24" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q24" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q24" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q24" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q24" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>We celebrate and recognize successful improvement efforts.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q25" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q25" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q25" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q25" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q25" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flow and Pull Systems -->
+                <div class="form-section">
+                    <h3>6. Flow and Pull Systems</h3>
+                    <div class="question-group">
+                        <label>Work flows smoothly with minimal interruptions.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q26" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q26" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q26" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q26" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q26" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>We use pull systems (e.g., Kanban) to manage work-in-progress.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q27" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q27" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q27" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q27" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q27" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Production is based on actual demand, not forecasts.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q28" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q28" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q28" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q28" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q28" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Setup times are minimized to support flow.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q29" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q29" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q29" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q29" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q29" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>We balance workloads to avoid overburdening teams.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q30" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q30" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q30" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q30" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q30" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Problem Solving & Root Cause Analysis -->
+                <div class="form-section">
+                    <h3>7. Problem Solving & Root Cause Analysis</h3>
+                    <div class="question-group">
+                        <label>Structured problem-solving methods (e.g., A3, 5 Whys) are used.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q31" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q31" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q31" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q31" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q31" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Problems are addressed at the source, not just symptoms.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q32" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q32" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q32" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q32" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q32" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Data is used to support root cause analysis.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q33" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q33" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q33" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q33" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q33" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Corrective actions are tracked for effectiveness.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q34" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q34" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q34" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q34" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q34" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label>Teams are trained in problem-solving techniques.</label>
+                        <div class="radio-group">
+                            <div class="radio-option"><input type="radio" name="q35" value="1"> <span>1 - Strongly Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q35" value="2"> <span>2 - Disagree</span></div>
+                            <div class="radio-option"><input type="radio" name="q35" value="3"> <span>3 - Neutral</span></div>
+                            <div class="radio-option"><input type="radio" name="q35" value="4"> <span>4 - Agree</span></div>
+                            <div class="radio-option"><input type="radio" name="q35" value="5"> <span>5 - Strongly Agree</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" onclick="submitAssessment()">Submit Assessment</button>
+                    <button type="button" class="btn btn-secondary" onclick="saveAssessment()">Save Draft</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Dashboard Panel -->
+        <div id="dashboardPanel" class="panel">
+            <div class="overall-status">
+                <h2>Overall LEAN Maturity Status</h2>
+                <div class="status-gauge">
+                    <div class="gauge-arc">
+                        <div class="gauge-needle" id="gaugeNeedle"></div>
+                        <div class="gauge-center"></div>
+                        <div class="status-text" id="statusText">Not Assessed</div>
+                    </div>
+                </div>
+                <div id="overallScore" style="text-align: center; font-size: 1.5em; margin: 20px 0; font-weight: 600;"></div>
+            </div>
+
+            <div class="results-grid" id="resultsGrid">
+                <!-- Dimension results will be populated here -->
+            </div>
+
+            <div class="spider-chart">
+                <canvas id="spiderChart" width="400" height="400"></canvas>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-primary" onclick="generateReport()">Generate Print Report</button>
+                <button type="button" class="btn btn-secondary" onclick="exportResults()">Export Results</button>
+            </div>
+        </div>
+
+        <!-- Saved Assessments Panel -->
+        <div id="savedPanel" class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="savedTitle">My Assessments</h2>
+                <div>
+                    <span id="userInfo" style="color: #666; font-size: 14px;"></span>
+                </div>
+            </div>
+            <div class="saved-assessments" id="savedAssessments">
+                <!-- Saved assessments will be populated here -->
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" class="panel">
+            <h2>Admin Dashboard</h2>
+            <div style="margin-bottom: 30px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div class="dimension-card" style="text-align: center;">
+                        <h4>Total Organizations</h4>
+                        <div style="font-size: 2em; font-weight: 700; color: #1e3c72;" id="totalOrgs">0</div>
+                    </div>
+                    <div class="dimension-card" style="text-align: center;">
+                        <h4>Total Assessments</h4>
+                        <div style="font-size: 2em; font-weight: 700; color: #1e3c72;" id="totalAssessments">0</div>
+                    </div>
+                    <div class="dimension-card" style="text-align: center;">
+                        <h4>Average Score</h4>
+                        <div style="font-size: 2em; font-weight: 700; color: #1e3c72;" id="avgScore">0%</div>
+                    </div>
+                    <div class="dimension-card" style="text-align: center;">
+                        <h4>Most Common Status</h4>
+                        <div style="font-size: 1.5em; font-weight: 700; color: #1e3c72;" id="commonStatus">N/A</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>All Organization Assessments</h3>
+            <div class="saved-assessments" id="adminAssessments">
+                <!-- All assessments will be populated here -->
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-primary" onclick="exportAllData()">Export All Data</button>
+                <button type="button" class="btn btn-secondary" onclick="generateOrgReport()">Organization Report</button>
+            </div>
+        </div>
+
+        <!-- Print Report Panel -->
+        <div id="printPanel" class="panel print-view">
+            <div class="print-header">
+                <div class="company-info">
+                    <h1 id="printCompanyName">Company Name</h1>
+                    <h2>LEAN Maturity Assessment Report</h2>
+                </div>
+                <div class="assessment-info">
+                    <p><strong>Assessor:</strong> <span id="printAssessorName">N/A</span></p>
+                    <p><strong>Date:</strong> <span id="printAssessmentDate">N/A</span></p>
+                    <p><strong>Overall Score:</strong> <span id="printOverallScore">N/A</span></p>
+                    <p><strong>Status:</strong> <span id="printOverallStatus">N/A</span></p>
+                </div>
+            </div>
+
+            <div class="results-summary">
+                <div>
+                    <h3>Dimension Scores</h3>
+                    <table class="summary-table" id="printSummaryTable">
+                        <thead>
+                            <tr>
+                                <th>Dimension</th>
+                                <th>Score</th>
+                                <th>Percentage</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Results will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <h3>Status Distribution</h3>
+                    <div id="printStatusChart" style="height: 200px;"></div>
+                </div>
+            </div>
+
+            <div class="recommendations">
+                <h3>Key Recommendations</h3>
+                <div id="printRecommendations">
+                    <!-- Recommendations will be populated here -->
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd;">
+                <p><em>Generated by MEGA LEAN Assessment Tool - Kaizen Academy™ in collaboration with MEGA</em></p>
+                <button type="button" class="btn btn-primary" onclick="window.print()">Print Report</button>
+                <button type="button" class="btn btn-secondary" onclick="showPanel('dashboard')">Back to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // User Management System
+        const ADMIN_PASSWORD = "mega2025"; // In production, this would be more secure
+        let currentUser = null;
+
+        // Assessment data structure
+        const dimensions = [
+            {
+                id: 'leadership',
+                name: 'Leadership & Culture',
+                questions: [1, 2, 3, 4, 5]
+            },
+            {
+                id: 'customer',
+                name: 'Customer Value Focus',
+                questions: [6, 7, 8, 9, 10]
+            },
+            {
+                id: 'process',
+                name: 'Process Efficiency',
+                questions: [11, 12, 13, 14, 15]
+            },
+            {
+                id: 'waste',
+                name: 'Waste Elimination',
+                questions: [16, 17, 18, 19, 20]
+            },
+            {
+                id: 'improvement',
+                name: 'Continuous Improvement',
+                questions: [21, 22, 23, 24, 25]
+            },
+            {
+                id: 'flow',
+                name: 'Flow and Pull Systems',
+                questions: [26, 27, 28, 29, 30]
+            },
+            {
+                id: 'problem',
+                name: 'Problem Solving & Root Cause Analysis',
+                questions: [31, 32, 33, 34, 35]
+            }
+        ];
+
+        // User Authentication Functions
+        function userLogin() {
+            const email = document.getElementById('userEmail').value.trim();
+            const role = document.getElementById('userRole').value;
+            const adminPass = document.getElementById('adminPass').value;
+
+            if (!email) {
+                alert('Please enter your email address.');
+                return;
+            }
+
+            if (role === 'admin' && adminPass !== ADMIN_PASSWORD) {
+                alert('Incorrect admin password.');
+                return;
+            }
+
+            currentUser = {
+                email: email,
+                role: role,
+                loginTime: new Date().toISOString()
+            };
+
+            // Save user session
+            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            // Show main interface
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('mainNavigation').style.display = 'flex';
+            
+            // Show admin navigation if admin
+            if (role === 'admin') {
+                document.getElementById('adminNav').style.display = 'block';
+            }
+
+            // Update user info
+            updateUserInfo();
+
+            // Show assessment panel by default
+            showPanel('assessment');
+
+            // Load user's saved assessments
+            loadUserAssessments();
+        }
+
+        function userLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                currentUser = null;
+                sessionStorage.removeItem('currentUser');
+                
+                // Reset interface
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('mainNavigation').style.display = 'none';
+                document.getElementById('adminNav').style.display = 'none';
+                
+                // Hide all panels
+                document.querySelectorAll('.panel').forEach(panel => {
+                    panel.classList.remove('active');
+                });
+                document.getElementById('loginSection').classList.add('active');
+                
+                // Reset form
+                document.getElementById('userEmail').value = '';
+                document.getElementById('userRole').value = 'user';
+                document.getElementById('adminPass').value = '';
+                document.getElementById('adminPassword').style.display = 'none';
+            }
+        }
+
+        function updateUserInfo() {
+            if (currentUser) {
+                document.getElementById('userInfo').textContent = 
+                    `Logged in as: ${currentUser.email} (${currentUser.role === 'admin' ? 'Administrator' : 'User'})`;
+            }
+        }
+
+        function checkUserSession() {
+            const savedUser = sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                
+                // Auto-login if session exists
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('mainNavigation').style.display = 'flex';
+                
+                if (currentUser.role === 'admin') {
+                    document.getElementById('adminNav').style.display = 'block';
+                }
+                
+                updateUserInfo();
+                showPanel('assessment');
+                return true;
+            }
+            return false;
+        }
+
+        // Permission-based filtering
+        function getUserAssessments() {
+            const allAssessments = JSON.parse(localStorage.getItem('leanAssessments') || '[]');
+            
+            if (currentUser.role === 'admin') {
+                return allAssessments; // Admin sees all
+            }
+            
+            // Regular users only see their own
+            return allAssessments.filter(assessment => 
+                assessment.userEmail === currentUser.email
+            );
+        }
+
+        function loadUserAssessments() {
+            const userAssessments = getUserAssessments();
+            
+            // Update saved assessments count in title
+            const title = document.getElementById('savedTitle');
+            if (currentUser.role === 'admin') {
+                title.textContent = `All Assessments (${userAssessments.length})`;
+            } else {
+                title.textContent = `My Assessments (${userAssessments.length})`;
+            }
+        }
+
+        // Navigation functions
+        function showPanel(panelName) {
+            // Hide all panels
+            document.querySelectorAll('.panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Show selected panel
+            const panelElement = document.getElementById(panelName + 'Panel');
+            if (panelElement) {
+                panelElement.classList.add('active');
+            }
+            
+            // Update navigation buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Find and activate the clicked button
+            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(btn => 
+                btn.textContent.toLowerCase().includes(panelName.toLowerCase()) ||
+                (panelName === 'assessment' && btn.textContent.includes('New')) ||
+                (panelName === 'dashboard' && btn.textContent.includes('Dashboard')) ||
+                (panelName === 'saved' && btn.textContent.includes('Assessments')) ||
+                (panelName === 'admin' && btn.textContent.includes('Admin'))
+            );
+            
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            // Load data for specific panels
+            if (panelName === 'dashboard') {
+                loadDashboard();
+            } else if (panelName === 'saved') {
+                loadSavedAssessments();
+            } else if (panelName === 'admin' && currentUser.role === 'admin') {
+                loadAdminDashboard();
+            }
+        }
+
+        // Assessment functions
+        function submitAssessment() {
+            if (!validateAssessment()) {
+                alert('Please answer all questions before submitting.');
+                return;
+            }
+
+            const results = calculateResults();
+            const assessment = {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                companyName: document.getElementById('companyName').value,
+                assessorName: document.getElementById('assessorName').value,
+                assessmentDate: document.getElementById('assessmentDate').value,
+                results: results,
+                responses: getFormResponses()
+            };
+
+            // Save to localStorage
+            saveAssessmentToStorage(assessment);
+            
+            // Show dashboard
+            showPanel('dashboard');
+            
+            alert('Assessment submitted successfully!');
+        }
+
+        function saveAssessment() {
+            const assessment = {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                companyName: document.getElementById('companyName').value,
+                assessorName: document.getElementById('assessorName').value,
+                assessmentDate: document.getElementById('assessmentDate').value,
+                isDraft: true,
+                responses: getFormResponses()
+            };
+
+            saveAssessmentToStorage(assessment);
+            alert('Assessment saved as draft!');
+        }
+
+        function validateAssessment() {
+            for (let i = 1; i <= 35; i++) {
+                if (!document.querySelector(`input[name="q${i}"]:checked`)) {
+                    return false;
+                }
+            }
+            return document.getElementById('companyName').value && 
+                   document.getElementById('assessorName').value && 
+                   document.getElementById('assessmentDate').value;
+        }
+
+        function getFormResponses() {
+            const responses = {};
+            responses.companyName = document.getElementById('companyName').value;
+            responses.assessorName = document.getElementById('assessorName').value;
+            responses.assessmentDate = document.getElementById('assessmentDate').value;
+            
+            for (let i = 1; i <= 35; i++) {
+                const checked = document.querySelector(`input[name="q${i}"]:checked`);
+                responses[`q${i}`] = checked ? parseInt(checked.value) : 0;
+            }
+            
+            return responses;
+        }
+
+        function calculateResults() {
+            const results = {};
+            let totalScore = 0;
+            
+            dimensions.forEach(dimension => {
+                let dimensionScore = 0;
+                dimension.questions.forEach(qNum => {
+                    const checked = document.querySelector(`input[name="q${qNum}"]:checked`);
+                    if (checked) {
+                        dimensionScore += parseInt(checked.value);
+                    }
+                });
+                
+                const percentage = Math.round((dimensionScore / 25) * 100);
+                const status = getLEANStatus(percentage);
+                
+                results[dimension.id] = {
+                    name: dimension.name,
+                    score: dimensionScore,
+                    maxScore: 25,
+                    percentage: percentage,
+                    status: status
+                };
+                
+                totalScore += dimensionScore;
+            });
+            
+            results.total = {
+                score: totalScore,
+                maxScore: 175,
+                percentage: Math.round((totalScore / 175) * 100),
+                status: getLEANStatus(Math.round((totalScore / 175) * 100))
+            };
+            
+            return results;
+        }
+
+        function getLEANStatus(percentage) {
+            if (percentage < 32) return 'Novice';
+            if (percentage < 49) return 'Emerging';
+            if (percentage < 67) return 'Developing';
+            return 'Advanced';
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'Novice': return 'status-novice';
+                case 'Emerging': return 'status-emerging';
+                case 'Developing': return 'status-developing';
+                case 'Advanced': return 'status-advanced';
+                default: return 'status-novice';
+            }
+        }
+
+        function resetForm() {
+            if (confirm('Are you sure you want to reset the form? All current answers will be lost.')) {
+                document.getElementById('assessmentForm').reset();
+                document.getElementById('assessmentDate').value = new Date().toISOString().split('T')[0];
+            }
+        }
+
+        // Storage functions
+        function saveAssessmentToStorage(assessment) {
+            if (!currentUser) {
+                alert('Please login first.');
+                return;
+            }
+
+            // Add user information to assessment
+            assessment.userEmail = currentUser.email;
+            assessment.userName = currentUser.email.split('@')[0]; // Use part before @ as name
+            
+            let assessments = JSON.parse(localStorage.getItem('leanAssessments') || '[]');
+            
+            // Add edit history if updating existing assessment
+            const existingIndex = assessments.findIndex(a => a.id === assessment.id);
+            if (existingIndex !== -1) {
+                // Check permission to edit
+                if (currentUser.role !== 'admin' && assessments[existingIndex].userEmail !== currentUser.email) {
+                    alert('You can only edit your own assessments.');
+                    return;
+                }
+                
+                if (!assessments[existingIndex].editHistory) {
+                    assessments[existingIndex].editHistory = [];
+                }
+                assessments[existingIndex].editHistory.push({
+                    timestamp: new Date().toISOString(),
+                    action: 'Updated',
+                    userEmail: currentUser.email
+                });
+                assessments[existingIndex] = { ...assessments[existingIndex], ...assessment };
+            } else {
+                assessments.push(assessment);
+            }
+            
+            localStorage.setItem('leanAssessments', JSON.stringify(assessments));
+        }
+
+        function loadAssessment(id) {
+            const assessments = JSON.parse(localStorage.getItem('leanAssessments') || '[]');
+            const assessment = assessments.find(a => a.id === id);
+            
+            if (!assessment) {
+                alert('Assessment not found.');
+                return;
+            }
+            
+            // Check permission to edit
+            if (currentUser.role !== 'admin' && assessment.userEmail !== currentUser.email) {
+                alert('You can only edit your own assessments.');
+                return;
+            }
+            
+            if (assessment && assessment.responses) {
+                // Load company info
+                document.getElementById('companyName').value = assessment.responses.companyName || '';
+                document.getElementById('assessorName').value = assessment.responses.assessorName || '';
+                document.getElementById('assessmentDate').value = assessment.responses.assessmentDate || '';
+                
+                // Load responses
+                for (let i = 1; i <= 35; i++) {
+                    if (assessment.responses[`q${i}`]) {
+                        const radio = document.querySelector(`input[name="q${i}"][value="${assessment.responses[`q${i}`]}"]`);
+                        if (radio) radio.checked = true;
+                    }
+                }
+                
+                showPanel('assessment');
+            }
+        }
+
+        function deleteAssessment(id) {
+            const assessments = JSON.parse(localStorage.getItem('leanAssessments') || '[]');
+            const assessment = assessments.find(a => a.id === id);
+            
+            if (!assessment) {
+                alert('Assessment not found.');
+                return;
+            }
+            
+            // Check permission to delete
+            if (currentUser.role !== 'admin' && assessment.userEmail !== currentUser.email) {
+                alert('You can only delete your own assessments.');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to delete this assessment?')) {
+                const filteredAssessments = assessments.filter(a => a.id !== id);
+                localStorage.setItem('leanAssessments', JSON.stringify(filteredAssessments));
+                loadSavedAssessments();
+                
+                // Reload admin dashboard if admin
+                if (currentUser.role === 'admin') {
+                    loadAdminDashboard();
+                }
+            }
+        }
+
+        // Dashboard functions
+        function loadDashboard() {
+            const userAssessments = getUserAssessments();
+            const latestAssessment = userAssessments
+                .filter(a => !a.isDraft && a.results)
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+            
+            if (!latestAssessment) {
+                document.getElementById('resultsGrid').innerHTML = '<p style="text-align: center; color: #666;">No completed assessments found. Please complete an assessment first.</p>';
+                return;
+            }
+            
+            const results = latestAssessment.results;
+            
+            // Update overall status
+            updateOverallStatus(results.total);
+            
+            // Update dimension results
+            updateDimensionResults(results);
+            
+            // Update spider chart
+            updateSpiderChart(results);
+        }
+
+        function updateOverallStatus(totalResults) {
+            const statusText = document.getElementById('statusText');
+            const overallScore = document.getElementById('overallScore');
+            const gaugeNeedle = document.getElementById('gaugeNeedle');
+            
+            statusText.textContent = totalResults.status;
+            statusText.className = `status-text ${getStatusColor(totalResults.status)}`;
+            overallScore.textContent = `${totalResults.score}/175 (${totalResults.percentage}%)`;
+            
+            // Calculate needle position (0-180 degrees)
+            const angle = (totalResults.percentage / 100) * 180;
+            gaugeNeedle.style.transform = `rotate(${angle}deg)`;
+        }
+
+        function updateDimensionResults(results) {
+            const grid = document.getElementById('resultsGrid');
+            grid.innerHTML = '';
+            
+            dimensions.forEach(dimension => {
+                const result = results[dimension.id];
+                const card = document.createElement('div');
+                card.className = 'dimension-card';
+                
+                card.innerHTML = `
+                    <h4>${result.name}</h4>
+                    <div class="progress-container">
+                        <div class="progress-bar ${getStatusColor(result.status)}" style="width: ${result.percentage}%">
+                            ${result.percentage}%
+                        </div>
+                    </div>
+                    <div class="status-label ${getStatusColor(result.status)}">${result.status}</div>
+                    <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                        Score: ${result.score}/25
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function updateSpiderChart(results) {
+            const canvas = document.getElementById('spiderChart');
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 150;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid lines
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            
+            for (let i = 1; i <= 5; i++) {
+                const r = (radius / 5) * i;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Draw axes
+            const angleStep = (Math.PI * 2) / dimensions.length;
+            
+            dimensions.forEach((dimension, index) => {
+                const angle = (angleStep * index) - Math.PI / 2;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
+                // Add labels
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(dimension.name.split(' ')[0], x + Math.cos(angle) * 20, y + Math.sin(angle) * 20);
+                ctx.fillText(dimension.name.split(' ').slice(1).join(' '), x + Math.cos(angle) * 20, y + Math.sin(angle) * 20 + 12);
+            });
+            
+            // Draw data
+            ctx.strokeStyle = '#1e3c72';
+            ctx.fillStyle = 'rgba(30, 60, 114, 0.3)';
+            ctx.lineWidth = 3;
+            
+            ctx.beginPath();
+            dimensions.forEach((dimension, index) => {
+                const result = results[dimension.id];
+                const value = (result.percentage / 100) * radius;
+                const angle = (angleStep * index) - Math.PI / 2;
+                const x = centerX + Math.cos(angle) * value;
+                const y = centerY + Math.sin(angle) * value;
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function loadSavedAssessments() {
+            const userAssessments = getUserAssessments();
+            const container = document.getElementById('savedAssessments');
+            
+            if (userAssessments.length === 0) {
+                const noAssessmentsMsg = currentUser.role === 'admin' ? 
+                    'No assessments found in the system.' : 
+                    'No saved assessments found. Create your first assessment!';
+                container.innerHTML = `<p style="text-align: center; color: #666;">${noAssessmentsMsg}</p>`;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            userAssessments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(assessment => {
+                const item = document.createElement('div');
+                item.className = 'assessment-item';
+                
+                const status = assessment.isDraft ? 'Draft' : (assessment.results ? assessment.results.total.status : 'Incomplete');
+                const score = assessment.results ? `${assessment.results.total.score}/175 (${assessment.results.total.percentage}%)` : 'N/A';
+                
+                // Show owner info for admin
+                const ownerInfo = currentUser.role === 'admin' ? 
+                    `<p><strong>Owner:</strong> ${assessment.userEmail || 'Unknown'}</p>` : '';
+                
+                item.innerHTML = `
+                    <div>
+                        <h4>${assessment.companyName || 'Unnamed Assessment'}</h4>
+                        <p>Assessor: ${assessment.assessorName || 'N/A'} | Date: ${assessment.assessmentDate || 'N/A'}</p>
+                        ${ownerInfo}
+                        <p>Status: ${status} | Score: ${score}</p>
+                        <small>Last modified: ${new Date(assessment.timestamp).toLocaleString()}</small>
+                        ${assessment.editHistory && assessment.editHistory.length > 0 ? 
+                            `<small style="display: block; color: #888;">Edits: ${assessment.editHistory.length}</small>` : ''}
+                    </div>
+                    <div class="assessment-actions">
+                        <button class="btn btn-sm btn-primary" onclick="loadAssessment(${assessment.id})">Edit</button>
+                        <button class="btn btn-sm btn-secondary" onclick="viewAssessment(${assessment.id})">View</button>
+                        <button class="btn btn-sm" style="background: #dc3545; color: white;" onclick="deleteAssessment(${assessment.id})">Delete</button>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+            
+            // Update title with count
+            loadUserAssessments();
+        }
+
+        function viewAssessment(id) {
+            const userAssessments = getUserAssessments();
+            const assessment = userAssessments.find(a => a.id === id);
+            
+            if (assessment && assessment.results) {
+                // Temporarily load this assessment's results into dashboard
+                updateOverallStatus(assessment.results.total);
+                updateDimensionResults(assessment.results);
+                updateSpiderChart(assessment.results);
+                showPanel('dashboard');
+            } else {
+                alert('This assessment is incomplete and cannot be viewed in the dashboard.');
+            }
+        }
+
+        // Admin Functions
+        function loadAdminDashboard() {
+            if (currentUser.role !== 'admin') return;
+            
+            const allAssessments = JSON.parse(localStorage.getItem('leanAssessments') || '[]');
+            const completedAssessments = allAssessments.filter(a => !a.isDraft && a.results);
+            
+            // Calculate statistics
+            const uniqueOrgs = [...new Set(allAssessments.map(a => a.companyName).filter(Boolean))];
+            const totalOrgs = uniqueOrgs.length;
+            const totalAssessments = completedAssessments.length;
+            
+            const avgScore = totalAssessments > 0 ? 
+                Math.round(completedAssessments.reduce((sum, a) => sum + a.results.total.percentage, 0) / totalAssessments) : 0;
+            
+            const statusCounts = completedAssessments.reduce((acc, a) => {
+                acc[a.results.total.status] = (acc[a.results.total.status] || 0) + 1;
+                return acc;
+            }, {});
+            
+            const commonStatus = Object.keys(statusCounts).reduce((a, b) => 
+                statusCounts[a] > statusCounts[b] ? a : b, 'N/A');
+            
+            // Update admin dashboard
+            document.getElementById('totalOrgs').textContent = totalOrgs;
+            document.getElementById('totalAssessments').textContent = totalAssessments;
+            document.getElementById('avgScore').textContent = `${avgScore}%`;
+            document.getElementById('commonStatus').textContent = commonStatus;
+            
+            // Load all assessments for admin
+            loadAdminAssessments(allAssessments);
+        }
+
+        function loadAdminAssessments(assessments) {
+            const container = document.getElementById('adminAssessments');
+            
+            if (assessments.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">No assessments found in the system.</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            assessments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(assessment => {
+                const item = document.createElement('div');
+                item.className = 'assessment-item';
+                
+                const status = assessment.isDraft ? 'Draft' : (assessment.results ? assessment.results.total.status : 'Incomplete');
+                const score = assessment.results ? `${assessment.results.total.score}/175 (${assessment.results.total.percentage}%)` : 'N/A';
+                
+                item.innerHTML = `
+                    <div>
+                        <h4>${assessment.companyName || 'Unnamed Assessment'}</h4>
+                        <p><strong>Owner:</strong> ${assessment.userEmail || 'Unknown'}</p>
+                        <p>Assessor: ${assessment.assessorName || 'N/A'} | Date: ${assessment.assessmentDate || 'N/A'}</p>
+                        <p>Status: ${status} | Score: ${score}</p>
+                        <small>Created: ${new Date(assessment.timestamp).toLocaleString()}</small>
+                        ${assessment.editHistory && assessment.editHistory.length > 0 ? 
+                            `<small style="display: block; color: #888;">Total Edits: ${assessment.editHistory.length}</small>` : ''}
+                    </div>
+                    <div class="assessment-actions">
+                        <button class="btn btn-sm btn-primary" onclick="loadAssessment(${assessment.id})">Edit</button>
+                        <button class="btn btn-sm btn-secondary" onclick="viewAssessment(${assessment.id})">View</button>
+                        <button class="btn btn-sm" style="background: #17a2b8; color: white;" onclick="generateUserReport(${assessment.id})">Report</button>
+                        <button class="btn btn-sm" style="background: #dc3545; color: white;" onclick="deleteAssessment(${assessment.id})">Delete</button>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        function exportAllData() {
+            if (currentUser.role !== 'admin') return;
+            
+            const allAssessments = JSON.parse(localStorage.getItem('leanAssessments') || '[]');
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                exportedBy: currentUser.email,
+                totalAssessments: allAssessments.length,
+                assessments: allAssessments
+            };
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `mega-lean-all-assessments-${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function generateUserReport(id) {
+            const assessments = JSON.parse(localStorage.getItem('leanAssessments') || '[]');
+            const assessment = assessments.find(a => a.id === id);
+            
+            if (assessment && assessment.results) {
+                // Load this specific assessment's results into print report
+                document.getElementById('printCompanyName').textContent = assessment.companyName || 'N/A';
+                document.getElementById('printAssessorName').textContent = assessment.assessorName || 'N/A';
+                document.getElementById('printAssessmentDate').textContent = assessment.assessmentDate || 'N/A';
+                document.getElementById('printOverallScore').textContent = `${assessment.results.total.score}/175 (${assessment.results.total.percentage}%)`;
+                document.getElementById('printOverallStatus').textContent = assessment.results.total.status;
+                
+                // Populate summary table
+                const tbody = document.querySelector('#printSummaryTable tbody');
+                tbody.innerHTML = '';
+                
+                dimensions.forEach(dimension => {
+                    const result = assessment.results[dimension.id];
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${result.name}</td>
+                        <td>${result.score}/25</td>
+                        <td>${result.percentage}%</td>
+                        <td class="${getStatusColor(result.status)}">${result.status}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                generateRecommendations(assessment.results);
+                showPanel('print');
+            }
+        }
+
+        function generateOrgReport() {
+            // This would generate a comprehensive organizational report
+            alert('Organization-wide reporting feature coming soon!');
+        }
+
+        function generateReport() {
+            const assessments = JSON.parse(localStorage.getItem('leanAssessments') || '[]');
+            const latestAssessment = assessments
+                .filter(a => !a.isDraft && a.results)
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+            
+            if (!latestAssessment) {
+                alert('No completed assessments found for report generation.');
+                return;
+            }
+            
+            // Populate print report
+            document.getElementById('printCompanyName').textContent = latestAssessment.companyName || 'N/A';
+            document.getElementById('printAssessorName').textContent = latestAssessment.assessorName || 'N/A';
+            document.getElementById('printAssessmentDate').textContent = latestAssessment.assessmentDate || 'N/A';
+            document.getElementById('printOverallScore').textContent = `${latestAssessment.results.total.score}/175 (${latestAssessment.results.total.percentage}%)`;
+            document.getElementById('printOverallStatus').textContent = latestAssessment.results.total.status;
+            
+            // Populate summary table
+            const tbody = document.querySelector('#printSummaryTable tbody');
+            tbody.innerHTML = '';
+            
+            dimensions.forEach(dimension => {
+                const result = latestAssessment.results[dimension.id];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${result.name}</td>
+                    <td>${result.score}/25</td>
+                    <td>${result.percentage}%</td>
+                    <td class="${getStatusColor(result.status)}">${result.status}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Generate recommendations
+            generateRecommendations(latestAssessment.results);
+            
+            showPanel('print');
+        }
+
+        function generateRecommendations(results) {
+            const container = document.getElementById('printRecommendations');
+            const recommendations = [];
+            
+            // Find lowest scoring dimensions
+            const sortedDimensions = dimensions.map(d => ({
+                ...d,
+                result: results[d.id]
+            })).sort((a, b) => a.result.percentage - b.result.percentage);
+            
+            const lowest = sortedDimensions[0];
+            const secondLowest = sortedDimensions[1];
+            
+            recommendations.push(`<p><strong>Priority 1:</strong> Focus on improving <em>${lowest.name}</em> (${lowest.result.percentage}% - ${lowest.result.status}). This dimension shows the greatest opportunity for improvement.</p>`);
+            
+            recommendations.push(`<p><strong>Priority 2:</strong> Address gaps in <em>${secondLowest.name}</em> (${secondLowest.result.percentage}% - ${secondLowest.result.status}).</p>`);
+            
+            // Overall recommendations based on total score
+            if (results.total.percentage < 32) {
+                recommendations.push(`<p><strong>Foundation Building:</strong> As a Novice-level organization, focus on establishing basic LEAN practices and building awareness across all dimensions. Start with standardization and 5S initiatives.</p>`);
+            } else if (results.total.percentage < 49) {
+                recommendations.push(`<p><strong>Practice Development:</strong> As an Emerging organization, work on consistency in applying LEAN tools and techniques. Implement regular improvement cycles and measurement systems.</p>`);
+            } else if (results.total.percentage < 67) {
+                recommendations.push(`<p><strong>System Integration:</strong> As a Developing organization, focus on integrating LEAN practices across all areas and creating sustainable improvement culture. Implement advanced tools and cross-functional collaboration.</p>`);
+            } else {
+                recommendations.push(`<p><strong>Excellence Sustainment:</strong> As an Advanced organization, focus on continuous refinement, knowledge sharing, and mentoring others. Consider advanced LEAN concepts and innovation.</p>`);
+            }
+            
+            container.innerHTML = recommendations.join('');
+        }
+
+        function exportResults() {
+            const assessments = JSON.parse(localStorage.getItem('leanAssessments') || '[]');
+            const latestAssessment = assessments
+                .filter(a => !a.isDraft && a.results)
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+            
+            if (!latestAssessment) {
+                alert('No completed assessments found for export.');
+                return;
+            }
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(latestAssessment, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `lean-assessment-${latestAssessment.companyName || 'unnamed'}-${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for existing user session
+            if (!checkUserSession()) {
+                // Show login section if no session
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('mainNavigation').style.display = 'none';
+            }
+            
+            // Set default date
+            document.getElementById('assessmentDate').value = new Date().toISOString().split('T')[0];
+            
+            // Setup role selection dropdown
+            document.getElementById('userRole').addEventListener('change', function() {
+                const adminPasswordDiv = document.getElementById('adminPassword');
+                if (this.value === 'admin') {
+                    adminPasswordDiv.style.display = 'block';
+                } else {
+                    adminPasswordDiv.style.display = 'none';
+                    document.getElementById('adminPass').value = '';
+                }
+            });
+            
+            // Setup radio button interactions
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    // Update styling
+                    const name = radio.name;
+                    document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+                        r.closest('.radio-option').style.background = 'white';
+                        r.closest('.radio-option').style.color = '#333';
+                        r.closest('.radio-option').style.borderColor = '#e0e0e0';
+                    });
+                    
+                    this.style.background = '#1e3c72';
+                    this.style.color = 'white';
+                    this.style.borderColor = '#1e3c72';
+                });
+            });
+
+            // Add Enter key support for login
+            document.getElementById('userEmail').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') userLogin();
+            });
+            document.getElementById('adminPass').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') userLogin();
+            });
+        });
+    </script>
+</body>
+</html>
