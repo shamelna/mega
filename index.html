@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEGA LEAN Assessment Tool</title>
+    <link rel="icon" type="image/x-icon" href="https://practitioner.kaizenacademy.education/Tcia.ico">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="https://mega.kaizenacademy.education/images/mega_logo.png" alt="MEGA Logo" class="logo">
+            </div>
+            <div class="header-text">
+                <h1>LEAN Assessment Tool</h1>
+                <p>Comprehensive evaluation of your organization's LEAN maturity</p>
+            </div>
+        </div>
+
+        <!-- AUTH SECTION -->
+        <div id="authSection" class="panel active" style="display: block;">
+            <div style="max-width: 500px; margin: 0 auto;">
+                <div style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid #ebebeb;">
+                    <button class="auth-tab active" onclick="showAuthTab('signin')" id="signinTab">
+                        Sign In
+                    </button>
+                    <button class="auth-tab" onclick="showAuthTab('signup')" id="signupTab">
+                        Sign Up
+                    </button>
+                </div>
+
+                <!-- Sign In Form -->
+                <div id="signinForm" class="auth-form" style="display: block;">
+                    <h2 style="color: #821874; text-align: center;">Welcome Back</h2>
+                    <p style="text-align: center;">Sign in to access your assessments</p>
+                    
+                    <div class="data-warning">
+                        <h4>☁️ Cloud Storage - Powered by Supabase</h4>
+                        <p><strong>Your assessments are stored securely in the cloud!</strong> Access them from any device.</p>
+                    </div>
+                    
+                    <div style="margin: 30px 0;">
+                        <label for="signinEmail" style="display: block; margin-bottom: 10px; font-weight: 600;">Email Address:</label>
+                        <input type="email" id="signinEmail" placeholder="Enter your email" required>
+                        
+                        <label for="signinPassword" style="display: block; margin-bottom: 10px; font-weight: 600; margin-top: 15px;">Password:</label>
+                        <input type="password" id="signinPassword" placeholder="Enter your password" required>
+                        
+                        <div id="signinError" style="display: none; color: #dc3545; margin-top: 10px; padding: 10px; background: #f8d7da; border-radius: 5px;"></div>
+                        
+                        <button class="btn btn-primary" onclick="handleSignIn()" style="width: 100%; margin-top: 20px;">
+                            Sign In
+                        </button>
+                        
+                        <button class="btn btn-secondary" onclick="showForgotPassword()" style="width: 100%; margin-top: 10px;">
+                            Forgot Password?
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sign Up Form -->
+                <div id="signupForm" class="auth-form" style="display: none;">
+                    <h2 style="color: #821874; text-align: center;">Create Account</h2>
+                    <p style="text-align: center;">Join to start assessing your LEAN maturity</p>
+                    
+                    <div class="data-warning">
+                        <h4>📝 Quick Registration</h4>
+                        <p>Create your account in seconds. All users start with regular access.</p>
+                    </div>
+                    
+                    <div style="margin: 30px 0;">
+                        <label for="signupName" style="display: block; margin-bottom: 10px; font-weight: 600;">Full Name:</label>
+                        <input type="text" id="signupName" placeholder="Enter your full name" required>
+                        
+                        <label for="signupEmail" style="display: block; margin-bottom: 10px; font-weight: 600; margin-top: 15px;">Email Address:</label>
+                        <input type="email" id="signupEmail" placeholder="Enter your email" required>
+                        
+                        <label for="signupPassword" style="display: block; margin-bottom: 10px; font-weight: 600; margin-top: 15px;">Password:</label>
+                        <input type="password" id="signupPassword" placeholder="Choose a strong password (min. 8 characters)" required>
+                        
+                        <label for="signupPasswordConfirm" style="display: block; margin-bottom: 10px; font-weight: 600; margin-top: 15px;">Confirm Password:</label>
+                        <input type="password" id="signupPasswordConfirm" placeholder="Re-enter your password" required>
+                        
+                        <div id="signupError" style="display: none; color: #dc3545; margin-top: 10px; padding: 10px; background: #f8d7da; border-radius: 5px;"></div>
+                        <div id="signupSuccess" style="display: none; color: #28a745; margin-top: 10px; padding: 10px; background: #d4edda; border-radius: 5px;"></div>
+                        
+                        <button class="btn btn-primary" onclick="handleSignUp()" style="width: 100%; margin-top: 20px;">
+                            Create Account
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Forgot Password Form -->
+                <div id="forgotPasswordForm" class="auth-form" style="display: none;">
+                    <h2 style="color: #821874; text-align: center;">Reset Password</h2>
+                    <p style="text-align: center;">Enter your email to receive a password reset link</p>
+                    
+                    <div style="margin: 30px 0;">
+                        <label for="resetEmail" style="display: block; margin-bottom: 10px; font-weight: 600;">Email Address:</label>
+                        <input type="email" id="resetEmail" placeholder="Enter your email" required>
+                        
+                        <div id="resetError" style="display: none; color: #dc3545; margin-top: 10px; padding: 10px; background: #f8d7da; border-radius: 5px;"></div>
+                        <div id="resetSuccess" style="display: none; color: #28a745; margin-top: 10px; padding: 10px; background: #d4edda; border-radius: 5px;"></div>
+                        
+                        <button class="btn btn-primary" onclick="handlePasswordReset()" style="width: 100%; margin-top: 20px;">
+                            Send Reset Link
+                        </button>
+                        
+                        <button class="btn btn-secondary" onclick="showAuthTab('signin')" style="width: 100%; margin-top: 10px;">
+                            Back to Sign In
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ebebeb; font-size: 14px; color: #2d2d2d; text-align: center;">
+                    <p><strong>Note:</strong> Administrators are promoted manually. Contact your organization's MEGA coordinator if you need admin access.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation" id="mainNavigation" style="display: none;">
+            <button class="nav-btn active" onclick="showPanel('assessment')">New Assessment</button>
+            <button class="nav-btn" onclick="showPanel('dashboard')">My Dashboard</button>
+            <button class="nav-btn" onclick="showPanel('saved')">My Assessments</button>
+            <button class="nav-btn" onclick="showPanel('manual')">Help & Manual</button>
+            <button class="nav-btn" id="adminNav" onclick="showPanel('admin')" style="display: none;">Admin Panel</button>
+            <button class="nav-btn btn-danger" onclick="userLogout()">Logout</button>
+        </div>
+
+        <!-- Assessment Panel -->
+        <div id="assessmentPanel" class="panel">
+            <div class="data-warning">
+                <h4>Assessment Guidelines</h4>
+                <p><strong>Please allow 30-45 minutes</strong> to complete this assessment. Answer honestly based on your organization's current state. You can save your progress as a draft at any time.</p>
+            </div>
+
+            <form id="assessmentForm">
+                <div class="form-section">
+                    <h3>Company Information</h3>
+                    <div class="question-group">
+                        <label for="companyName">Company Name:</label>
+                        <input type="text" id="companyName" name="companyName" required>
+                    </div>
+                    <div class="question-group">
+                        <label for="assessorName">Assessor Name:</label>
+                        <input type="text" id="assessorName" name="assessorName" required>
+                    </div>
+                    <div class="question-group">
+                        <label for="assessmentDate">Assessment Date:</label>
+                        <input type="date" id="assessmentDate" name="assessmentDate" required>
+                    </div>
+                </div>
+
+                <div id="questionsContainer"></div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" onclick="submitAssessment()">Submit Assessment</button>
+                    <button type="button" class="btn btn-secondary" onclick="saveAssessment()">Save Draft</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Dashboard Panel -->
+        <div id="dashboardPanel" class="panel">
+            <div class="status-overview">
+                <h2>LEAN Maturity Assessment Results</h2>
+                <div id="assessmentDetails" style="background: linear-gradient(135deg, #f8f4f8 0%, #f0f7fa 100%); padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #821874;"></div>
+                <div class="progress-ring">
+                    <svg>
+                        <circle class="background" cx="100" cy="100" r="85"></circle>
+                        <circle class="progress" cx="100" cy="100" r="85" id="progressCircle"></circle>
+                    </svg>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+                <div class="status-large" id="statusLarge">Not Assessed</div>
+                <div id="statusDescription">Complete an assessment to see your organization's LEAN maturity level</div>
+            </div>
+
+            <div id="overviewTab" class="tab-content active">
+                <div id="feedbackSection" style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
+                <div class="results-grid" id="enhancedResultsGrid"></div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-primary" onclick="exportCurrentAssessmentPDF()" id="exportDashboardPDF" style="display:none;">
+                    <span style="margin-right: 5px;">📄</span> Export PDF Report
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="showPanel('assessment')">New Assessment</button>
+            </div>
+        </div>
+
+        <!-- Saved Assessments Panel -->
+        <div id="savedPanel" class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: #821874; margin: 0;">My Assessments</h2>
+                <div>
+                    <button class="btn btn-sm btn-primary" onclick="exportAssessmentData()" title="Export all assessments to CSV">
+                        📊 Export Data (CSV)
+                    </button>
+                    <button class="btn btn-sm btn-secondary" onclick="exportUserData()" title="Export all your data (GDPR)">
+                        💾 Export My Data
+                    </button>
+                </div>
+            </div>
+            <div class="data-warning">
+                <h4>Cloud Storage Information</h4>
+                <p>Your assessments are stored securely in the cloud and accessible from any device.</p>
+            </div>
+            <div class="saved-assessments" id="savedAssessments"></div>
+        </div>
+
+        <!-- Individual Assessment Results Panel -->
+        <div id="assessmentResultsPanel" class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <button class="btn btn-secondary" onclick="showPanel('saved')">
+                    ← Back to My Assessments
+                </button>
+                <button class="btn btn-primary" onclick="exportIndividualAssessmentPDF()" id="exportIndividualPDF">
+                    📄 Export PDF Report
+                </button>
+            </div>
+            <div id="individualResultsContainer"></div>
+            <div id="individualFeedbackSection" style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
+        </div>
+
+        <!-- Help & Manual Panel -->
+        <div id="manualPanel" class="panel">
+            <div class="manual-content">
+                <h1 style="color: #821874;">MEGA LEAN Assessment Tool - User Manual</h1>
+                
+                <h2>Getting Started</h2>
+                <p>The MEGA LEAN Assessment Tool evaluates your organization's LEAN maturity across 7 key dimensions.</p>
+
+                <h2>Understanding Your Results</h2>
+                <h3>LEAN Maturity Levels</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Score Range</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0-31%</td>
+                            <td><span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px;">Novice</span></td>
+                            <td>LEAN awareness exists, but implementation is limited</td>
+                        </tr>
+                        <tr>
+                            <td>32-48%</td>
+                            <td><span style="background: #fd7e14; color: white; padding: 4px 8px; border-radius: 4px;">Emerging</span></td>
+                            <td>LEAN practices are emerging but not yet consistent</td>
+                        </tr>
+                        <tr>
+                            <td>49-66%</td>
+                            <td><span style="background: #ffc107; color: white; padding: 4px 8px; border-radius: 4px;">Developing</span></td>
+                            <td>Strong LEAN foundation with room for refinement</td>
+                        </tr>
+                        <tr>
+                            <td>67%+</td>
+                            <td><span style="background: #159eda; color: white; padding: 4px 8px; border-radius: 4px;">Advanced</span></td>
+                            <td>LEAN is deeply embedded and continuously evolving</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Rating Scale</h2>
+                <ul>
+                    <li><strong>1 - Strongly Disagree:</strong> This practice doesn't exist</li>
+                    <li><strong>2 - Disagree:</strong> This practice exists but is inconsistent/poor</li>
+                    <li><strong>3 - Neutral:</strong> This practice exists but has room for improvement</li>
+                    <li><strong>4 - Agree:</strong> This practice is well-established and effective</li>
+                    <li><strong>5 - Strongly Agree:</strong> This practice is excellent and consistently applied</li>
+                </ul>
+
+                <h2>Tips for Best Results</h2>
+                <ul>
+                    <li><strong>Be honest</strong> - Answer based on current reality</li>
+                    <li><strong>Allow adequate time</strong> - Plan 30-45 minutes</li>
+                    <li><strong>Involve others</strong> - Consider multiple perspectives</li>
+                    <li><strong>Stay consistent</strong> - Apply same perspective throughout</li>
+                </ul>
+
+                <h2>For More Information</h2>
+                <p>Visit <a href="https://mega.kaizenacademy.education" target="_blank">MEGA Kaizen Academy</a> for training programs and coaching services.</p>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" class="panel">
+            <h2 style="color: #821874;">Administrator Dashboard</h2>
+            
+            <!-- Admin Statistics -->
+            <div id="adminStats" class="results-grid" style="margin-bottom: 30px;"></div>
+            
+            <!-- Admin Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showAdminTab('assessments')">Assessments</button>
+                <button class="tab" onclick="showAdminTab('users')">User Management</button>
+            </div>
+            
+            <!-- Assessments Tab -->
+            <div id="adminAssessmentsTab" class="tab-content active">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                    <div class="data-warning" style="flex: 1; margin-right: 15px; margin-bottom: 0;">
+                        <h4>Assessment Management</h4>
+                        <p>View and manage all assessments in the system.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="exportAllAssessmentsData()" title="Export all assessments to CSV" style="white-space: nowrap;">
+                        📊 Export All Data (CSV)
+                    </button>
+                </div>
+                
+                <!-- Filters -->
+                <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Filter by User:</label>
+                            <input type="text" id="filterUser" placeholder="Email or name" onkeyup="filterAssessments()" style="margin-bottom: 0;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Filter by Company:</label>
+                            <input type="text" id="filterCompany" placeholder="Company name" onkeyup="filterAssessments()" style="margin-bottom: 0;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Status:</label>
+                            <select id="filterStatus" onchange="filterAssessments()" style="margin-bottom: 0;">
+                                <option value="all">All</option>
+                                <option value="completed">Completed</option>
+                                <option value="draft">Draft</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="adminAssessmentsTable"></div>
+            </div>
+            
+            <!-- Users Tab -->
+            <div id="adminUsersTab" class="tab-content">
+                <div class="data-warning">
+                    <h4>User Management</h4>
+                    <p>Manage user accounts and permissions.</p>
+                </div>
+                <div id="adminUsersTable"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2024 MEGA LEAN Assessment Tool</p>
+            <p>Designed by <strong>Kaizen Academy™</strong></p>
+            <p><a href="https://mega.kaizenacademy.education" target="_blank">Learn More</a> | <a href="mailto:info@kaizenacademy.education">Contact Us</a></p>
+        </div>
+    </div>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="assessment.js"></script>
+    <script src="admin.js"></script>
+    <script src="export.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

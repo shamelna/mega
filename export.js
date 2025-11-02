@@ -1,0 +1,562 @@
+// ============================================
+// EXPORT & PDF GENERATION MODULE
+// ============================================
+
+// ============================================
+// GENERATE FEEDBACK BASED ON SCORES
+// ============================================
+function generateFeedback(results) {
+    if (!results || !results.dimensions) return '';
+    
+    // Sort dimensions by percentage
+    const sorted = [...results.dimensions].sort((a, b) => b.percentage - a.percentage);
+    const best = sorted.slice(0, 2); // Top 2
+    const worst = sorted.slice(-2).reverse(); // Bottom 2
+    
+    let feedback = '';
+    
+    // Overall assessment
+    const overallStatus = results.status;
+    feedback += `<div style="margin-bottom: 20px;">`;
+    feedback += `<h3 style="color: #821874; margin-bottom: 10px;">Overall LEAN Maturity: ${overallStatus}</h3>`;
+    feedback += `<p>Your organization scored ${results.overallPercentage}% (${results.totalScore}/${results.overallMaxScore} points) across all seven LEAN dimensions.</p>`;
+    feedback += `</div>`;
+    
+    // Strengths
+    feedback += `<div style="margin-bottom: 20px;">`;
+    feedback += `<h3 style="color: #28a745; margin-bottom: 10px;">🌟 Key Strengths</h3>`;
+    feedback += `<p>Your organization demonstrates strong performance in:</p><ul style="margin-left: 20px;">`;
+    best.forEach(dim => {
+        feedback += `<li><strong>${dim.dimension}</strong>: ${dim.percentage}% (${dim.score}/${dim.maxScore}) - `;
+        feedback += getDimensionFeedback(dim.dimension, dim.percentage, true);
+        feedback += `</li>`;
+    });
+    feedback += `</ul></div>`;
+    
+    // Areas for Improvement
+    feedback += `<div style="margin-bottom: 20px;">`;
+    feedback += `<h3 style="color: #dc3545; margin-bottom: 10px;">🎯 Focus Areas for Improvement</h3>`;
+    feedback += `<p>Priority should be given to strengthening:</p><ul style="margin-left: 20px;">`;
+    worst.forEach(dim => {
+        feedback += `<li><strong>${dim.dimension}</strong>: ${dim.percentage}% (${dim.score}/${dim.maxScore}) - `;
+        feedback += getDimensionFeedback(dim.dimension, dim.percentage, false);
+        feedback += `</li>`;
+    });
+    feedback += `</ul></div>`;
+    
+    // Recommendations
+    feedback += `<div style="margin-bottom: 20px;">`;
+    feedback += `<h3 style="color: #159eda; margin-bottom: 10px;">💡 Recommended Actions</h3>`;
+    feedback += getRecommendations(results.overallPercentage, worst);
+    feedback += `</div>`;
+    
+    return feedback;
+}
+
+function getDimensionFeedback(dimensionName, percentage, isStrength) {
+    const feedbackMap = {
+        'Leadership & Culture': {
+            strength: 'Strong leadership commitment to LEAN principles creates a solid foundation for continuous improvement.',
+            weakness: 'Leadership alignment and cultural transformation are critical first steps. Focus on visible leadership commitment and communication.'
+        },
+        'Customer Value Focus': {
+            strength: 'Excellent understanding of customer needs positions you well for delivering real value.',
+            weakness: 'Reconnect with your customers. Regular feedback loops and value stream mapping can help identify what truly matters.'
+        },
+        'Process Efficiency': {
+            strength: 'Well-standardized processes and effective visual management support operational excellence.',
+            weakness: 'Start with process mapping and standardization. Visual management tools can quickly improve visibility and control.'
+        },
+        'Waste Elimination - Muda': {
+            strength: 'Strong waste awareness and systematic elimination practices drive efficiency gains.',
+            weakness: 'Train teams to recognize the 8 wastes in daily operations. Quick wins in waste elimination can build momentum.'
+        },
+        'Continuous Improvement - Kaizen': {
+            strength: 'Active Kaizen culture with engaged frontline staff drives sustained improvement.',
+            weakness: 'Establish regular improvement cycles (PDCA) and create systems to capture and implement employee ideas.'
+        },
+        'Flow and Pull Systems': {
+            strength: 'Smooth workflow and pull systems minimize delays and inventory.',
+            weakness: 'Map your value streams to identify bottlenecks. Implement basic pull signals before advancing to complex systems.'
+        },
+        'Problem Solving & Root Cause Analysis': {
+            strength: 'Structured problem-solving methods ensure issues are resolved at the root cause.',
+            weakness: 'Invest in problem-solving training (A3, 5 Whys). Data-driven decisions prevent recurring problems.'
+        }
+    };
+    
+    const feedback = feedbackMap[dimensionName];
+    return feedback ? (isStrength ? feedback.strength : feedback.weakness) : '';
+}
+
+function getRecommendations(overallPercentage, weakestDimensions) {
+    let recommendations = '<ul style="margin-left: 20px;">';
+    
+    if (overallPercentage < 32) {
+        recommendations += '<li>Start with <strong>Leadership Development</strong>: Ensure leadership understands and champions LEAN principles</li>';
+        recommendations += '<li>Focus on <strong>Quick Wins</strong>: Identify and eliminate obvious wastes to build momentum</li>';
+        recommendations += '<li>Invest in <strong>Basic Training</strong>: Educate staff on fundamental LEAN concepts</li>';
+    } else if (overallPercentage < 49) {
+        recommendations += '<li>Strengthen <strong>Standardization</strong>: Document and follow standard work procedures</li>';
+        recommendations += '<li>Implement <strong>Visual Management</strong>: Make problems and performance visible</li>';
+        recommendations += '<li>Develop <strong>Problem-Solving Skills</strong>: Train teams in structured problem-solving methods</li>';
+    } else if (overallPercentage < 67) {
+        recommendations += '<li>Advance <strong>Continuous Improvement</strong>: Formalize Kaizen events and suggestion systems</li>';
+        recommendations += '<li>Optimize <strong>Flow</strong>: Implement pull systems and reduce batch sizes</li>';
+        recommendations += '<li>Deepen <strong>Customer Understanding</strong>: Regular voice-of-customer analysis</li>';
+    } else {
+        recommendations += '<li>Pursue <strong>Operational Excellence</strong>: Benchmark against best-in-class organizations</li>';
+        recommendations += '<li>Expand <strong>Integration</strong>: Extend LEAN principles across the value chain</li>';
+        recommendations += '<li>Focus on <strong>Innovation</strong>: Use LEAN thinking to drive breakthrough improvements</li>';
+    }
+    
+    // Add dimension-specific recommendations
+    weakestDimensions.forEach(dim => {
+        recommendations += `<li>For <strong>${dim.dimension}</strong>: `;
+        recommendations += getDimensionRecommendation(dim.dimension);
+        recommendations += '</li>';
+    });
+    
+    recommendations += '</ul>';
+    return recommendations;
+}
+
+function getDimensionRecommendation(dimensionName) {
+    const recommendations = {
+        'Leadership & Culture': 'Conduct leadership workshops and establish visible LEAN performance boards',
+        'Customer Value Focus': 'Implement regular customer surveys and value stream mapping sessions',
+        'Process Efficiency': 'Start 5S implementation and create standard work documents',
+        'Waste Elimination - Muda': 'Run waste identification workshops and establish waste tracking metrics',
+        'Continuous Improvement - Kaizen': 'Launch a suggestion system and schedule monthly Kaizen events',
+        'Flow and Pull Systems': 'Map current state, identify bottlenecks, and pilot kanban systems',
+        'Problem Solving & Root Cause Analysis': 'Provide A3 training and establish problem-solving forums'
+    };
+    return recommendations[dimensionName] || 'Seek expert consultation for tailored improvement strategies';
+}
+
+// ============================================
+// GENERATE SPIDER/RADAR CHART
+// ============================================
+async function generateSpiderChart(results) {
+    return new Promise((resolve) => {
+        // Create temporary canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = 600;
+        canvas.height = 600;
+        const ctx = canvas.getContext('2d');
+        
+        const labels = results.dimensions.map(d => d.dimension);
+        const data = results.dimensions.map(d => d.percentage);
+        
+        const chart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'LEAN Maturity',
+                    data: data,
+                    backgroundColor: 'rgba(130, 24, 116, 0.2)',
+                    borderColor: 'rgba(130, 24, 116, 1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: 'rgba(130, 24, 116, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(130, 24, 116, 1)',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            font: { size: 12 }
+                        },
+                        pointLabels: {
+                            font: { size: 11, weight: 'bold' }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Wait for chart to render
+        setTimeout(() => {
+            const imageData = canvas.toDataURL('image/png');
+            chart.destroy();
+            resolve(imageData);
+        }, 500);
+    });
+}
+
+// ============================================
+// GENERATE PDF REPORT
+// ============================================
+async function generatePDFReport(assessment) {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 20;
+        let yPos = margin;
+        
+        // Header with logo area
+        doc.setFillColor(130, 24, 116);
+        doc.rect(0, 0, pageWidth, 40, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont(undefined, 'bold');
+        doc.text('MEGA LEAN Assessment Report', pageWidth / 2, 20, { align: 'center' });
+        
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'normal');
+        doc.text('Comprehensive LEAN Maturity Analysis', pageWidth / 2, 30, { align: 'center' });
+        
+        yPos = 50;
+        
+        // Assessment Details Box
+        doc.setDrawColor(130, 24, 116);
+        doc.setLineWidth(0.5);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 35);
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        
+        yPos += 8;
+        doc.text('Company:', margin + 5, yPos);
+        doc.setFont(undefined, 'normal');
+        doc.text(assessment.company_name, margin + 35, yPos);
+        
+        yPos += 7;
+        doc.setFont(undefined, 'bold');
+        doc.text('Assessed By:', margin + 5, yPos);
+        doc.setFont(undefined, 'normal');
+        doc.text(assessment.assessor_name, margin + 35, yPos);
+        
+        yPos += 7;
+        doc.setFont(undefined, 'bold');
+        doc.text('Date:', margin + 5, yPos);
+        doc.setFont(undefined, 'normal');
+        const assessmentDate = new Date(assessment.assessment_date || assessment.created_at).toLocaleDateString();
+        doc.text(assessmentDate, margin + 35, yPos);
+        
+        yPos += 7;
+        doc.setFont(undefined, 'bold');
+        doc.text('Report Generated:', margin + 5, yPos);
+        doc.setFont(undefined, 'normal');
+        doc.text(new Date().toLocaleDateString(), margin + 35, yPos);
+        
+        yPos += 15;
+        
+        const results = assessment.results;
+        
+        // Overall Score Section
+        doc.setFillColor(21, 158, 218);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 30, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text('Overall LEAN Maturity', pageWidth / 2, yPos + 10, { align: 'center' });
+        
+        doc.setFontSize(28);
+        doc.text(`${results.overallPercentage}%`, pageWidth / 2, yPos + 22, { align: 'center' });
+        
+        doc.setFontSize(14);
+        doc.text(results.status, pageWidth / 2, yPos + 28, { align: 'center' });
+        
+        yPos += 40;
+        
+        // Spider Chart
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text('LEAN Maturity Spider Diagram', pageWidth / 2, yPos, { align: 'center' });
+        
+        yPos += 5;
+        
+        const chartImage = await generateSpiderChart(results);
+        const chartWidth = 120;
+        const chartHeight = 120;
+        doc.addImage(chartImage, 'PNG', (pageWidth - chartWidth) / 2, yPos, chartWidth, chartHeight);
+        
+        yPos += chartHeight + 10;
+        
+        // Check if we need a new page
+        if (yPos > pageHeight - 60) {
+            doc.addPage();
+            yPos = margin;
+        }
+        
+        // Dimension Scores Table
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text('Dimension Breakdown', margin, yPos);
+        yPos += 8;
+        
+        // Table header
+        doc.setFillColor(240, 240, 240);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F');
+        
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text('Dimension', margin + 2, yPos + 5);
+        doc.text('Score', pageWidth - margin - 35, yPos + 5);
+        doc.text('Percentage', pageWidth - margin - 20, yPos + 5);
+        
+        yPos += 8;
+        
+        // Table rows
+        doc.setFont(undefined, 'normal');
+        results.dimensions.forEach((dim, index) => {
+            if (yPos > pageHeight - 30) {
+                doc.addPage();
+                yPos = margin;
+            }
+            
+            if (index % 2 === 0) {
+                doc.setFillColor(250, 250, 250);
+                doc.rect(margin, yPos, pageWidth - 2 * margin, 7, 'F');
+            }
+            
+            doc.setFontSize(9);
+            doc.text(dim.dimension, margin + 2, yPos + 5);
+            doc.text(`${dim.score}/${dim.maxScore}`, pageWidth - margin - 35, yPos + 5);
+            
+            // Color-code percentage
+            const statusClass = getStatusClass(dim.percentage);
+            if (statusClass.includes('advanced')) doc.setTextColor(76, 175, 80);
+            else if (statusClass.includes('developing')) doc.setTextColor(33, 150, 243);
+            else if (statusClass.includes('emerging')) doc.setTextColor(255, 193, 7);
+            else doc.setTextColor(244, 67, 54);
+            
+            doc.text(`${dim.percentage}%`, pageWidth - margin - 20, yPos + 5);
+            doc.setTextColor(0, 0, 0);
+            
+            yPos += 7;
+        });
+        
+        // Add new page for feedback
+        doc.addPage();
+        yPos = margin;
+        
+        // Feedback Section
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(130, 24, 116);
+        doc.text('Assessment Insights & Recommendations', margin, yPos);
+        yPos += 10;
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        
+        // Generate and add feedback (simplified for PDF)
+        const feedback = generateSimplifiedFeedback(results);
+        const feedbackLines = doc.splitTextToSize(feedback, pageWidth - 2 * margin);
+        feedbackLines.forEach(line => {
+            if (yPos > pageHeight - 20) {
+                doc.addPage();
+                yPos = margin;
+            }
+            doc.text(line, margin, yPos);
+            yPos += 5;
+        });
+        
+        // Footer on all pages
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(128, 128, 128);
+            doc.text(
+                `© 2024 MEGA LEAN Assessment Tool | Kaizen Academy™ | Page ${i} of ${pageCount}`,
+                pageWidth / 2,
+                pageHeight - 10,
+                { align: 'center' }
+            );
+        }
+        
+        // Save PDF
+        const filename = `LEAN_Assessment_${assessment.company_name.replace(/\s+/g, '_')}_${assessmentDate.replace(/\//g, '-')}.pdf`;
+        doc.save(filename);
+        
+        return true;
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Error generating PDF report. Please try again.');
+        return false;
+    }
+}
+
+function generateSimplifiedFeedback(results) {
+    const sorted = [...results.dimensions].sort((a, b) => b.percentage - a.percentage);
+    const best = sorted.slice(0, 2);
+    const worst = sorted.slice(-2).reverse();
+    
+    let feedback = `Overall LEAN Maturity: ${results.status} (${results.overallPercentage}%)\n\n`;
+    
+    feedback += `KEY STRENGTHS:\n`;
+    best.forEach(dim => {
+        feedback += `• ${dim.dimension}: ${dim.percentage}% - ${getDimensionFeedback(dim.dimension, dim.percentage, true)}\n\n`;
+    });
+    
+    feedback += `\nFOCUS AREAS FOR IMPROVEMENT:\n`;
+    worst.forEach(dim => {
+        feedback += `• ${dim.dimension}: ${dim.percentage}% - ${getDimensionFeedback(dim.dimension, dim.percentage, false)}\n\n`;
+    });
+    
+    feedback += `\nRECOMMENDED ACTIONS:\n`;
+    if (results.overallPercentage < 32) {
+        feedback += `• Start with Leadership Development and basic LEAN training\n`;
+        feedback += `• Focus on quick wins to build momentum\n`;
+        feedback += `• Establish visual management systems\n`;
+    } else if (results.overallPercentage < 49) {
+        feedback += `• Strengthen process standardization\n`;
+        feedback += `• Develop problem-solving capabilities\n`;
+        feedback += `• Implement regular improvement cycles\n`;
+    } else if (results.overallPercentage < 67) {
+        feedback += `• Advance continuous improvement practices\n`;
+        feedback += `• Optimize flow and pull systems\n`;
+        feedback += `• Deepen customer value understanding\n`;
+    } else {
+        feedback += `• Pursue operational excellence\n`;
+        feedback += `• Benchmark against best-in-class\n`;
+        feedback += `• Drive breakthrough innovations\n`;
+    }
+    
+    return feedback;
+}
+
+// ============================================
+// DATA EXPORT (CSV)
+// ============================================
+async function exportAssessmentData(assessmentId = null) {
+    try {
+        let assessments;
+        
+        if (assessmentId) {
+            // Export single assessment
+            const { data, error } = await supabase
+                .from('assessments')
+                .select('*')
+                .eq('id', assessmentId)
+                .single();
+            
+            if (error) throw error;
+            assessments = [data];
+        } else {
+            // Export all user's assessments (or all for admin)
+            assessments = await loadUserAssessments();
+        }
+        
+        if (!assessments || assessments.length === 0) {
+            alert('No data to export');
+            return;
+        }
+        
+        // Create CSV
+        let csv = 'Company,Assessor,Date,Status,Overall Score,Overall Percentage,Maturity Level,';
+        csv += 'Leadership & Culture,Customer Value Focus,Process Efficiency,Waste Elimination,';
+        csv += 'Continuous Improvement,Flow & Pull Systems,Problem Solving\n';
+        
+        assessments.forEach(assessment => {
+            const date = new Date(assessment.assessment_date || assessment.created_at).toLocaleDateString();
+            const status = assessment.is_draft ? 'Draft' : 'Completed';
+            
+            csv += `"${assessment.company_name}","${assessment.assessor_name}","${date}","${status}",`;
+            
+            if (assessment.results) {
+                const r = assessment.results;
+                csv += `${r.totalScore},${r.overallPercentage}%,"${r.status}",`;
+                
+                // Add dimension scores
+                r.dimensions.forEach((dim, index) => {
+                    csv += `${dim.percentage}%`;
+                    if (index < r.dimensions.length - 1) csv += ',';
+                });
+            } else {
+                csv += 'N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A';
+            }
+            
+            csv += '\n';
+        });
+        
+        // Download CSV
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', `LEAN_Assessment_Data_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+    } catch (error) {
+        console.error('Error exporting data:', error);
+        alert('Error exporting data. Please try again.');
+    }
+}
+
+// ============================================
+// EXPORT ALL USER DATA (GDPR Compliance)
+// ============================================
+async function exportUserData() {
+    try {
+        if (!currentUser) {
+            alert('Please login first');
+            return;
+        }
+        
+        // Get all user data
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', currentUser.id)
+            .single();
+        
+        const assessments = await loadUserAssessments();
+        
+        const userData = {
+            profile: profile,
+            assessments: assessments,
+            exportDate: new Date().toISOString(),
+            dataProtectionNotice: 'This export contains all your personal data stored in the MEGA LEAN Assessment system.'
+        };
+        
+        // Download as JSON
+        const blob = new Blob([JSON.stringify(userData, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', `My_LEAN_Data_${currentUser.email}_${new Date().toISOString().split('T')[0]}.json`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        alert('Your data has been exported successfully!');
+        
+    } catch (error) {
+        console.error('Error exporting user data:', error);
+        alert('Error exporting your data. Please try again.');
+    }
+}
