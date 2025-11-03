@@ -394,8 +394,8 @@ async function viewAssessmentResults(assessmentId) {
 function renderIndividualResults(assessment) {
     const results = assessment.results;
     
-    // Store assessment ID for export
-    window.currentIndividualAssessmentId = assessment.id;
+    // Store full assessment for export
+    window.currentIndividualAssessment = assessment;
     
     if (!results) {
         document.getElementById('individualResultsContainer').innerHTML = `
@@ -405,6 +405,7 @@ function renderIndividualResults(assessment) {
             </div>
         `;
         document.getElementById('individualFeedbackSection').style.display = 'none';
+        document.getElementById('individualDetailedScoresContainer').style.display = 'none';
         return;
     }
     
@@ -452,6 +453,11 @@ function renderIndividualResults(assessment) {
     const feedback = generateFeedback(results);
     document.getElementById('individualFeedbackSection').innerHTML = feedback;
     document.getElementById('individualFeedbackSection').style.display = 'block';
+    
+    // Generate detailed scores
+    const detailedScores = generateDetailedScores(assessment);
+    document.getElementById('individualDetailedScoresContainer').innerHTML = detailedScores;
+    document.getElementById('individualDetailedScoresContainer').style.display = 'block';
     
     // Update progress circle
     setTimeout(() => {

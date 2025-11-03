@@ -124,11 +124,17 @@ async function loadDashboard() {
     document.getElementById('feedbackSection').innerHTML = feedback;
     document.getElementById('feedbackSection').style.display = 'block';
     
-    // Show export PDF button
+    // Generate detailed scores view
+    const detailedScores = generateDetailedScores(latestAssessment);
+    document.getElementById('detailedScoresContainer').innerHTML = detailedScores;
+    
+    // Show tabs and export buttons
+    document.getElementById('dashboardTabs').style.display = 'flex';
+    document.getElementById('previewDashboardPDF').style.display = 'inline-block';
     document.getElementById('exportDashboardPDF').style.display = 'inline-block';
     
-    // Store current assessment ID for export
-    window.currentDashboardAssessmentId = latestAssessment.id;
+    // Store current assessment for export
+    window.currentDashboardAssessment = latestAssessment;
 
     let html = '';
     for (const dim of results.dimensions) {
@@ -270,56 +276,89 @@ document.addEventListener('keypress', function(e) {
 });
 
 // ============================================
-// EXPORT WRAPPER FUNCTIONS
+// TAB SWITCHING FUNCTIONS
 // ============================================
-async function exportCurrentAssessmentPDF() {
-    if (!window.currentDashboardAssessmentId) {
-        alert('No assessment data available');
-        return;
-    }
+function showDashboardTab(tabName) {
+    // Hide all tabs
+    document.getElementById('overviewTab').classList.remove('active');
+    document.getElementById('detailedTab').classList.remove('active');
+    document.getElementById('feedbackTab').classList.remove('active');
     
-    try {
-        const { data: assessment, error } = await supabase
-            .from('assessments')
-            .select('*')
-            .eq('id', window.currentDashboardAssessmentId)
-            .single();
-        
-        if (error || !assessment) {
-            alert('Failed to load assessment data');
-            return;
-        }
-        
-        await generatePDFReport(assessment);
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to generate PDF');
+    // Remove active from all buttons
+    document.querySelectorAll('#dashboardTabs .tab').forEach(btn => btn.classList.remove('active'));
+    
+    // Show selected tab
+    if (tabName === 'overview') {
+        document.getElementById('overviewTab').classList.add('active');
+        document.querySelectorAll('#dashboardTabs .tab')[0].classList.add('active');
+    } else if (tabName === 'detailed') {
+        document.getElementById('detailedTab').classList.add('active');
+        document.querySelectorAll('#dashboardTabs .tab')[1].classList.add('active');
+    } else if (tabName === 'feedback') {
+        document.getElementById('feedbackTab').classList.add('active');
+        document.querySelectorAll('#dashboardTabs .tab')[2].classList.add('active');
     }
 }
 
-async function exportIndividualAssessmentPDF() {
-    if (!window.currentIndividualAssessmentId) {
+function showIndividualTab(tabName) {
+    // Hide all tabs
+    document.getElementById('individualOverviewTab').classList.remove('active');
+    document.getElementById('individualDetailedTab').classList.remove('active');
+    document.getElementById('individualFeedbackTab').classList.remove('active');
+    
+    // Remove active from all buttons
+    document.querySelectorAll('#individualTabs .tab').forEach(btn => btn.classList.remove('active'));
+    
+    // Show selected tab
+    if (tabName === 'overview') {
+        document.getElementById('individualOverviewTab').classList.add('active');
+        document.querySelectorAll('#individualTabs .tab')[0].classList.add('active');
+    } else if (tabName === 'detailed') {
+        document.getElementById('individualDetailedTab').classList.add('active');
+        document.querySelectorAll('#individualTabs .tab')[1].classList.add('active');
+    } else if (tabName === 'feedback') {
+        document.getElementById('individualFeedbackTab').classList.add('active');
+        document.querySelectorAll('#individualTabs .tab')[2].classList.add('active');
+    }
+}
+
+// ============================================
+// EXPORT WRAPPER FUNCTIONS
+// ============================================
+async function previewCurrentAssessmentPDF() {
+    if (!window.currentDashboardAssessment) {
         alert('No assessment data available');
         return;
     }
     
-    try {
-        const { data: assessment, error } = await supabase
-            .from('assessments')
-            .select('*')
-            .eq('id', window.currentIndividualAssessmentId)
-            .single();
-        
-        if (error || !assessment) {
-            alert('Failed to load assessment data');
-            return;
-        }
-        
-        await generatePDFReport(assessment);
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to generate PDF');
+    await showPDFPreview(window.currentDashboardAssessment);
+}
+
+async function exportCurrentAssessmentPDF() {
+    if (!window.currentDashboardAssessment) {
+        alert('No assessment data available');
+        return;
     }
+    
+    await generatePDFReport(window.currentDashboardAssessment);
+}
+
+async function previewIndividualAssessmentPDF() {
+    if (!window.currentIndividualAssessment) {
+        alert('No assessment data available');
+        return;
+    }
+    
+    await showPDFPreview(window.currentIndividualAssessment);
+}
+
+async function exportIndividualAssessmentPDF() {
+    if (!window.currentIndividualAssessment) {
+        alert('No assessment data available');
+        return;
+    }
+    
+    await generatePDFReport(window.currentIndividualAssessment);
 }
 
 async function exportAllAssessmentsData() {

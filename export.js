@@ -3,6 +3,230 @@
 // ============================================
 
 // ============================================
+// GENERATE DETAILED SCORES VIEW
+// ============================================
+function generateDetailedScores(assessment) {
+    if (!assessment || !assessment.responses || !assessment.results) {
+        return '<p>No data available</p>';
+    }
+    
+    const responses = assessment.responses;
+    const results = assessment.results;
+    
+    let html = '<div style="padding: 20px;">';
+    
+    // Group questions by dimension
+    DIMENSIONS.forEach((dimension, dimIndex) => {
+        const dimensionResult = results.dimensions.find(d => d.dimension === dimension.name);
+        if (!dimensionResult) return;
+        
+        const statusClass = getStatusClass(dimensionResult.percentage);
+        
+        html += `
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="color: #821874; margin: 0;">${dimension.name}</h3>
+                    <div>
+                        <span class="${statusClass}" style="padding: 6px 12px; border-radius: 4px; color: white; font-weight: 600; font-size: 18px;">
+                            ${dimensionResult.percentage}%
+                        </span>
+                        <span style="margin-left: 10px; color: #666;">${dimensionResult.score}/${dimensionResult.maxScore} points</span>
+                    </div>
+                </div>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">${dimension.description}</p>
+                
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8f4f8;">
+                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #821874;">Question</th>
+                            <th style="padding: 10px; text-align: center; border-bottom: 2px solid #821874; width: 120px;">Your Answer</th>
+                            <th style="padding: 10px; text-align: center; border-bottom: 2px solid #821874; width: 80px;">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        // Get questions for this dimension
+        const dimensionQuestions = QUESTIONS.filter(q => q.dimension === dimIndex);
+        
+        dimensionQuestions.forEach(question => {
+            const answer = responses[`q${question.id}`];
+            const answerText = answer ? RATING_OPTIONS.find(opt => opt.value == answer)?.label || 'N/A' : 'Not Answered';
+            const score = answer || 0;
+            
+            // Color code the answer
+            let answerColor = '#999';
+            if (score >= 4) answerColor = '#28a745';
+            else if (score === 3) answerColor = '#ffc107';
+            else if (score > 0) answerColor = '#dc3545';
+            
+            html += `
+                <tr style="border-bottom: 1px solid #ebebeb;">
+                    <td style="padding: 12px;">
+                        <strong>Q${question.id}.</strong> ${question.text}
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <span style="color: ${answerColor}; font-weight: 600;">${answerText}</span>
+                    </td>
+                    <td style="padding: 12px; text-align: center; font-weight: 600; color: ${answerColor};">
+                        ${score}/5
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    return html;
+}
+
+// ============================================
+// PDF PREVIEW FUNCTIONS
+// ============================================
+let previewAssessment = null;
+
+async function showPDFPreview(assessment) {
+    previewAssessment = assessment;
+    
+    const modal = document.getElementById('pdfPreviewModal');
+    const content = document.getElementById('pdfPreviewContent');
+    
+    // Generate preview content (HTML version of PDF)
+    content.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="spinner"></div><p>Generating preview...</p></div>';
+    modal.style.display = 'block';
+    
+    // Add spinner CSS if not exists
+    if (!document.getElementById('spinnerStyle')) {
+        const style = document.createElement('style');
+        style.id = 'spinnerStyle';
+        style.textContent = `
+            .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #821874; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    setTimeout(async () => {
+        const previewHTML = await generatePDFPreviewHTML(assessment);
+        content.innerHTML = previewHTML;
+    }, 500);
+}
+
+function closePDFPreview() {
+    document.getElementById('pdfPreviewModal').style.display = 'none';
+    previewAssessment = null;
+}
+
+async function confirmExportPDF() {
+    if (previewAssessment) {
+        closePDFPreview();
+        await generatePDFReport(previewAssessment);
+    }
+}
+
+async function generatePDFPreviewHTML(assessment) {
+    const results = assessment.results;
+    const date = new Date(assessment.assessment_date || assessment.created_at).toLocaleDateString();
+    
+    let html = `
+        <div style="font-family: Arial, sans-serif;">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #821874 0%, #159eda 100%); color: white; padding: 30px; text-align: center; border-radius: 8px; margin-bottom: 20px;">
+                <h1 style="margin: 0 0 10px 0;">MEGA LEAN Assessment Report</h1>
+                <p style="margin: 0;">Comprehensive LEAN Maturity Analysis</p>
+            </div>
+            
+            <!-- Assessment Details -->
+            <div style="border: 2px solid #821874; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; font-weight: 600;">Company:</td>
+                        <td style="padding: 8px 0;">${assessment.company_name}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; font-weight: 600;">Assessed By:</td>
+                        <td style="padding: 8px 0;">${assessment.assessor_name}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; font-weight: 600;">Date:</td>
+                        <td style="padding: 8px 0;">${date}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; font-weight: 600;">Report Generated:</td>
+                        <td style="padding: 8px 0;">${new Date().toLocaleDateString()}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Overall Score -->
+            <div style="background: linear-gradient(135deg, #159eda 0%, #00bcd4 100%); color: white; padding: 30px; text-align: center; border-radius: 8px; margin-bottom: 20px;">
+                <h2 style="margin: 0 0 10px 0;">Overall LEAN Maturity</h2>
+                <div style="font-size: 48px; font-weight: bold; margin: 15px 0;">${results.overallPercentage}%</div>
+                <div style="font-size: 24px;">${results.status}</div>
+            </div>
+            
+            <!-- Spider Chart Note -->
+            <div style="background: #f0f7fa; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+                <p style="margin: 0; color: #666;"><em>📊 Spider diagram will be included in the exported PDF</em></p>
+            </div>
+            
+            <!-- Dimension Scores Table -->
+            <h3 style="color: #821874; margin: 30px 0 15px 0;">Dimension Breakdown</h3>
+            <table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <thead style="background: linear-gradient(135deg, #821874 0%, #159eda 100%); color: white;">
+                    <tr>
+                        <th style="padding: 12px; text-align: left;">Dimension</th>
+                        <th style="padding: 12px; text-align: center;">Score</th>
+                        <th style="padding: 12px; text-align: center;">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    results.dimensions.forEach((dim, index) => {
+        const bgColor = index % 2 === 0 ? '#fafafa' : 'white';
+        const statusClass = getStatusClass(dim.percentage);
+        let percentColor = '#dc3545';
+        if (statusClass.includes('advanced')) percentColor = '#28a745';
+        else if (statusClass.includes('developing')) percentColor = '#159eda';
+        else if (statusClass.includes('emerging')) percentColor = '#ffc107';
+        
+        html += `
+            <tr style="background: ${bgColor};">
+                <td style="padding: 12px;">${dim.dimension}</td>
+                <td style="padding: 12px; text-align: center;">${dim.score}/${dim.maxScore}</td>
+                <td style="padding: 12px; text-align: center; font-weight: 600; color: ${percentColor};">${dim.percentage}%</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                </tbody>
+            </table>
+            
+            <!-- Question-Level Details -->
+            <h3 style="color: #821874; margin: 30px 0 15px 0;">Detailed Question Responses</h3>
+    `;
+    
+    html += generateDetailedScores(assessment);
+    
+    // Add feedback
+    html += `
+        <h3 style="color: #821874; margin: 30px 0 15px 0;">Assessment Insights & Recommendations</h3>
+        ${generateFeedback(results)}
+    `;
+    
+    html += '</div>';
+    return html;
+}
+
+// ============================================
 // GENERATE FEEDBACK BASED ON SCORES
 // ============================================
 function generateFeedback(results) {
@@ -347,6 +571,83 @@ async function generatePDFReport(assessment) {
             doc.setTextColor(0, 0, 0);
             
             yPos += 7;
+        });
+        
+        // Add new page for detailed question responses
+        doc.addPage();
+        yPos = margin;
+        
+        // Detailed Questions Section
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(130, 24, 116);
+        doc.text('Detailed Question Responses', margin, yPos);
+        yPos += 10;
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        
+        // Add questions by dimension
+        const responses = assessment.responses;
+        DIMENSIONS.forEach((dimension, dimIndex) => {
+            const dimensionResult = results.dimensions.find(d => d.dimension === dimension.name);
+            if (!dimensionResult) return;
+            
+            // Check if we need a new page
+            if (yPos > pageHeight - 60) {
+                doc.addPage();
+                yPos = margin;
+            }
+            
+            // Dimension header
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(130, 24, 116);
+            doc.text(dimension.name, margin, yPos);
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(9);
+            doc.text(`${dimensionResult.percentage}% (${dimensionResult.score}/${dimensionResult.maxScore})`, pageWidth - margin - 30, yPos);
+            yPos += 7;
+            
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(8);
+            
+            // Get questions for this dimension
+            const dimensionQuestions = QUESTIONS.filter(q => q.dimension === dimIndex);
+            
+            dimensionQuestions.forEach(question => {
+                if (yPos > pageHeight - 25) {
+                    doc.addPage();
+                    yPos = margin;
+                }
+                
+                const answer = responses[`q${question.id}`];
+                const answerText = answer ? RATING_OPTIONS.find(opt => opt.value == answer)?.label || 'N/A' : 'Not Answered';
+                const score = answer || 0;
+                
+                // Question text
+                doc.setFont(undefined, 'bold');
+                doc.text(`Q${question.id}.`, margin + 2, yPos);
+                doc.setFont(undefined, 'normal');
+                
+                const questionLines = doc.splitTextToSize(question.text, pageWidth - margin * 2 - 40);
+                doc.text(questionLines, margin + 10, yPos);
+                yPos += questionLines.length * 4;
+                
+                // Answer with color coding
+                if (score >= 4) doc.setTextColor(76, 175, 80);
+                else if (score === 3) doc.setTextColor(255, 193, 7);
+                else if (score > 0) doc.setTextColor(244, 67, 54);
+                else doc.setTextColor(128, 128, 128);
+                
+                doc.setFont(undefined, 'bold');
+                doc.text(`Answer: ${answerText} (${score}/5)`, margin + 10, yPos);
+                doc.setTextColor(0, 0, 0);
+                yPos += 6;
+            });
+            
+            yPos += 3; // Space between dimensions
         });
         
         // Add new page for feedback

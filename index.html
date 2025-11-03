@@ -36,11 +36,6 @@
                     <h2 style="color: #821874; text-align: center;">Welcome Back</h2>
                     <p style="text-align: center;">Sign in to access your assessments</p>
                     
-                    <div class="data-warning">
-                        <h4>☁️ Cloud Storage - Powered by Supabase</h4>
-                        <p><strong>Your assessments are stored securely in the cloud!</strong> Access them from any device.</p>
-                    </div>
-                    
                     <div style="margin: 30px 0;">
                         <label for="signinEmail" style="display: block; margin-bottom: 10px; font-weight: 600;">Email Address:</label>
                         <input type="email" id="signinEmail" placeholder="Enter your email" required>
@@ -113,10 +108,6 @@
                         </button>
                     </div>
                 </div>
-                
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ebebeb; font-size: 14px; color: #2d2d2d; text-align: center;">
-                    <p><strong>Note:</strong> Administrators are promoted manually. Contact your organization's MEGA coordinator if you need admin access.</p>
-                </div>
             </div>
         </div>
 
@@ -180,14 +171,31 @@
                 <div id="statusDescription">Complete an assessment to see your organization's LEAN maturity level</div>
             </div>
 
+            <!-- Tabs for different views -->
+            <div class="tabs" id="dashboardTabs" style="display:none;">
+                <button class="tab active" onclick="showDashboardTab('overview')">Overview</button>
+                <button class="tab" onclick="showDashboardTab('detailed')">Detailed Scores</button>
+                <button class="tab" onclick="showDashboardTab('feedback')">Insights</button>
+            </div>
+
             <div id="overviewTab" class="tab-content active">
-                <div id="feedbackSection" style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
                 <div class="results-grid" id="enhancedResultsGrid"></div>
+            </div>
+            
+            <div id="detailedTab" class="tab-content">
+                <div id="detailedScoresContainer"></div>
+            </div>
+            
+            <div id="feedbackTab" class="tab-content">
+                <div id="feedbackSection" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
             </div>
 
             <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="previewCurrentAssessmentPDF()" id="previewDashboardPDF" style="display:none;">
+                    <span style="margin-right: 5px;">👁️</span> Preview Report
+                </button>
                 <button type="button" class="btn btn-primary" onclick="exportCurrentAssessmentPDF()" id="exportDashboardPDF" style="display:none;">
-                    <span style="margin-right: 5px;">📄</span> Export PDF Report
+                    <span style="margin-right: 5px;">📄</span> Export PDF
                 </button>
                 <button type="button" class="btn btn-secondary" onclick="showPanel('assessment')">New Assessment</button>
             </div>
@@ -219,12 +227,34 @@
                 <button class="btn btn-secondary" onclick="showPanel('saved')">
                     ← Back to My Assessments
                 </button>
-                <button class="btn btn-primary" onclick="exportIndividualAssessmentPDF()" id="exportIndividualPDF">
-                    📄 Export PDF Report
-                </button>
+                <div>
+                    <button class="btn btn-secondary" onclick="previewIndividualAssessmentPDF()" id="previewIndividualPDF">
+                        👁️ Preview Report
+                    </button>
+                    <button class="btn btn-primary" onclick="exportIndividualAssessmentPDF()" id="exportIndividualPDF">
+                        📄 Export PDF
+                    </button>
+                </div>
             </div>
-            <div id="individualResultsContainer"></div>
-            <div id="individualFeedbackSection" style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
+            
+            <!-- Tabs for individual results -->
+            <div class="tabs" id="individualTabs">
+                <button class="tab active" onclick="showIndividualTab('overview')">Overview</button>
+                <button class="tab" onclick="showIndividualTab('detailed')">Detailed Scores</button>
+                <button class="tab" onclick="showIndividualTab('feedback')">Insights</button>
+            </div>
+            
+            <div id="individualOverviewTab" class="tab-content active">
+                <div id="individualResultsContainer"></div>
+            </div>
+            
+            <div id="individualDetailedTab" class="tab-content">
+                <div id="individualDetailedScoresContainer"></div>
+            </div>
+            
+            <div id="individualFeedbackTab" class="tab-content">
+                <div id="individualFeedbackSection" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
+            </div>
         </div>
 
         <!-- Help & Manual Panel -->
@@ -351,11 +381,26 @@
             </div>
         </div>
 
+        <!-- PDF Preview Modal -->
+        <div id="pdfPreviewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; overflow: auto;">
+            <div style="position: relative; max-width: 900px; margin: 20px auto; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="position: sticky; top: 0; background: linear-gradient(135deg, #821874 0%, #159eda 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; z-index: 10; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="margin: 0;">📄 PDF Report Preview</h2>
+                    <button onclick="closePDFPreview()" style="background: white; color: #821874; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">✕ Close</button>
+                </div>
+                <div id="pdfPreviewContent" style="padding: 30px; max-height: calc(100vh - 160px); overflow-y: auto;"></div>
+                <div style="position: sticky; bottom: 0; background: #f8f8f8; padding: 20px; border-radius: 0 0 8px 8px; border-top: 1px solid #ddd; display: flex; justify-content: flex-end; gap: 10px;">
+                    <button onclick="closePDFPreview()" class="btn btn-secondary">Cancel</button>
+                    <button onclick="confirmExportPDF()" class="btn btn-primary">📄 Export PDF</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <div class="footer">
             <p>© 2024 MEGA LEAN Assessment Tool</p>
             <p>Designed by <strong>Kaizen Academy™</strong></p>
-            <p><a href="https://mega.kaizenacademy.education" target="_blank">Learn More</a> | <a href="mailto:info@kaizenacademy.education">Contact Us</a></p>
+            <p><a href="https://kaizenacademy.education/" target="_blank">Learn More</a> | <a href="mailto:info@kaizenacademy.education">Contact Us</a></p>
         </div>
     </div>
 
