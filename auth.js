@@ -251,6 +251,12 @@ async function handleSignIn() {
     signinBtn.innerHTML = '<span class="loading-spinner"></span> Signing in...';
     
     try {
+        // Clear any stale session first
+        await supabase.auth.signOut();
+        
+        // Small delay to ensure cleanup is complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         const { data, error } = await supabase.auth.signInWithPassword({
             email: email,
             password: password

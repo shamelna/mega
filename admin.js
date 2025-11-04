@@ -268,6 +268,9 @@ function renderUsersTable(users) {
         const statusColor = isActive ? '#28a745' : '#dc3545';
         const roleColor = user.role === 'admin' ? '#821874' : '#159eda';
         
+        const userName = (user.full_name || 'N/A').replace(/'/g, "\\'");
+        const userEmail = user.email.replace(/'/g, "\\'");
+        
         html += `
             <tr>
                 <td>${user.full_name || 'N/A'}</td>
@@ -276,6 +279,7 @@ function renderUsersTable(users) {
                 <td><span style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${statusText}</span></td>
                 <td>${created}</td>
                 <td>
+                    <button class="btn btn-sm btn-primary" onclick="showEditUserModal('${user.id}', '${userName}', '${userEmail}')">✏️ Edit</button>
                     ${isActive ? 
                         `<button class="btn btn-sm btn-danger" onclick="toggleUserStatus('${user.id}', false)">Deactivate</button>` :
                         `<button class="btn btn-sm btn-secondary" onclick="toggleUserStatus('${user.id}', true)">Activate</button>`
@@ -500,4 +504,112 @@ function initializeAdminDashboard() {
     
     loadAdminStatistics();
     loadAdminAssessments();
+}
+
+// ============================================
+// EDIT USER FUNCTIONS
+// ============================================
+function showEditUserModal(userId, userName, userEmail) {
+    document.getElementById('editUserId').value = userId;
+    document.getElementById('editUserName').value = userName.replace(/\\'/g, "'");
+    document.getElementById('editUserEmail').value = userEmail.replace(/\\'/g, "'");
+    document.getElementById('editUserPassword').value = '';
+    
+    // Hide error/success messages
+    document.getElementById('editUserError').style.display = 'none';
+    document.getElementById('editUserSuccess').style.display = 'none';
+    
+    document.getElementById('editUserModal').style.display = 'block';
+}
+
+function closeEditUserModal() {
+    document.getElementById('editUserModal').style.display = 'none';
+    document.getElementById('editUserId').value = '';
+    document.getElementById('editUserName').value = '';
+    document.getElementById('editUserEmail').value = '';
+    document.getElementById('editUserPassword').value = '';
+}
+
+async function saveUserEdit() {
+    const userId = document.getElementById('editUserId').value;
+    const newName = document.getElementById('editUserName').value.trim();
+    const newEmail = document.getElementById('editUserEmail').value.trim();
+    const newPassword = document.getElementById('editUserPassword').value;
+    
+    const errorDiv = document.getElementById('editUserError');
+    const successDiv = document.getElementById('editUserSuccess');
+    
+    // Hide previous messages
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+    
+    // Validate inputs
+    if (!newName) {
+        errorDiv.textContent = 'Full name is required';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (!newEmail) {
+        errorDiv.textContent = 'Email is required';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (!newEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        errorDiv.textContent = 'Please enter a valid email address';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (newPassword && newPassword.length < 8) {
+        errorDiv.textContent = 'Password must be at least 8 characters long';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    const saveBtn = event.target;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<span class="loading-spinner"></span> Saving...';
+    
+    try {
+        // Update profile in database
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .update({
+                full_name: newName,
+                email: newEmail
+            })
+            .eq('id', userId);
+        
+        if (profileError) throw profileError;
+        
+        // Update email in Supabase Auth (requires admin API)
+        // Note: Email update in auth requires admin service role key
+        // For now, we only update the profile table
+        
+        // If password is provided, we need to use admin API to update it
+        // This is a limitation - password updates require admin service role
+        if (newPassword) {
+            // Show warning that password update requires backend
+            successDiv.textContent = 'Profile updated! Note: Password updates require Supabase admin access. Please update password via Supabase dashboard or implement admin API.';
+            successDiv.style.display = 'block';
+        } else {
+            successDiv.textContent = 'User details updated successfully!';
+            successDiv.style.display = 'block';
+        }
+        
+        // Reload users table
+        setTimeout(() => {
+            closeEditUserModal();
+            loadAdminUsers();
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error updating user:', error);
+        errorDiv.textContent = 'Failed to update user: ' + error.message;
+        errorDiv.style.display = 'block';
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '💾 Save Changes';
+    }
 }

@@ -217,7 +217,7 @@ const QUESTIONS = [
 
 For support, please contact:
 - **Email**: info@kaizenacademy.education
-- **Website**: [MEGA Kaizen Academy](https://mega.kaizenacademy.education)
+- **Website**: Visit [Kaizen Academy](https://kaizenacademy.education/)
 
 ## 📜 License
 
