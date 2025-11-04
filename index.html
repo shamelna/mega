@@ -48,10 +48,6 @@
                         <button class="btn btn-primary" onclick="handleSignIn()" style="width: 100%; margin-top: 20px;">
                             Sign In
                         </button>
-                        
-                        <button class="btn btn-secondary" onclick="showForgotPassword()" style="width: 100%; margin-top: 10px;">
-                            Forgot Password?
-                        </button>
                     </div>
                 </div>
 
@@ -83,28 +79,6 @@
                         
                         <button class="btn btn-primary" onclick="handleSignUp()" style="width: 100%; margin-top: 20px;">
                             Create Account
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Forgot Password Form -->
-                <div id="forgotPasswordForm" class="auth-form" style="display: none;">
-                    <h2 style="color: #821874; text-align: center;">Reset Password</h2>
-                    <p style="text-align: center;">Enter your email to receive a password reset link</p>
-                    
-                    <div style="margin: 30px 0;">
-                        <label for="resetEmail" style="display: block; margin-bottom: 10px; font-weight: 600;">Email Address:</label>
-                        <input type="email" id="resetEmail" placeholder="Enter your email" required>
-                        
-                        <div id="resetError" style="display: none; color: #dc3545; margin-top: 10px; padding: 10px; background: #f8d7da; border-radius: 5px;"></div>
-                        <div id="resetSuccess" style="display: none; color: #28a745; margin-top: 10px; padding: 10px; background: #d4edda; border-radius: 5px;"></div>
-                        
-                        <button class="btn btn-primary" onclick="handlePasswordReset()" style="width: 100%; margin-top: 20px;">
-                            Send Reset Link
-                        </button>
-                        
-                        <button class="btn btn-secondary" onclick="showAuthTab('signin')" style="width: 100%; margin-top: 10px;">
-                            Back to Sign In
                         </button>
                     </div>
                 </div>

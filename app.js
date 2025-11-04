@@ -6,35 +6,53 @@
 // PANEL MANAGEMENT
 // ============================================
 function showPanel(panelName) {
-    // Remove active class from all nav buttons
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    // Remove active class from all nav buttons (only if they exist)
+    const navButtons = document.querySelectorAll('.nav-btn');
+    if (navButtons) {
+        navButtons.forEach(btn => btn.classList.remove('active'));
+    }
     
-    // Remove active class from all panels
-    document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+    // Remove active class from all panels (only if they exist)
+    const panels = document.querySelectorAll('.panel');
+    if (panels) {
+        panels.forEach(panel => panel.classList.remove('active'));
+    }
     
     switch(panelName) {
         case 'assessment':
-            document.getElementById('assessmentPanel').classList.add('active');
-            document.querySelector('[onclick*="assessment"]').classList.add('active');
+            const assessmentPanel = document.getElementById('assessmentPanel');
+            const assessmentBtn = document.querySelector('[onclick*="assessment"]');
+            if (assessmentPanel) assessmentPanel.classList.add('active');
+            if (assessmentBtn) assessmentBtn.classList.add('active');
             break;
         case 'dashboard':
-            document.getElementById('dashboardPanel').classList.add('active');
-            document.querySelector('[onclick*="dashboard"]').classList.add('active');
+            const dashboardPanel = document.getElementById('dashboardPanel');
+            const dashboardBtn = document.querySelector('[onclick*="dashboard"]');
+            if (dashboardPanel) dashboardPanel.classList.add('active');
+            if (dashboardBtn) dashboardBtn.classList.add('active');
             loadDashboard();
             break;
         case 'saved':
-            document.getElementById('savedPanel').classList.add('active');
-            document.querySelector('[onclick*="saved"]').classList.add('active');
+            const savedPanel = document.getElementById('savedPanel');
+            const savedBtn = document.querySelector('[onclick*="saved"]');
+            if (savedPanel) savedPanel.classList.add('active');
+            if (savedBtn) savedBtn.classList.add('active');
             loadSavedAssessments();
             break;
         case 'manual':
-            document.getElementById('manualPanel').classList.add('active');
-            document.querySelector('[onclick*="manual"]').classList.add('active');
+            const manualPanel = document.getElementById('manualPanel');
+            const manualBtn = document.querySelector('[onclick*="manual"]');
+            if (manualPanel) manualPanel.classList.add('active');
+            if (manualBtn) manualBtn.classList.add('active');
             break;
         case 'admin':
-            document.getElementById('adminPanel').classList.add('active');
-            document.getElementById('adminNav').classList.add('active');
-            initializeAdminDashboard();
+            const adminPanel = document.getElementById('adminPanel');
+            const adminNav = document.getElementById('adminNav');
+            if (adminPanel) adminPanel.classList.add('active');
+            if (adminNav) adminNav.classList.add('active');
+            if (typeof initializeAdminDashboard === 'function') {
+                initializeAdminDashboard();
+            }
             break;
     }
 }

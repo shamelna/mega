@@ -251,11 +251,15 @@ async function handleSignIn() {
     signinBtn.innerHTML = '<span class="loading-spinner"></span> Signing in...';
     
     try {
-        // Clear any stale session first
-        await supabase.auth.signOut();
-        
-        // Small delay to ensure cleanup is complete
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Clear any stale session first (silently, don't throw on error)
+        try {
+            await supabase.auth.signOut();
+            // Small delay to ensure cleanup is complete
+            await new Promise(resolve => setTimeout(resolve, 100));
+        } catch (cleanupError) {
+            // Ignore cleanup errors, proceed with sign-in
+            console.log('Session cleanup (non-critical):', cleanupError);
+        }
         
         const { data, error } = await supabase.auth.signInWithPassword({
             email: email,
@@ -336,18 +340,45 @@ async function handlePasswordReset() {
 async function userLogout() {
     if (confirm('Are you sure you want to logout?')) {
         try {
+            // Sign out from Supabase
             const { error } = await supabase.auth.signOut();
             
-            if (error) throw error;
+            if (error) {
+                console.warn('Sign out API error (will force logout):', error);
+            }
             
             console.log('User signed out successfully');
-            handleSignOut();
             
         } catch (error) {
-            console.error('Sign out error:', error);
-            alert('Error signing out. Please try again.');
+            console.error('Sign out error (will force logout):', error);
+        } finally {
+            // Always clean up and show auth screen regardless of API response
+            // This ensures user can always log out even if there's a network issue
+            forceCleanLogout();
         }
     }
+}
+
+function forceCleanLogout() {
+    // Clear all session data
+    currentUser = null;
+    currentUserProfile = null;
+    
+    // Clear any stored auth tokens
+    try {
+        localStorage.removeItem('supabase.auth.token');
+        sessionStorage.clear();
+    } catch (e) {
+        console.warn('Could not clear storage:', e);
+    }
+    
+    // Reset UI
+    handleSignOut();
+    
+    // Reload page to ensure clean state
+    setTimeout(() => {
+        window.location.reload();
+    }, 100);
 }
 
 function handleSignOut() {
@@ -356,8 +387,16 @@ function handleSignOut() {
     
     showAuthSection();
     
-    document.getElementById('savedAssessments').innerHTML = '';
-    document.getElementById('adminAssessments').innerHTML = '';
+    // Clear assessment displays (only if elements exist)
+    const savedAssessments = document.getElementById('savedAssessments');
+    if (savedAssessments) {
+        savedAssessments.innerHTML = '';
+    }
+    
+    const adminAssessments = document.getElementById('adminAssessments');
+    if (adminAssessments) {
+        adminAssessments.innerHTML = '';
+    }
     
     showPanel('assessment');
 }
@@ -368,7 +407,6 @@ function handleSignOut() {
 function showAuthTab(tab) {
     document.getElementById('signinForm').style.display = 'none';
     document.getElementById('signupForm').style.display = 'none';
-    document.getElementById('forgotPasswordForm').style.display = 'none';
     
     document.getElementById('signinTab').classList.remove('active');
     document.getElementById('signupTab').classList.remove('active');
@@ -380,15 +418,6 @@ function showAuthTab(tab) {
         document.getElementById('signupForm').style.display = 'block';
         document.getElementById('signupTab').classList.add('active');
     }
-}
-
-function showForgotPassword() {
-    document.getElementById('signinForm').style.display = 'none';
-    document.getElementById('signupForm').style.display = 'none';
-    document.getElementById('forgotPasswordForm').style.display = 'block';
-    
-    document.getElementById('signinTab').classList.remove('active');
-    document.getElementById('signupTab').classList.remove('active');
 }
 
 function showError(elementId, message) {
