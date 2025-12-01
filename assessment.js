@@ -136,17 +136,17 @@ function calculateResults() {
 }
 
 function getStatusLabel(percentage) {
-    if (percentage <= 31) return 'Novice';
-    if (percentage <= 48) return 'Emerging';
-    if (percentage <= 66) return 'Developing';
-    return 'Advanced';
+    if (percentage <= 48) return 'Novice';         // 0-48%
+    if (percentage <= 66) return 'Emerging';       // 49-66%
+    if (percentage <= 82) return 'Developing';     // 67-82%
+    return 'Advanced';                            // 83-100%
 }
 
 function getStatusClass(percentage) {
-    if (percentage <= 31) return 'status-novice';
-    if (percentage <= 48) return 'status-emerging';
-    if (percentage <= 66) return 'status-developing';
-    return 'status-advanced';
+    if (percentage <= 48) return 'status-novice';         // 0-48%
+    if (percentage <= 66) return 'status-emerging';       // 49-66%
+    if (percentage <= 82) return 'status-developing';     // 67-82%
+    return 'status-advanced';                            // 83-100%
 }
 
 async function submitAssessment() {
