@@ -216,7 +216,7 @@ const QUESTIONS = [
 ## 📞 Support
 
 For support, please contact:
-- **Email**: info@kaizenacademy.education
+- **Email**: learn@continuousimprovement.education
 - **Website**: Visit [Kaizen Academy](https://kaizenacademy.education/)
 
 ## 📜 License
