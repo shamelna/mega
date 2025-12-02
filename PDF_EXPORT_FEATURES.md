@@ -59,26 +59,29 @@ Complete implementation of PDF report generation with spider diagrams, intellige
 
 #### **Maturity-Based Recommendations:**
 
-**Novice (0-31%)**
+**Novice (0-48%)**
 - Leadership development focus
 - Quick wins strategy
 - Basic LEAN training
 - Visual management systems
 
-**Emerging (32-48%)**
+**Emerging (49-66%)**
 - Process standardization
 - Problem-solving skills
 - Regular improvement cycles
+- Basic metrics implementation
 
-**Developing (49-66%)**
+**Developing (67-82%)**
 - Advanced improvement practices
 - Flow optimization
 - Customer value deepening
+- Cross-functional collaboration
 
-**Advanced (67%+)**
+**Advanced (83-100%)**
 - Operational excellence pursuit
 - Best-in-class benchmarking
 - Innovation driving
+- Continuous optimization
 
 #### **Dimension-Specific Feedback:**
 

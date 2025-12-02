@@ -23,10 +23,10 @@ A comprehensive web application for evaluating organizational LEAN maturity acro
 7. **Problem Solving & Root Cause Analysis** - Structured problem-solving capabilities
 
 ### Maturity Levels
-- **Novice** (0-31%) - Limited LEAN implementation
-- **Emerging** (32-48%) - Emerging but inconsistent practices
-- **Developing** (49-66%) - Strong foundation with room for refinement
-- **Advanced** (67%+) - Deeply embedded LEAN culture
+- **Novice** (0-48%) - Initial LEAN implementation with limited practices
+- **Emerging** (49-66%) - Developing LEAN practices with some consistency
+- **Developing** (67-82%) - Established LEAN practices with good maturity
+- **Advanced** (83-100%) - Highly mature and embedded LEAN culture
 
 ## 🚀 Getting Started
 
