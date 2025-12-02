@@ -316,15 +316,15 @@ function getDimensionFeedback(dimensionName, percentage, isStrength) {
 function getRecommendations(overallPercentage, weakestDimensions) {
     let recommendations = '<ul style="margin-left: 20px;">';
     
-    if (overallPercentage < 32) {
+    if (overallPercentage <= 48) {
         recommendations += '<li>Start with <strong>Leadership Development</strong>: Ensure leadership understands and champions LEAN principles</li>';
         recommendations += '<li>Focus on <strong>Quick Wins</strong>: Identify and eliminate obvious wastes to build momentum</li>';
         recommendations += '<li>Invest in <strong>Basic Training</strong>: Educate staff on fundamental LEAN concepts</li>';
-    } else if (overallPercentage < 49) {
+    } else if (overallPercentage <= 66) {
         recommendations += '<li>Strengthen <strong>Standardization</strong>: Document and follow standard work procedures</li>';
         recommendations += '<li>Implement <strong>Visual Management</strong>: Make problems and performance visible</li>';
         recommendations += '<li>Develop <strong>Problem-Solving Skills</strong>: Train teams in structured problem-solving methods</li>';
-    } else if (overallPercentage < 67) {
+    } else if (overallPercentage <= 82) {
         recommendations += '<li>Advance <strong>Continuous Improvement</strong>: Formalize Kaizen events and suggestion systems</li>';
         recommendations += '<li>Optimize <strong>Flow</strong>: Implement pull systems and reduce batch sizes</li>';
         recommendations += '<li>Deepen <strong>Customer Understanding</strong>: Regular voice-of-customer analysis</li>';
