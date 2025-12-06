@@ -291,7 +291,12 @@
                 </ul>
 
                 <h2>For More Information</h2>
-                <p>Visit <a href="https://mega.kaizenacademy.education" target="_blank">MEGA Kaizen Academy</a> for training programs and coaching services.</p>
+                <p>Contact Barry at <a href="mailto:barry.taylor@midulstermega.com">barry.taylor@midulstermega.com</a> for training programs and services.</p>
+                <p>Visit our websites for more information:</p>
+                <ul>
+                    <li><a href="https://midulstermega.com/" target="_blank">MEGA Website</a></li>
+                    <li><a href="https://kaizenacademy.education/" target="_blank">Kaizen Academy</a></li>
+                </ul>
             </div>
         </div>
 
@@ -408,10 +413,14 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>© 2024 MEGA LEAN Assessment Tool</p>
+            <p>© <span id="currentYear"></span> MEGA LEAN Assessment Tool</p>
             <p>Designed by <strong>Kaizen Academy™</strong></p>
             <p><a href="https://kaizenacademy.education/" target="_blank">Learn More</a> | <a href="mailto:learn@continuousimprovement.education">Contact Us</a></p>
         </div>
+        <script>
+            // Update year dynamically
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        </script>
     </div>
 
     <!-- External Libraries -->

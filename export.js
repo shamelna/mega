@@ -220,6 +220,39 @@ async function generatePDFPreviewHTML(assessment) {
     html += `
         <h3 style="color: #821874; margin: 30px 0 15px 0;">Assessment Insights & Recommendations</h3>
         ${generateFeedback(results)}
+        
+        <h3 style="color: #821874; margin: 30px 0 15px 0;">What's Next?</h3>
+        <p>Now that you've completed the assessment, contact Barry at <a href="mailto:barry.taylor@midulstermega.com">barry.taylor@midulstermega.com</a> to:</p>
+        <ul>
+            <li>Review your results in detail</li>
+            <li>Discuss your priority focus areas</li>
+            <li>Explore training options tailored to your organization's maturity level</li>
+        </ul>
+        
+        <h4>Two training pathways are available:</h4>
+        <ol>
+            <li><strong>Continuous Improvement Training and Coaching Model</strong> - For groups of 5-10 people from one organization</li>
+            <li><strong>Certified Lean Practitioner Program</strong> - For individual candidates</li>
+        </ol>
+        
+        <h4>How the Certified Lean Practitioner Program Works:</h4>
+        <ol>
+            <li><strong>Enroll & Access Learning Portal</strong>: Get immediate access to high quality online content and resources.</li>
+            <li><strong>Complete 3 Learning Modules</strong>:
+                <ul>
+                    <li>Lean & TPS Fundamentals</li>
+                    <li>7QC Tools Course</li>
+                    <li>Value Stream Mapping (VSM)</li>
+                </ul>
+            </li>
+            <li><strong>Project Coaching</strong>: Engage one-to-one with expert coaches who guide you through a real business improvement project using a streamlined, proven template.</li>
+            <li><strong>Exam Module</strong>: Prove your learning mastery by completing a 2-hour exam consisting of 180 carefully curated multiple-choice questions.</li>
+            <li><strong>Certification</strong>: Upon successful completion of coursework, project, and exam, receive your official Lean Practitioner Certificate.</li>
+        </ol>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #821874;">
+            <p style="margin: 0; font-style: italic;">Contact Barry for more details and special pricing for MEGA.</p>
+        </div>
     `;
     
     html += '</div>';
@@ -273,6 +306,50 @@ function generateFeedback(results) {
     feedback += `<h3 style="color: #159eda; margin-bottom: 10px;">💡 Recommended Actions</h3>`;
     feedback += getRecommendations(results.overallPercentage, worst);
     feedback += `</div>`;
+    
+    // Next Steps Section
+    feedback += `
+    <div style="margin: 30px 0; border-top: 2px solid #f0f0f0; padding-top: 20px;">
+        <h3 style="color: #821874; margin-bottom: 15px;">🚀 What's Next?</h3>
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #821874;">
+            <p style="font-size: 1.1em; margin-bottom: 15px;">Now that you've completed the assessment, here are your next steps:</p>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
+                <div style="flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h4 style="color: #159eda; margin-top: 0;">📅 Schedule a Consultation</h4>
+                    <p>Contact Barry Taylor to discuss your results and create a customized improvement plan:</p>
+                    <p style="margin: 10px 0;">
+                        <a href="mailto:barry.taylor@midulstermega.com" style="color: #821874; font-weight: 600; text-decoration: none;">
+                            barry.taylor@midulstermega.com
+                        </a>
+                    </p>
+                </div>
+                
+                <div style="flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h4 style="color: #159eda; margin-top: 0;">🎓 Explore Training Options</h4>
+                    <p>Choose the program that best fits your needs:</p>
+                    <ul style="margin: 10px 0 0 20px; padding: 0;">
+                        <li>Team Training (5-10 people)</li>
+                        <li>Individual Certification</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #e9ecef;">
+                <p style="margin: 0; font-style: italic; color: #6c757d;">
+                    For more information about our training programs and special pricing for MEGA, please contact Barry Taylor directly.
+                </p>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center; padding: 10px; background: #f1f8ff; border-radius: 6px;">
+                <p style="margin: 0; font-weight: 500;">
+                    Visit our websites: 
+                    <a href="https://midulstermega.com/" target="_blank" style="color: #159eda; margin: 0 10px;">MEGA Website</a> | 
+                    <a href="https://kaizenacademy.education/" target="_blank" style="color: #159eda;">Kaizen Academy</a>
+                </p>
+            </div>
+        </div>
+    </div>`;
     
     return feedback;
 }
@@ -676,6 +753,84 @@ async function generatePDFReport(assessment) {
             doc.text(line, margin, yPos);
             yPos += 5;
         });
+        
+        // Add Next Steps section
+        doc.addPage();
+        yPos = margin;
+        
+        // Next Steps Section
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(130, 24, 116);
+        doc.text("What's Next?", margin, yPos);
+        yPos += 10;
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        
+        // Next Steps Content
+        let nextSteps = [
+            "Now that you've completed the assessment, contact Barry at barry.taylor@midulstermega.com to:",
+            "• Review your results in detail",
+            "• Discuss your priority focus areas",
+            "• Explore training options tailored to your organization's maturity level",
+            "",
+            "Two training pathways are available:",
+            "1. Continuous Improvement Training and Coaching Model - For groups of 5-10 people from one organization",
+            "2. Certified Lean Practitioner Program - For individual candidates",
+            "",
+            "How the Certified Lean Practitioner Program Works:",
+            "1. Enroll & Access Learning Portal: Get immediate access to high quality online content and resources.",
+            "2. Complete 3 Learning Modules:",
+            "   • Lean & TPS Fundamentals",
+            "   • 7QC Tools Course",
+            "   • Value Stream Mapping (VSM)",
+            "3. Project Coaching: Engage one-to-one with expert coaches who guide you through a real business improvement project.",
+            "4. Exam Module: 2-hour exam with 180 multiple-choice questions.",
+            "5. Certification: Receive your official Lean Practitioner Certificate upon successful completion."
+        ];
+        
+        nextSteps.forEach(line => {
+            if (yPos > pageHeight - 20) {
+                doc.addPage();
+                yPos = margin;
+            }
+            
+            // Handle bullet points and indentation
+            let indent = 0;
+            let text = line;
+            
+            if (line.startsWith("•")) {
+                indent = 10;
+                text = line.substring(1).trim();
+            } else if (line.match(/^\d+\./)) {
+                // Numbered list
+                indent = 0;
+            } else if (line.trim().startsWith("•")) {
+                // Indented bullet points
+                indent = 20;
+                text = line.trim().substring(1).trim();
+            } else if (line.trim() === "") {
+                // Empty line
+                yPos += 5;
+                return;
+            }
+            
+            doc.text(line, margin + indent, yPos);
+            yPos += 5;
+        });
+        
+        // Add contact box
+        yPos += 5;
+        doc.setFillColor(248, 249, 250);
+        doc.roundedRect(margin, yPos, pageWidth - 2 * margin, 15, 3, 3, 'F');
+        doc.setDrawColor(130, 24, 116);
+        doc.setLineWidth(0.5);
+        doc.roundedRect(margin, yPos, pageWidth - 2 * margin, 15, 3, 3, 'S');
+        
+        doc.setFont(undefined, 'italic');
+        doc.text("Contact Barry for more details and special pricing for MEGA.", margin + 10, yPos + 10);
         
         // Footer on all pages
         const pageCount = doc.internal.getNumberOfPages();
