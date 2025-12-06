@@ -456,10 +456,60 @@ async function exportAssessmentDataWithArray(assessments) {
 }
 
 // ============================================
+// SUPABASE KEEP-ALIVE FUNCTIONALITY
+// ============================================
+function setupSupabaseKeepAlive() {
+    // Function to ping Supabase
+    const pingSupabase = async () => {
+        try {
+            // Make a simple query to a small table
+            const { data, error } = await supabase
+                .from('assessments')
+                .select('id')
+                .limit(1);
+            
+            if (error) {
+                console.error('Keep-alive ping failed:', error.message);
+                return;
+            }
+            
+            console.log('Keep-alive ping successful at:', new Date().toISOString());
+            return true;
+        } catch (error) {
+            console.error('Keep-alive error:', error.message);
+            return false;
+        }
+    };
+
+    // Run immediately when the app loads
+    pingSupabase().then(success => {
+        if (success) {
+            console.log('Initial keep-alive ping successful');
+        }
+    });
+
+    // Set up the interval (24 hours in milliseconds)
+    const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+    setInterval(pingSupabase, TWENTY_FOUR_HOURS);
+
+    // Additional safety: ping when the tab becomes visible after being in background
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            pingSupabase();
+        }
+    });
+}
+
+// ============================================
 // INITIALIZATION
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
     initializeAuth();
     renderAssessmentForm();
     document.getElementById('assessmentDate').value = new Date().toISOString().split('T')[0];
+    
+    // Initialize keep-alive functionality if Supabase is available
+    if (typeof supabase !== 'undefined') {
+        setupSupabaseKeepAlive();
+    }
 });
