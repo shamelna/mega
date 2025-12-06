@@ -221,38 +221,6 @@ async function generatePDFPreviewHTML(assessment) {
         <h3 style="color: #821874; margin: 30px 0 15px 0;">Assessment Insights & Recommendations</h3>
         ${generateFeedback(results)}
         
-        <h3 style="color: #821874; margin: 30px 0 15px 0;">What's Next?</h3>
-        <p>Now that you've completed the assessment, contact Barry at <a href="mailto:barry.taylor@midulstermega.com">barry.taylor@midulstermega.com</a> to:</p>
-        <ul>
-            <li>Review your results in detail</li>
-            <li>Discuss your priority focus areas</li>
-            <li>Explore training options tailored to your organization's maturity level</li>
-        </ul>
-        
-        <h4>Two training pathways are available:</h4>
-        <ol>
-            <li><strong>Continuous Improvement Training and Coaching Model</strong> - For groups of 5-10 people from one organization</li>
-            <li><strong>Certified Lean Practitioner Program</strong> - For individual candidates</li>
-        </ol>
-        
-        <h4>How the Certified Lean Practitioner Program Works:</h4>
-        <ol>
-            <li><strong>Enroll & Access Learning Portal</strong>: Get immediate access to high quality online content and resources.</li>
-            <li><strong>Complete 3 Learning Modules</strong>:
-                <ul>
-                    <li>Lean & TPS Fundamentals</li>
-                    <li>7QC Tools Course</li>
-                    <li>Value Stream Mapping (VSM)</li>
-                </ul>
-            </li>
-            <li><strong>Project Coaching</strong>: Engage one-to-one with expert coaches who guide you through a real business improvement project using a streamlined, proven template.</li>
-            <li><strong>Exam Module</strong>: Prove your learning mastery by completing a 2-hour exam consisting of 180 carefully curated multiple-choice questions.</li>
-            <li><strong>Certification</strong>: Upon successful completion of coursework, project, and exam, receive your official Lean Practitioner Certificate.</li>
-        </ol>
-        
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #821874;">
-            <p style="margin: 0; font-style: italic;">Contact Barry for more details and special pricing for MEGA.</p>
-        </div>
     `;
     
     html += '</div>';
@@ -444,11 +412,14 @@ function getDimensionRecommendation(dimensionName) {
 // ============================================
 async function generateSpiderChart(results) {
     return new Promise((resolve) => {
-        // Create temporary canvas
+        // Create temporary canvas with larger dimensions
         const canvas = document.createElement('canvas');
-        canvas.width = 600;
-        canvas.height = 600;
+        canvas.width = 1000;  // Increased from 600
+        canvas.height = 1000; // Increased from 600
+        canvas.style.width = '1000px';
+        canvas.style.height = '1000px';
         const ctx = canvas.getContext('2d');
+        ctx.scale(1000/600, 1000/600);  // Scale to maintain quality
         
         const labels = results.dimensions.map(d => d.dimension);
         const data = results.dimensions.map(d => d.percentage);
@@ -479,10 +450,15 @@ async function generateSpiderChart(results) {
                         max: 100,
                         ticks: {
                             stepSize: 20,
-                            font: { size: 12 }
+                            font: { size: 16 }  // Increased from 12
                         },
                         pointLabels: {
-                            font: { size: 11, weight: 'bold' }
+                            font: { 
+                                size: 16,  // Increased from 11
+                                weight: 'bold',
+                                family: 'Arial'
+                            },
+                            padding: 20  // Add more padding for better readability
                         }
                     }
                 },
@@ -508,6 +484,11 @@ async function generateSpiderChart(results) {
 // ============================================
 async function generatePDFReport(assessment) {
     try {
+        // Check if jsPDF is loaded
+        if (typeof jsPDF === 'undefined' || !window.jspdf) {
+            throw new Error('PDF generation library not loaded. Please try refreshing the page.');
+        }
+        
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         
@@ -585,20 +566,26 @@ async function generatePDFReport(assessment) {
         
         yPos += 40;
         
-        // Spider Chart
+        // Spider Chart with increased size
         doc.setTextColor(0, 0, 0);
-        doc.setFontSize(14);
+        doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
         doc.text('LEAN Maturity Spider Diagram', pageWidth / 2, yPos, { align: 'center' });
         
-        yPos += 5;
+        yPos += 10;
+        
+        // Check if we need a new page for the chart
+        if (yPos > pageHeight - 250) {  // 250 = chart height + margin
+            doc.addPage();
+            yPos = margin;
+        }
         
         const chartImage = await generateSpiderChart(results);
-        const chartWidth = 120;
-        const chartHeight = 120;
+        const chartWidth = 170;  // Increased from 120
+        const chartHeight = 170; // Increased from 120
         doc.addImage(chartImage, 'PNG', (pageWidth - chartWidth) / 2, yPos, chartWidth, chartHeight);
         
-        yPos += chartHeight + 10;
+        yPos += chartHeight + 15;
         
         // Check if we need a new page
         if (yPos > pageHeight - 60) {
@@ -758,72 +745,17 @@ async function generatePDFReport(assessment) {
             yPos += 5;
         });
         
-        // Add Next Steps section
-        doc.addPage();
-        yPos = margin;
+        // Add report generation date with proper spacing
+        yPos += 5;
+        if (yPos > pageHeight - 20) {
+            doc.addPage();
+            yPos = margin;
+        }
+        doc.setFontSize(9);
+        doc.setTextColor(128, 128, 128);
+        doc.text(`Report generated: ${new Date().toLocaleString()}`, margin, yPos, { align: 'left' });
         
-        // Next Steps Section
-        doc.setFontSize(16);
-        doc.setFont(undefined, 'bold');
-        doc.setTextColor(130, 24, 116);
-        doc.text("What's Next?", margin, yPos);
-        yPos += 10;
-        
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        
-        // Next Steps Content
-        let nextSteps = [
-            "Now that you've completed the assessment, contact Barry at barry.taylor@midulstermega.com to:",
-            "• Review your results in detail",
-            "• Discuss your priority focus areas",
-            "• Explore training options tailored to your organization's maturity level",
-            "",
-            "Two training pathways are available:",
-            "1. Continuous Improvement Training and Coaching Model - For groups of 5-10 people from one organization",
-            "2. Certified Lean Practitioner Program - For individual candidates",
-            "",
-            "How the Certified Lean Practitioner Program Works:",
-            "1. Enroll & Access Learning Portal: Get immediate access to high quality online content and resources.",
-            "2. Complete 3 Learning Modules:",
-            "   • Lean & TPS Fundamentals",
-            "   • 7QC Tools Course",
-            "   • Value Stream Mapping (VSM)",
-            "3. Project Coaching: Engage one-to-one with expert coaches who guide you through a real business improvement project.",
-            "4. Exam Module: 2-hour exam with 180 multiple-choice questions.",
-            "5. Certification: Receive your official Lean Practitioner Certificate upon successful completion."
-        ];
-        
-        nextSteps.forEach(line => {
-            if (yPos > pageHeight - 20) {
-                doc.addPage();
-                yPos = margin;
-            }
-            
-            // Handle bullet points and indentation
-            let indent = 0;
-            let text = line;
-            
-            if (line.startsWith("•")) {
-                indent = 10;
-                text = line.substring(1).trim();
-            } else if (line.match(/^\d+\./)) {
-                // Numbered list
-                indent = 0;
-            } else if (line.trim().startsWith("•")) {
-                // Indented bullet points
-                indent = 20;
-                text = line.trim().substring(1).trim();
-            } else if (line.trim() === "") {
-                // Empty line
-                yPos += 5;
-                return;
-            }
-            
-            doc.text(line, margin + indent, yPos);
-            yPos += 5;
-        });
+        // Removed "What's Next" section as requested
         
         // Add contact box
         yPos += 5;
@@ -836,14 +768,15 @@ async function generatePDFReport(assessment) {
         doc.setFont(undefined, 'italic');
         doc.text("Contact Barry for more details and special pricing for MEGA.", margin + 10, yPos + 10);
         
-        // Footer on all pages
+        // Footer on all pages with dynamic year
+        const currentYear = new Date().getFullYear();
         const pageCount = doc.internal.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
             doc.setFontSize(8);
             doc.setTextColor(128, 128, 128);
             doc.text(
-                `© 2024 MEGA LEAN Assessment Tool | Kaizen Academy™ | Page ${i} of ${pageCount}`,
+                `© ${currentYear} MEGA LEAN Assessment Tool | Kaizen Academy™ | Page ${i} of ${pageCount}`,
                 pageWidth / 2,
                 pageHeight - 10,
                 { align: 'center' }

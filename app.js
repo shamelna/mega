@@ -170,6 +170,51 @@ async function loadDashboard() {
         `;
     }
     document.getElementById('enhancedResultsGrid').innerHTML = html;
+    
+    // Add What's Next section
+    const whatsNextHTML = `
+        <div class="whats-next-container" style="margin-top: 40px; padding: 25px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #821874;">
+            <h2 style="color: #821874; margin-top: 0;">🚀 What's Next?</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #2d2d2d; margin-bottom: 10px;">1. Review your detailed assessment report</h3>
+                <p style="margin: 5px 0 0 20px; color: #555;">Take time to review your comprehensive assessment results and export the PDF report for your reference.</p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #2d2d2d; margin-bottom: 10px;">2. Schedule a Consultation</h3>
+                <p style="margin: 5px 0 0 20px; color: #555;">Contact Barry Taylor to discuss your results and create a customized improvement plan:</p>
+                <div style="margin: 10px 0 0 40px;">
+                    <a href="mailto:barry.taylor@midulstermega.com" class="btn" style="display: inline-block; padding: 8px 15px; background: #159eda; color: white; text-decoration: none; border-radius: 4px; font-weight: 500;">
+                        ✉️ Contact Barry Taylor
+                    </a>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <h3 style="color: #2d2d2d; margin-bottom: 10px;">3. Explore Training Options</h3>
+                <p style="margin: 5px 0 0 20px; color: #555;">We offer flexible training programs tailored to your needs:</p>
+                <ul style="margin: 5px 0 0 40px; color: #555;">
+                    <li>Team Training (5-10 people)</li>
+                    <li>Individual Certification</li>
+                    <li>Customized Workshops</li>
+                </ul>
+                <p style="margin: 10px 0 0 20px; color: #555; font-style: italic;">
+                    Special Offer: Contact Barry Taylor for information about special pricing and packages available for MEGA.
+                </p>
+                <p style="margin: 15px 0 0 20px;">
+                    <a href="https://mega.kaizenacademy.education" target="_blank" style="color: #159eda; text-decoration: none; font-weight: 500;">
+                        Learn more: MEGA Website
+                    </a> | 
+                    <a href="https://kaizenacademy.education" target="_blank" style="color: #159eda; text-decoration: none; font-weight: 500;">
+                        Kaizen Academy
+                    </a>
+                </p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('enhancedResultsGrid').insertAdjacentHTML('beforeend', whatsNextHTML);
 }
 
 async function loadSavedAssessments() {
