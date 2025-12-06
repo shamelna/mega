@@ -312,40 +312,44 @@ function generateFeedback(results) {
     <div style="margin: 30px 0; border-top: 2px solid #f0f0f0; padding-top: 20px;">
         <h3 style="color: #821874; margin-bottom: 15px;">🚀 What's Next?</h3>
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #821874;">
-            <p style="font-size: 1.1em; margin-bottom: 15px;">Now that you've completed the assessment, here are your next steps:</p>
+            <p style="font-size: 1.1em; margin-bottom: 20px; font-weight: 600;">1. Review your detailed assessment report</p>
+            <p style="margin: 0 0 20px 20px;">
+                Take time to review your comprehensive assessment results and export the PDF report for your reference.
+            </p>
             
-            <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; margin: 25px 0;">
                 <div style="flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    <h4 style="color: #159eda; margin-top: 0;">📅 Schedule a Consultation</h4>
-                    <p>Contact Barry Taylor to discuss your results and create a customized improvement plan:</p>
-                    <p style="margin: 10px 0;">
-                        <a href="mailto:barry.taylor@midulstermega.com" style="color: #821874; font-weight: 600; text-decoration: none;">
-                            barry.taylor@midulstermega.com
+                    <h4 style="color: #159eda; margin-top: 0; margin-bottom: 10px;">2. Schedule a Consultation</h4>
+                    <p style="margin-bottom: 10px;">Contact Barry Taylor to discuss your results and create a customized improvement plan:</p>
+                    <p style="margin: 10px 0 0 0; text-align: center;">
+                        <a href="mailto:barry.taylor@midulstermega.com" style="color: #821874; font-weight: 600; text-decoration: none; background: #f8f0f7; padding: 8px 15px; border-radius: 4px; display: inline-block;">
+                            ✉️ Contact Barry Taylor
                         </a>
                     </p>
                 </div>
                 
                 <div style="flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    <h4 style="color: #159eda; margin-top: 0;">🎓 Explore Training Options</h4>
-                    <p>Choose the program that best fits your needs:</p>
+                    <h4 style="color: #159eda; margin-top: 0; margin-bottom: 10px;">3. Explore Training Options</h4>
+                    <p style="margin-bottom: 10px;">We offer flexible training programs tailored to your needs:</p>
                     <ul style="margin: 10px 0 0 20px; padding: 0;">
                         <li>Team Training (5-10 people)</li>
                         <li>Individual Certification</li>
+                        <li>Customized Workshops</li>
                     </ul>
                 </div>
             </div>
             
-            <div style="background: white; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #e9ecef;">
-                <p style="margin: 0; font-style: italic; color: #6c757d;">
-                    For more information about our training programs and special pricing for MEGA, please contact Barry Taylor directly.
+            <div style="background: white; padding: 15px; border-radius: 6px; margin: 25px 0 15px 0; border: 1px solid #e9ecef;">
+                <p style="margin: 0; color: #6c757d; font-size: 0.95em;">
+                    <strong>Special Offer:</strong> Contact Barry Taylor for information about special pricing and packages available for MEGA.
                 </p>
             </div>
             
             <div style="margin-top: 20px; text-align: center; padding: 10px; background: #f1f8ff; border-radius: 6px;">
                 <p style="margin: 0; font-weight: 500;">
-                    Visit our websites: 
-                    <a href="https://midulstermega.com/" target="_blank" style="color: #159eda; margin: 0 10px;">MEGA Website</a> | 
-                    <a href="https://kaizenacademy.education/" target="_blank" style="color: #159eda;">Kaizen Academy</a>
+                    Learn more: 
+                    <a href="https://midulstermega.com/" target="_blank" style="color: #159eda; margin: 0 10px; text-decoration: none;">MEGA Website</a> | 
+                    <a href="https://kaizenacademy.education/" target="_blank" style="color: #159eda; text-decoration: none;">Kaizen Academy</a>
                 </p>
             </div>
         </div>

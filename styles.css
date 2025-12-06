@@ -668,6 +668,67 @@ select:focus {
     margin: 2px;
 }
 
+/* Radio Button Styles */
+.radio-group {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    width: 100%;
+    gap: 8px;
+}
+
+.radio-option {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+    border: 1px solid #ebebeb;
+    border-radius: 4px;
+    background: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 5px;
+    display: none;
+}
+
+.radio-option:hover {
+    background: #f8f8f8;
+}
+
+.radio-option.selected {
+    background: #f0f0f0;
+    border-color: #821874;
+    font-weight: 600;
+}
+
+.radio-option span {
+    display: inline-block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* Responsive adjustments for radio buttons */
+@media (max-width: 768px) {
+    .radio-group {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .radio-option {
+        text-align: left;
+        padding: 10px;
+    }
+}
+
 /* Print Styles */
 @media print {
     body {
