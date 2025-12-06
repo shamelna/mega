@@ -142,11 +142,7 @@ async function loadDashboard() {
     document.getElementById('feedbackSection').innerHTML = feedback;
     document.getElementById('feedbackSection').style.display = 'block';
     
-    // Generate detailed scores view
-    const detailedScores = generateDetailedScores(latestAssessment);
-    document.getElementById('detailedScoresContainer').innerHTML = detailedScores;
-    
-    // Show tabs and export buttons
+    // Add What's Next section to the overview tab
     document.getElementById('dashboardTabs').style.display = 'flex';
     document.getElementById('previewDashboardPDF').style.display = 'inline-block';
     document.getElementById('exportDashboardPDF').style.display = 'inline-block';
