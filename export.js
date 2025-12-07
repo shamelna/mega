@@ -505,6 +505,7 @@ async function generatePDFReport(assessment) {
         const margin = 20;
         let yPos = margin;
         
+        // ===== PAGE 1: OVERVIEW =====
         // Header with logo area
         doc.setFillColor(130, 24, 116);
         doc.rect(0, 0, pageWidth, 40, 'F');
@@ -574,90 +575,119 @@ async function generatePDFReport(assessment) {
         
         yPos += 40;
         
+        // Add pie chart for overall score
+        const pieCanvas = document.createElement('canvas');
+        pieCanvas.width = 200;
+        pieCanvas.height = 200;
+        const pieCtx = pieCanvas.getContext('2d');
+        
+        new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'Remaining'],
+                datasets: [{
+                    data: [results.overallPercentage, 100 - results.overallPercentage],
+                    backgroundColor: ['#821874', '#f0f0f0'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                animation: { duration: 0 }
+            }
+        });
+        
+        // Add pie chart to PDF
+        const pieImage = pieCanvas.toDataURL('image/png');
+        doc.addImage(pieImage, 'PNG', (pageWidth - 80) / 2, yPos + 20, 80, 80);
+        
+        // Add overall score in the middle of the pie chart
+        doc.setFontSize(36);
+        doc.setFont(undefined, 'bold');
+        doc.text(`${results.overallPercentage}%`, pageWidth / 2, yPos + 60, { align: 'center' });
+        
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'normal');
+        doc.text('Overall Maturity', pageWidth / 2, yPos + 75, { align: 'center' });
+        
+        yPos += 100;
+        
+        // Assessment Details Box
+        doc.setDrawColor(130, 24, 116);
+        doc.setLineWidth(0.5);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 35);
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        
+        yPos += 8;
+        doc.text('Company:', margin + 5, yPos);
+        doc.setFont(undefined, 'normal');
+        doc.text(assessment.company_name, margin + 35, yPos);
+        
+        yPos += 7;
+        doc.setFont(undefined, 'bold');
+        doc.text('Assessed By:', margin + 5, yPos);
+        doc.setFont(undefined, 'normal');
+        doc.text(assessment.assessor_name, margin + 35, yPos);
+        
+        yPos += 7;
+        doc.setFont(undefined, 'bold');
+        doc.text('Date:', margin + 5, yPos);
+        doc.setFont(undefined, 'normal');
+        const assessmentDate = new Date(assessment.assessment_date || assessment.created_at).toLocaleDateString();
+        doc.text(assessmentDate, margin + 35, yPos);
+        
+        yPos += 7;
+        doc.setFont(undefined, 'bold');
+        doc.text('Report Generated:', margin + 5, yPos);
+        doc.setFont(undefined, 'normal');
+        doc.text(new Date().toLocaleDateString(), margin + 35, yPos);
+        
+        yPos += 15;
+        
+        const results = assessment.results;
+        
+        // Overall Score Section
+        doc.setFillColor(21, 158, 218);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 30, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text('Overall LEAN Maturity', pageWidth / 2, yPos + 10, { align: 'center' });
+        
+        doc.setFontSize(28);
+        doc.text(`${results.overallPercentage}%`, pageWidth / 2, yPos + 22, { align: 'center' });
+        
+        doc.setFontSize(14);
+        doc.text(results.status, pageWidth / 2, yPos + 28, { align: 'center' });
+        
+        yPos += 40;
+        
         // Spider Chart with increased size
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
         doc.text('LEAN Maturity Spider Diagram', pageWidth / 2, yPos, { align: 'center' });
+        yPos += 15;
         
-        yPos += 10;
+        // Add spider chart with unique variable names
+        const spiderChartImage = await generateSpiderChart(results);
+        const spiderChartWidth = 150;
+        const spiderChartHeight = 150;
+        doc.addImage(spiderChartImage, 'PNG', (pageWidth - spiderChartWidth) / 2, yPos, spiderChartWidth, spiderChartHeight);
+        yPos += spiderChartHeight + 15;
         
-        // Check if we need a new page for the chart
-        if (yPos > pageHeight - 250) {  // 250 = chart height + margin
-            doc.addPage();
-            yPos = margin;
-        }
-        
-        const chartImage = await generateSpiderChart(results);
-        const chartWidth = 170;  // Increased from 120
-        const chartHeight = 170; // Increased from 120
-        doc.addImage(chartImage, 'PNG', (pageWidth - chartWidth) / 2, yPos, chartWidth, chartHeight);
-        
-        yPos += chartHeight + 15;
-        
-        // Check if we need a new page
-        if (yPos > pageHeight - 60) {
-            doc.addPage();
-            yPos = margin;
-        }
-        
-        // Dimension Scores Table
-        doc.setFontSize(14);
-        doc.setFont(undefined, 'bold');
-        doc.text('Dimension Breakdown', margin, yPos);
-        yPos += 8;
-        
-        // Table header
-        doc.setFillColor(240, 240, 240);
-        doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F');
-        
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'bold');
-        doc.text('Dimension', margin + 2, yPos + 5);
-        doc.text('Score', pageWidth - margin - 35, yPos + 5);
-        doc.text('Percentage', pageWidth - margin - 20, yPos + 5);
-        
-        yPos += 8;
-        
-        // Table rows
-        doc.setFont(undefined, 'normal');
-        results.dimensions.forEach((dim, index) => {
-            if (yPos > pageHeight - 30) {
-                doc.addPage();
-                yPos = margin;
-            }
-            
-            if (index % 2 === 0) {
-                doc.setFillColor(250, 250, 250);
-                doc.rect(margin, yPos, pageWidth - 2 * margin, 7, 'F');
-            }
-            
-            doc.setFontSize(9);
-            doc.text(dim.dimension, margin + 2, yPos + 5);
-            doc.text(`${dim.score}/${dim.maxScore}`, pageWidth - margin - 35, yPos + 5);
-            
-            // Color-code percentage
-            const statusClass = getStatusClass(dim.percentage);
-            if (statusClass.includes('advanced')) doc.setTextColor(76, 175, 80);
-            else if (statusClass.includes('developing')) doc.setTextColor(33, 150, 243);
-            else if (statusClass.includes('emerging')) doc.setTextColor(255, 193, 7);
-            else doc.setTextColor(244, 67, 54);
-            
-            doc.text(`${dim.percentage}%`, pageWidth - margin - 20, yPos + 5);
-            doc.setTextColor(0, 0, 0);
-            
-            yPos += 7;
-        });
-        
-        // Add new page for detailed question responses
-        doc.addPage();
-        yPos = margin;
-        
-        // Detailed Questions Section
+        // Dimension Breakdown Section
         doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
-        doc.setTextColor(130, 24, 116);
-        doc.text('Detailed Question Responses', margin, yPos);
+        doc.text('Dimension Breakdown', margin, yPos);
         yPos += 10;
         
         doc.setTextColor(0, 0, 0);

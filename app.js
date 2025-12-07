@@ -165,11 +165,9 @@ async function loadDashboard() {
             </div>
         `;
     }
-    document.getElementById('enhancedResultsGrid').innerHTML = html;
-    
-    // Add What's Next section
+    // Add What's Next section before the dimension cards
     const whatsNextHTML = `
-        <div class="whats-next-container" style="margin-top: 40px; padding: 25px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #821874;">
+        <div class="whats-next-container" style="margin-bottom: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #821874;">
             <h2 style="color: #821874; margin-top: 0;">🚀 What's Next?</h2>
             
             <div style="margin-bottom: 20px;">
@@ -208,9 +206,16 @@ async function loadDashboard() {
                 </p>
             </div>
         </div>
+        <div class="dimensions-container">
+            <h2 style="color: #821874; margin-bottom: 20px;">Dimension Breakdown</h2>
+            <div class="dimensions-grid">
+                ${html}
+            </div>
+        </div>
     `;
     
-    document.getElementById('enhancedResultsGrid').insertAdjacentHTML('beforeend', whatsNextHTML);
+    // Set the combined HTML to the container
+    document.getElementById('enhancedResultsGrid').innerHTML = whatsNextHTML;
 }
 
 async function loadSavedAssessments() {
