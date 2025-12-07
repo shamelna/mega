@@ -150,6 +150,9 @@ async function loadDashboard() {
     // Store current assessment for export
     window.currentDashboardAssessment = latestAssessment;
 
+    // Ensure the Overview tab is active
+    showDashboardTab('overview');
+
     let html = '';
     for (const dim of results.dimensions) {
         const status = getStatusClass(dim.percentage);
@@ -206,6 +209,10 @@ async function loadDashboard() {
                 </p>
             </div>
         </div>
+    `;
+
+    // Create the dimensions container
+    const dimensionsHTML = `
         <div class="dimensions-container">
             <h2 style="color: #821874; margin-bottom: 20px;">Dimension Breakdown</h2>
             <div class="dimensions-grid">
@@ -214,8 +221,20 @@ async function loadDashboard() {
         </div>
     `;
     
-    // Set the combined HTML to the container
-    document.getElementById('enhancedResultsGrid').innerHTML = whatsNextHTML;
+    // Clear and set the content
+    const enhancedResultsGrid = document.getElementById('enhancedResultsGrid');
+    enhancedResultsGrid.innerHTML = ''; // Clear existing content
+    
+    // Append the What's Next section and dimensions
+    enhancedResultsGrid.insertAdjacentHTML('beforeend', whatsNextHTML);
+    enhancedResultsGrid.insertAdjacentHTML('beforeend', dimensionsHTML);
+    
+    // Make sure the tab is visible
+    document.getElementById('dashboardTabs').style.display = 'flex';
+    document.getElementById('overviewTab').style.display = 'block';
+    
+    // Force a reflow to ensure the content is displayed
+    void enhancedResultsGrid.offsetHeight;
 }
 
 async function loadSavedAssessments() {
