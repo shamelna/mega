@@ -553,7 +553,10 @@ function handleSignOut() {
     
     // Force page reload to ensure complete cleanup
     setTimeout(() => {
-        window.location.reload();
+        // Clear any remaining content before reload
+        document.body.innerHTML = '';
+        // Reload with cache busting
+        window.location.href = window.location.href + '?t=' + Date.now();
     }, 100);
 }
 

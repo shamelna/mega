@@ -4,8 +4,8 @@
   "description": "MEGA LEAN Assessment Tool",
   "main": "index_firebase.html",
   "scripts": {
-    "dev": "npx live-server --port=5500 --open=index_firebase.html",
-    "start": "npx live-server --port=5500 --open=index_firebase.html"
+    "dev": "npx live-server --port=5500 --open=index.html",
+    "start": "npx live-server --port=5500 --open=index.html"
   },
   "devDependencies": {
     "live-server": "^1.2.2"

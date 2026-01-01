@@ -22,8 +22,12 @@ function loadDashboardResults() {
     if (overviewContent) {
         overviewContent.innerHTML = `
             <div class="status-overview" style="text-align: center; padding: 30px;">
-                <div class="status-large" style="font-size: 48px; font-weight: bold; color: #821874;">
-                    ${overallPercentage.toFixed(0)}%
+                <div class="progress-ring">
+                    <svg>
+                        <circle class="background" cx="100" cy="100" r="85"></circle>
+                        <circle class="progress" cx="100" cy="100" r="85" id="progressCircle"></circle>
+                    </svg>
+                    <div class="progress-text">${overallPercentage.toFixed(0)}%</div>
                 </div>
                 <h3 style="margin: 10px 0;">Overall LEAN Maturity</h3>
                 <p style="color: #666;">${getScoreStatus(overallPercentage).text}</p>
@@ -33,6 +37,11 @@ function loadDashboardResults() {
                 ${generateDashboardDimensionResults(results)}
             </div>
         `;
+        
+        // Update progress circle animation
+        setTimeout(() => {
+            updateProgressCircle(overallPercentage);
+        }, 100);
     }
     
     // Update detailed tab
@@ -169,17 +178,245 @@ function getDimensionFeedback(percentage) {
 }
 
 // ============================================
+// PROGRESS CIRCLE ANIMATION
+// ============================================
+function updateProgressCircle(percentage) {
+    const circle = document.getElementById('progressCircle');
+    if (!circle) return;
+    
+    const circumference = 2 * Math.PI * 85;
+    const offset = circumference - (percentage / 100) * circumference;
+    
+    circle.style.strokeDasharray = circumference;
+    circle.style.strokeDashoffset = offset;
+    
+    // Animate the progress
+    circle.style.transition = 'stroke-dashoffset 1s ease-in-out';
+}
+
+// ============================================
 // VIEW ASSESSMENT (WRAPPER FUNCTION)
 // ============================================
-function viewAssessment(assessmentId) {
-    // This function is called from database_firebase.js
-    // Redirect to the admin function if available, otherwise create a basic view
-    if (typeof viewAssessmentResults === 'function') {
-        viewAssessmentResults(assessmentId);
-    } else {
-        console.error('viewAssessmentResults function not found');
-        showErrorMessage('Unable to view assessment. Function not available.');
+async function viewAssessment(assessmentId) {
+    try {
+        // Access global variables properly
+        const user = window.currentUser;
+        const userProfile = window.currentUserProfile;
+        
+        // Check if user is logged in
+        if (!user) {
+            showErrorMessage('Please sign in to view assessments.');
+            // Try to access auth functions
+            if (typeof showAuthTab === 'function') {
+                showAuthTab('signin');
+            }
+            return;
+        }
+        
+        // Try to use admin function if available
+        if (typeof viewAssessmentResults === 'function') {
+            await viewAssessmentResults(assessmentId);
+        } else {
+            // Fallback: create a basic view
+            await basicViewAssessment(assessmentId);
+        }
+    } catch (error) {
+        console.error('Error viewing assessment:', error);
+        showErrorMessage('Unable to view assessment. Please try again.');
     }
+}
+
+// ============================================
+// BASIC ASSESSMENT VIEW (FALLBACK)
+// ============================================
+async function basicViewAssessment(assessmentId) {
+    try {
+        const doc = await db.collection('assessments').doc(assessmentId).get();
+        if (!doc.exists) {
+            showErrorMessage('Assessment not found.');
+            return;
+        }
+        
+        const assessment = doc.data();
+        
+        // Create a simple modal to display assessment
+        const modal = document.createElement('div');
+        modal.id = 'assessmentViewModal';
+        modal.style.cssText = `
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            overflow: auto;
+        `;
+        
+        const overallScore = assessment.results?.overall_score || 0;
+        const percentage = (overallScore / 5) * 100;
+        
+        modal.innerHTML = `
+            <div style="position: relative; max-width: 800px; margin: 50px auto; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="background: linear-gradient(135deg, #821874 0%, #159eda 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                    <h2 style="margin: 0;">Assessment Results</h2>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">${assessment.company_name || 'Unknown Company'}</p>
+                </div>
+                <div style="padding: 30px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="font-size: 48px; font-weight: bold; color: #821874;">${percentage.toFixed(0)}%</div>
+                        <p style="color: #666;">Overall LEAN Maturity</p>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <strong>Assessor:</strong> ${assessment.assessor_name || 'N/A'}<br>
+                        <strong>Date:</strong> ${assessment.assessment_date || 'N/A'}<br>
+                        <strong>Status:</strong> ${assessment.is_draft ? 'Draft' : 'Completed'}
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button onclick="closeAssessmentViewModal()" class="btn btn-secondary">Close</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+    } catch (error) {
+        console.error('Error in basic view assessment:', error);
+        showErrorMessage('Failed to load assessment details.');
+    }
+}
+
+function closeAssessmentViewModal() {
+    const modal = document.getElementById('assessmentViewModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// ============================================
+// EDIT ASSESSMENT
+// ============================================
+async function editAssessment(assessmentId) {
+    try {
+        // Access global variables properly
+        const user = window.currentUser;
+        const userProfile = window.currentUserProfile;
+        
+        // Check if user is logged in
+        if (!user) {
+            showErrorMessage('Please sign in to edit assessments.');
+            if (typeof showAuthTab === 'function') {
+                showAuthTab('signin');
+            }
+            return;
+        }
+        
+        const doc = await db.collection('assessments').doc(assessmentId).get();
+        if (!doc.exists) {
+            showErrorMessage('Assessment not found.');
+            return;
+        }
+        
+        const assessment = doc.data();
+        
+        // Check if user owns this assessment or is admin
+        if (assessment.user_id !== user.uid && userProfile?.role !== 'admin') {
+            showErrorMessage('You can only edit your own assessments.');
+            return;
+        }
+        
+        // Load assessment data into form
+        window.currentAssessmentId = assessmentId;
+        
+        // Set form values
+        document.getElementById('companyName').value = assessment.company_name || '';
+        document.getElementById('assessorName').value = assessment.assessor_name || '';
+        document.getElementById('assessmentDate').value = assessment.assessment_date || '';
+        
+        // Load responses into form
+        if (assessment.responses) {
+            loadResponsesIntoForm(assessment.responses);
+        }
+        
+        // Show assessment panel
+        if (typeof showPanel === 'function') {
+            showPanel('assessment');
+        }
+        
+        showSuccessMessage('Assessment loaded for editing. Make your changes and save.');
+        
+    } catch (error) {
+        console.error('Error editing assessment:', error);
+        showErrorMessage('Failed to load assessment for editing.');
+    }
+}
+
+// ============================================
+// DELETE ASSESSMENT
+// ============================================
+async function deleteAssessment(assessmentId) {
+    try {
+        // Access global variables properly
+        const user = window.currentUser;
+        const userProfile = window.currentUserProfile;
+        
+        // Check if user is logged in
+        if (!user) {
+            showErrorMessage('Please sign in to delete assessments.');
+            if (typeof showAuthTab === 'function') {
+                showAuthTab('signin');
+            }
+            return;
+        }
+        
+        // Confirm deletion
+        if (!confirm('Are you sure you want to delete this assessment? This action cannot be undone.')) {
+            return;
+        }
+        
+        const doc = await db.collection('assessments').doc(assessmentId).get();
+        if (!doc.exists) {
+            showErrorMessage('Assessment not found.');
+            return;
+        }
+        
+        const assessment = doc.data();
+        
+        // Check if user owns this assessment or is admin
+        if (assessment.user_id !== user.uid && userProfile?.role !== 'admin') {
+            showErrorMessage('You can only delete your own assessments.');
+            return;
+        }
+        
+        // Delete the assessment
+        await db.collection('assessments').doc(assessmentId).delete();
+        
+        // Refresh the assessments list
+        if (typeof loadUserAssessments === 'function') {
+            await loadUserAssessments();
+        }
+        
+        showSuccessMessage('Assessment deleted successfully.');
+        
+    } catch (error) {
+        console.error('Error deleting assessment:', error);
+        showErrorMessage('Failed to delete assessment. Please try again.');
+    }
+}
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+function loadResponsesIntoForm(responses) {
+    // Load responses into the assessment form
+    Object.keys(responses).forEach(questionId => {
+        const input = document.querySelector(`input[name="${questionId}"]:checked`);
+        if (input) {
+            input.checked = true;
+        }
+    });
 }
 
 // ============================================
@@ -754,12 +991,12 @@ async function submitAssessment() {
 
 async function saveAssessment() {
     if (document.getElementById('companyName').value === '') {
-        alert('Please enter company name.');
+        showErrorMessage('Please enter company name.');
         return;
     }
 
     const assessment = {
-        id: currentAssessmentId || null,
+        id: window.currentAssessmentId || null,
         companyName: document.getElementById('companyName').value,
         assessorName: document.getElementById('assessorName').value,
         assessmentDate: document.getElementById('assessmentDate').value,
@@ -775,13 +1012,16 @@ function resetForm() {
     if (confirm('Are you sure you want to reset the form?')) {
         document.getElementById('assessmentForm').reset();
         document.getElementById('assessmentDate').value = new Date().toISOString().split('T')[0];
-        currentAssessmentId = null;
+        window.currentAssessmentId = null;
     }
 }
 
 async function saveAssessmentToStorage(assessment) {
-    if (!currentUser) {
-        alert('Please login first.');
+    const user = window.currentUser;
+    const userProfile = window.currentUserProfile;
+    
+    if (!user) {
+        showErrorMessage('Please login first.');
         return;
     }
 
@@ -789,9 +1029,9 @@ async function saveAssessmentToStorage(assessment) {
         const now = firebase.firestore.FieldValue.serverTimestamp();
 
         const assessmentData = {
-            user_id: currentUser.uid,
-            user_email: currentUser.email,
-            user_name: currentUserProfile?.display_name || currentUser.email.split('@')[0],
+            user_id: user.uid,
+            user_email: user.email,
+            user_name: userProfile?.display_name || user.email.split('@')[0],
             company_name: assessment.companyName,
             assessor_name: assessment.assessorName,
             assessment_date: assessment.assessmentDate,
@@ -801,26 +1041,26 @@ async function saveAssessmentToStorage(assessment) {
             updated_at: now
         };
 
-        if (assessment.id && currentAssessmentId) {
-            await db.collection('assessments').doc(currentAssessmentId).set(assessmentData, { merge: true });
+        if (assessment.id && window.currentAssessmentId) {
+            await db.collection('assessments').doc(window.currentAssessmentId).set(assessmentData, { merge: true });
         } else {
             const docRef = await db.collection('assessments').add({
                 ...assessmentData,
                 created_at: now
             });
-            currentAssessmentId = docRef.id;
+            window.currentAssessmentId = docRef.id;
         }
 
         // Show success message
-        showSuccessMessage('✓ Assessment saved successfully! Your results are ready to view.');
-        
-        // Calculate and display results
-        calculateAndDisplayResults(formData);
+        if (assessment.isDraft) {
+            showSuccessMessage('✓ Draft saved successfully! You can continue later.');
+        } else {
+            showSuccessMessage('✓ Assessment saved successfully! Your results are ready to view.');
+        }
         
     } catch (error) {
         console.error('Exception:', error?.message || error);
-        // Show error message
-        showErrorMessage('❌ Failed to save assessment. Please try again.');
+        showErrorMessage('Failed to save assessment. Please try again.');
     }
 }
 
