@@ -199,12 +199,8 @@ function updateProgressCircle(percentage) {
 // ============================================
 async function viewAssessment(assessmentId) {
     try {
-        // Access global variables properly
-        const user = window.currentUser;
-        const userProfile = window.currentUserProfile;
-        
         // Check if user is logged in
-        if (!user) {
+        if (!currentUser) {
             showErrorMessage('Please sign in to view assessments.');
             // Try to access auth functions
             if (typeof showAuthTab === 'function') {
@@ -300,12 +296,8 @@ function closeAssessmentViewModal() {
 // ============================================
 async function editAssessment(assessmentId) {
     try {
-        // Access global variables properly
-        const user = window.currentUser;
-        const userProfile = window.currentUserProfile;
-        
         // Check if user is logged in
-        if (!user) {
+        if (!currentUser) {
             showErrorMessage('Please sign in to edit assessments.');
             if (typeof showAuthTab === 'function') {
                 showAuthTab('signin');
@@ -322,13 +314,13 @@ async function editAssessment(assessmentId) {
         const assessment = doc.data();
         
         // Check if user owns this assessment or is admin
-        if (assessment.user_id !== user.uid && userProfile?.role !== 'admin') {
+        if (assessment.user_id !== currentUser.uid && currentUserProfile?.role !== 'admin') {
             showErrorMessage('You can only edit your own assessments.');
             return;
         }
         
         // Load assessment data into form
-        window.currentAssessmentId = assessmentId;
+        currentAssessmentId = assessmentId;
         
         // Set form values
         document.getElementById('companyName').value = assessment.company_name || '';
@@ -358,12 +350,8 @@ async function editAssessment(assessmentId) {
 // ============================================
 async function deleteAssessment(assessmentId) {
     try {
-        // Access global variables properly
-        const user = window.currentUser;
-        const userProfile = window.currentUserProfile;
-        
         // Check if user is logged in
-        if (!user) {
+        if (!currentUser) {
             showErrorMessage('Please sign in to delete assessments.');
             if (typeof showAuthTab === 'function') {
                 showAuthTab('signin');
@@ -372,7 +360,7 @@ async function deleteAssessment(assessmentId) {
         }
         
         // Confirm deletion
-        if (!confirm('Are you sure you want to delete this assessment? This action cannot be undone.')) {
+        if (!await showDeleteConfirmation('assessment', 'This action cannot be undone.')) {
             return;
         }
         
@@ -385,7 +373,7 @@ async function deleteAssessment(assessmentId) {
         const assessment = doc.data();
         
         // Check if user owns this assessment or is admin
-        if (assessment.user_id !== user.uid && userProfile?.role !== 'admin') {
+        if (assessment.user_id !== currentUser.uid && currentUserProfile?.role !== 'admin') {
             showErrorMessage('You can only delete your own assessments.');
             return;
         }
@@ -417,6 +405,120 @@ function loadResponsesIntoForm(responses) {
             input.checked = true;
         }
     });
+}
+
+// ============================================
+// CONFIRMATION MODALS
+// ============================================
+async function showDeleteConfirmation(itemType, message) {
+    return new Promise((resolve) => {
+        // Create modal if it doesn't exist
+        let modal = document.getElementById('deleteConfirmModal');
+        if (modal) {
+            modal.remove();
+        }
+        
+        modal = document.createElement('div');
+        modal.id = 'deleteConfirmModal';
+        modal.style.cssText = `
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            overflow: auto;
+        `;
+        
+        modal.innerHTML = `
+            <div style="position: relative; max-width: 400px; margin: 100px auto; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+                    <h2 style="margin: 0;">🗑️ Delete ${itemType}</h2>
+                </div>
+                <div style="padding: 30px; text-align: center;">
+                    <p style="margin-bottom: 20px; color: #2d2d2d;">Are you sure you want to delete this ${itemType}? ${message}</p>
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="closeDeleteConfirmModal(false)" class="btn btn-secondary" style="min-width: 100px;">Cancel</button>
+                        <button onclick="closeDeleteConfirmModal(true)" class="btn btn-danger" style="min-width: 100px;">Delete</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+        
+        // Store resolve function for button clicks
+        window.deleteConfirmResolve = resolve;
+    });
+}
+
+function closeDeleteConfirmModal(confirmed) {
+    const modal = document.getElementById('deleteConfirmModal');
+    if (modal) {
+        modal.remove();
+    }
+    
+    if (window.deleteConfirmResolve) {
+        window.deleteConfirmResolve(confirmed);
+        delete window.deleteConfirmResolve;
+    }
+}
+
+function showResetConfirmation() {
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('resetConfirmModal');
+    if (modal) {
+        modal.remove();
+    }
+    
+    modal = document.createElement('div');
+    modal.id = 'resetConfirmModal';
+    modal.style.cssText = `
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 9999;
+        overflow: auto;
+    `;
+    
+    modal.innerHTML = `
+        <div style="position: relative; max-width: 400px; margin: 100px auto; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <div style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+                <h2 style="margin: 0;">🔄 Reset Form</h2>
+            </div>
+            <div style="padding: 30px; text-align: center;">
+                <p style="margin-bottom: 20px; color: #2d2d2d;">Are you sure you want to reset the form? All current data will be lost.</p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="closeResetConfirmModal(false)" class="btn btn-secondary" style="min-width: 100px;">Cancel</button>
+                    <button onclick="closeResetConfirmModal(true)" class="btn btn-warning" style="min-width: 100px;">Reset</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.style.display = 'block';
+}
+
+function closeResetConfirmModal(confirmed) {
+    const modal = document.getElementById('resetConfirmModal');
+    if (modal) {
+        modal.remove();
+    }
+    
+    if (confirmed) {
+        document.getElementById('assessmentForm').reset();
+        document.getElementById('assessmentDate').value = new Date().toISOString().split('T')[0];
+        currentAssessmentId = null;
+        showSuccessMessage('✓ Form has been reset successfully.');
+    }
 }
 
 // ============================================
@@ -883,7 +985,7 @@ function validateAssessment() {
     for (let i = 1; i <= 35; i++) {
         const checked = document.querySelector(`input[name="q${i}"]:checked`);
         if (!checked) {
-            alert(`Please answer question ${i}.`);
+            showErrorMessage(`Please answer question ${i}.`);
             return false;
         }
     }
@@ -996,7 +1098,7 @@ async function saveAssessment() {
     }
 
     const assessment = {
-        id: window.currentAssessmentId || null,
+        id: currentAssessmentId,
         companyName: document.getElementById('companyName').value,
         assessorName: document.getElementById('assessorName').value,
         assessmentDate: document.getElementById('assessmentDate').value,
@@ -1009,18 +1111,11 @@ async function saveAssessment() {
 }
 
 function resetForm() {
-    if (confirm('Are you sure you want to reset the form?')) {
-        document.getElementById('assessmentForm').reset();
-        document.getElementById('assessmentDate').value = new Date().toISOString().split('T')[0];
-        window.currentAssessmentId = null;
-    }
+    showResetConfirmation();
 }
 
 async function saveAssessmentToStorage(assessment) {
-    const user = window.currentUser;
-    const userProfile = window.currentUserProfile;
-    
-    if (!user) {
+    if (!currentUser) {
         showErrorMessage('Please login first.');
         return;
     }
@@ -1029,9 +1124,9 @@ async function saveAssessmentToStorage(assessment) {
         const now = firebase.firestore.FieldValue.serverTimestamp();
 
         const assessmentData = {
-            user_id: user.uid,
-            user_email: user.email,
-            user_name: userProfile?.display_name || user.email.split('@')[0],
+            user_id: currentUser.uid,
+            user_email: currentUser.email,
+            user_name: currentUserProfile?.display_name || currentUser.email.split('@')[0],
             company_name: assessment.companyName,
             assessor_name: assessment.assessorName,
             assessment_date: assessment.assessmentDate,
@@ -1041,14 +1136,14 @@ async function saveAssessmentToStorage(assessment) {
             updated_at: now
         };
 
-        if (assessment.id && window.currentAssessmentId) {
-            await db.collection('assessments').doc(window.currentAssessmentId).set(assessmentData, { merge: true });
+        if (assessment.id && currentAssessmentId) {
+            await db.collection('assessments').doc(currentAssessmentId).set(assessmentData, { merge: true });
         } else {
             const docRef = await db.collection('assessments').add({
                 ...assessmentData,
                 created_at: now
             });
-            window.currentAssessmentId = docRef.id;
+            currentAssessmentId = docRef.id;
         }
 
         // Show success message

@@ -2,8 +2,12 @@
 // FIREBASE AUTHENTICATION MODULE
 // ============================================
 
-let currentUser = null;
-let currentUserProfile = null;
+// Global variables accessible to all files
+window.currentUser = null;
+window.currentUserProfile = null;
+window.currentAssessmentData = null;
+window.currentIndividualAssessment = null;
+window.currentAssessmentId = null;
 
 // ============================================
 // INITIALIZATION
@@ -28,28 +32,32 @@ async function initializeAuth() {
 }
 
 async function handleAuthenticatedUser(user) {
-    currentUser = user;
+    window.currentUser = user;
     
     try {
-        const profileDoc = await db.collection('profiles').doc(user.uid).get();
+        // Get user profile from Firestore
+        const userDoc = await db.collection('profiles').doc(user.uid).get();
         
-        if (!profileDoc.exists) {
-            await createUserProfile(user);
+        if (userDoc.exists) {
+            window.currentUserProfile = userDoc.data();
         } else {
-            currentUserProfile = profileDoc.data();
-            currentUserProfile.id = profileDoc.id;
-            console.log('User profile loaded:', currentUserProfile);
+            // Create basic profile if it doesn't exist
+            const profileData = {
+                email: user.email,
+                display_name: user.displayName || user.email.split('@')[0],
+                role: 'user',
+                created_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
             
-            // Update profile if display_name is missing but available
-            if (!currentUserProfile.display_name && user.displayName) {
-                await updateUserProfile(user.uid, { display_name: user.displayName });
-            }
+            await db.collection('profiles').doc(user.uid).set(profileData);
+            window.currentUserProfile = profileData;
         }
         
         showAuthenticatedUI();
         
     } catch (error) {
-        console.error('Profile fetch error:', error);
+        console.error('Error handling authenticated user:', error);
+        // Still show UI even if profile fetch fails
         showAuthenticatedUI();
     }
 }
@@ -70,8 +78,8 @@ async function createUserProfile(user) {
         
         await db.collection('profiles').doc(user.uid).set(profileData);
         
-        currentUserProfile = { ...profileData, id: user.uid };
-        console.log('Profile created:', currentUserProfile);
+        window.currentUserProfile = { ...profileData, id: user.uid };
+        console.log('Profile created:', window.currentUserProfile);
         
     } catch (error) {
         console.error('Error creating profile:', error);
@@ -87,12 +95,12 @@ async function updateUserProfile(userId, updates) {
         
         await db.collection('profiles').doc(userId).update(updateData);
         
-        if (userId === currentUser?.uid) {
-            currentUserProfile = { ...currentUserProfile, ...updates };
-            console.log('Profile updated:', currentUserProfile);
+        if (userId === window.currentUser?.uid) {
+            window.currentUserProfile = { ...window.currentUserProfile, ...updates };
+            console.log('Profile updated:', window.currentUserProfile);
         }
         
-        return { data: currentUserProfile, error: null };
+        return { data: window.currentUserProfile, error: null };
     } catch (error) {
         console.error('Error updating profile:', error);
         return { data: null, error };
@@ -125,12 +133,12 @@ function showAuthenticatedUI() {
 function showAuthSection() {
     document.getElementById('authSection').style.display = 'block';
     document.getElementById('mainNavigation').style.display = 'none';
-    currentUser = null;
-    currentUserProfile = null;
+    window.currentUser = null;
+    window.currentUserProfile = null;
 }
 
 function isAdmin() {
-    return currentUserProfile && currentUserProfile.role === 'admin';
+    return window.currentUserProfile && window.currentUserProfile.role === 'admin';
 }
 
 // ============================================
@@ -467,11 +475,11 @@ async function confirmLogout() {
 }
 
 function handleSignOut() {
-    currentUser = null;
-    currentUserProfile = null;
-    currentAssessmentData = null;
-    currentIndividualAssessment = null;
-    currentAssessmentId = null;
+    window.currentUser = null;
+    window.currentUserProfile = null;
+    window.currentAssessmentData = null;
+    window.currentIndividualAssessment = null;
+    window.currentAssessmentId = null;
     
     // Hide navigation completely
     const navigation = document.getElementById('mainNavigation');

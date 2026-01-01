@@ -61,7 +61,11 @@ function showIndividualTab(tabName) {
 // ============================================
 async function previewCurrentAssessmentPDF() {
     if (!currentAssessmentData || !currentAssessmentData.results) {
-        alert('No assessment data to preview');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('No assessment data to preview');
+        } else {
+            alert('No assessment data to preview');
+        }
         return;
     }
     
@@ -73,7 +77,11 @@ async function previewCurrentAssessmentPDF() {
 
 async function exportCurrentAssessmentPDF() {
     if (!currentAssessmentData || !currentAssessmentData.results) {
-        alert('No assessment data to export');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('No assessment data to export');
+        } else {
+            alert('No assessment data to export');
+        }
         return;
     }
     
@@ -85,7 +93,11 @@ async function exportCurrentAssessmentPDF() {
 // ============================================
 async function previewIndividualAssessmentPDF() {
     if (!currentIndividualAssessment) {
-        alert('No assessment data to preview');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('No assessment data to preview');
+        } else {
+            alert('No assessment data to preview');
+        }
         return;
     }
     
@@ -97,9 +109,13 @@ async function previewIndividualAssessmentPDF() {
 
 async function exportIndividualAssessmentPDF() {
     if (!currentIndividualAssessment) {
-        alert('No assessment data to export');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('No assessment data to export');
+        } else {
+            alert('No assessment data to export');
+        }
         return;
     }
     
     await generatePDFReport(currentIndividualAssessment);
-}   
+}

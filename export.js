@@ -828,7 +828,11 @@ async function generatePDFReport(assessment) {
         return true;
     } catch (error) {
         console.error('Error generating PDF:', error);
-        alert('Error generating PDF report. Please try again.');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Error generating PDF report. Please try again.');
+        } else {
+            alert('Error generating PDF report. Please try again.');
+        }
         return false;
     }
 }
@@ -880,14 +884,22 @@ async function exportAssessmentData(assessmentId = null) {
         let assessments = [];
 
         if (!currentUser) {
-            alert('Please login first');
+            if (typeof showErrorMessage === 'function') {
+                showErrorMessage('Please login first');
+            } else {
+                alert('Please login first');
+            }
             return;
         }
 
         if (assessmentId) {
             const doc = await db.collection('assessments').doc(assessmentId).get();
             if (!doc.exists) {
-                alert('Assessment not found');
+                if (typeof showErrorMessage === 'function') {
+                    showErrorMessage('Assessment not found');
+                } else {
+                    alert('Assessment not found');
+                }
                 return;
             }
             assessments = [{ id: doc.id, ...doc.data() }];
@@ -915,7 +927,11 @@ async function exportAssessmentData(assessmentId = null) {
         }
         
         if (!assessments || assessments.length === 0) {
-            alert('No data to export');
+            if (typeof showErrorMessage === 'function') {
+                showErrorMessage('No data to export');
+            } else {
+                alert('No data to export');
+            }
             return;
         }
         
@@ -962,7 +978,11 @@ async function exportAssessmentData(assessmentId = null) {
         
     } catch (error) {
         console.error('Error exporting data:', error);
-        alert('Error exporting data. Please try again.');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Error exporting data. Please try again.');
+        } else {
+            alert('Error exporting data. Please try again.');
+        }
     }
 }
 
@@ -972,7 +992,11 @@ async function exportAssessmentData(assessmentId = null) {
 async function exportUserData() {
     try {
         if (!currentUser) {
-            alert('Please login first');
+            if (typeof showErrorMessage === 'function') {
+                showErrorMessage('Please login first');
+            } else {
+                alert('Please login first');
+            }
             return;
         }
 
@@ -1013,10 +1037,18 @@ async function exportUserData() {
         link.click();
         document.body.removeChild(link);
         
-        alert('Your data has been exported successfully!');
+        if (typeof showSuccessMessage === 'function') {
+            showSuccessMessage('✓ Your data has been exported successfully!');
+        } else {
+            alert('Your data has been exported successfully!');
+        }
         
     } catch (error) {
         console.error('Error exporting user data:', error);
-        alert('Error exporting your data. Please try again.');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Error exporting your data. Please try again.');
+        } else {
+            alert('Error exporting your data. Please try again.');
+        }
     }
 }

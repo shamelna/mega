@@ -36,7 +36,11 @@ function showAdminTab(tabName) {
 
 async function exportAllAssessmentsData() {
     if (!isAdmin()) {
-        alert('Unauthorized action');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Unauthorized action');
+        } else {
+            alert('Unauthorized action');
+        }
         return;
     }
 
@@ -52,7 +56,11 @@ async function exportAllAssessmentsData() {
             });
 
         if (!assessments.length) {
-            alert('No data to export');
+            if (typeof showErrorMessage === 'function') {
+                showErrorMessage('No data to export');
+            } else {
+                alert('No data to export');
+            }
             return;
         }
 
@@ -78,7 +86,11 @@ async function exportAllAssessmentsData() {
         document.body.removeChild(link);
     } catch (error) {
         console.error('Error exporting all assessments:', error);
-        alert('Error exporting data. Please try again.');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Error exporting data. Please try again.');
+        } else {
+            alert('Error exporting data. Please try again.');
+        }
     }
 }
 
@@ -349,12 +361,16 @@ function renderUsersTable(users) {
 
 async function toggleUserStatus(userId, newStatus) {
     if (!isAdmin()) {
-        alert('Unauthorized action');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Unauthorized action');
+        } else {
+            alert('Unauthorized action');
+        }
         return;
     }
     
     const action = newStatus ? 'activate' : 'deactivate';
-    if (!confirm(`Are you sure you want to ${action} this user?`)) {
+    if (!await showAdminActionConfirmation('user status', `${action} this user`)) {
         return;
     }
     
@@ -364,23 +380,35 @@ async function toggleUserStatus(userId, newStatus) {
             updated_at: firebase.firestore.FieldValue.serverTimestamp()
         });
         
-        alert(`User ${action}d successfully`);
+        if (typeof showSuccessMessage === 'function') {
+            showSuccessMessage(`✓ User ${action}d successfully`);
+        } else {
+            alert(`User ${action}d successfully`);
+        }
         loadAdminUsers();
         
     } catch (error) {
         console.error('Error toggling user status:', error);
-        alert('Failed to update user status');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Failed to update user status');
+        } else {
+            alert('Failed to update user status');
+        }
     }
 }
 
 async function toggleUserRole(userId, newRole) {
     if (!isAdmin()) {
-        alert('Unauthorized action');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Unauthorized action');
+        } else {
+            alert('Unauthorized action');
+        }
         return;
     }
     
     const action = newRole === 'admin' ? 'promote to admin' : 'remove admin privileges from';
-    if (!confirm(`Are you sure you want to ${action} this user?`)) {
+    if (!await showAdminActionConfirmation('user role', `${action} this user`)) {
         return;
     }
     
@@ -390,12 +418,81 @@ async function toggleUserRole(userId, newRole) {
             updated_at: firebase.firestore.FieldValue.serverTimestamp()
         });
         
-        alert(`User role updated successfully`);
+        if (typeof showSuccessMessage === 'function') {
+            showSuccessMessage('✓ User role updated successfully');
+        } else {
+            alert('User role updated successfully');
+        }
+        
         loadAdminUsers();
         
     } catch (error) {
         console.error('Error toggling user role:', error);
-        alert('Failed to update user role');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Failed to update user role');
+        } else {
+            alert('Failed to update user role');
+        }
+    }
+}
+
+// ============================================
+// ADMIN ACTION CONFIRMATION MODAL
+// ============================================
+async function showAdminActionConfirmation(actionType, message) {
+    return new Promise((resolve) => {
+        // Create modal if it doesn't exist
+        let modal = document.getElementById('adminActionConfirmModal');
+        if (modal) {
+            modal.remove();
+        }
+        
+        modal = document.createElement('div');
+        modal.id = 'adminActionConfirmModal';
+        modal.style.cssText = `
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            overflow: auto;
+        `;
+        
+        modal.innerHTML = `
+            <div style="position: relative; max-width: 400px; margin: 100px auto; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="background: linear-gradient(135deg, #821874 0%, #159eda 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+                    <h2 style="margin: 0;">⚙️ Admin Action</h2>
+                </div>
+                <div style="padding: 30px; text-align: center;">
+                    <p style="margin-bottom: 20px; color: #2d2d2d;">Are you sure you want to ${message}?</p>
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="closeAdminActionConfirmModal(false)" class="btn btn-secondary" style="min-width: 100px;">Cancel</button>
+                        <button onclick="closeAdminActionConfirmModal(true)" class="btn btn-primary" style="min-width: 100px;">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+        
+        // Store resolve function for button clicks
+        window.adminActionConfirmResolve = resolve;
+    });
+}
+
+function closeAdminActionConfirmModal(confirmed) {
+    const modal = document.getElementById('adminActionConfirmModal');
+    if (modal) {
+        modal.remove();
+    }
+    
+    if (window.adminActionConfirmResolve) {
+        window.adminActionConfirmResolve(confirmed);
+        delete window.adminActionConfirmResolve;
     }
 }
 
@@ -406,7 +503,11 @@ async function viewAssessmentResults(assessmentId) {
     try {
         const doc = await db.collection('assessments').doc(assessmentId).get();
         if (!doc.exists) {
-            alert('Assessment not found');
+            if (typeof showErrorMessage === 'function') {
+                showErrorMessage('Assessment not found');
+            } else {
+                alert('Assessment not found');
+            }
             return;
         }
 
@@ -421,7 +522,11 @@ async function viewAssessmentResults(assessmentId) {
         
     } catch (error) {
         console.error('Error loading assessment:', error);
-        alert('Failed to load assessment');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Failed to load assessment');
+        } else {
+            alert('Failed to load assessment');
+        }
     }
 }
 
@@ -512,7 +617,11 @@ async function exportAssessmentPDFById(assessmentId) {
     try {
         const doc = await db.collection('assessments').doc(assessmentId).get();
         if (!doc.exists) {
-            alert('Failed to load assessment data');
+            if (typeof showErrorMessage === 'function') {
+                showErrorMessage('Failed to load assessment data');
+            } else {
+                alert('Failed to load assessment data');
+            }
             return;
         }
 
@@ -521,7 +630,11 @@ async function exportAssessmentPDFById(assessmentId) {
         await generatePDFReport(assessment);
     } catch (error) {
         console.error('Error:', error);
-        alert('Failed to generate PDF');
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Failed to generate PDF');
+        } else {
+            alert('Failed to generate PDF');
+        }
     }
 }
 
