@@ -545,8 +545,8 @@ async function generatePDFReport(assessment) {
         doc.setFont(undefined, 'bold');
         doc.text('Date:', margin + 5, yPos);
         doc.setFont(undefined, 'normal');
-        const assessmentDate = new Date(assessment.assessment_date || assessment.created_at).toLocaleDateString();
-        doc.text(assessmentDate, margin + 35, yPos);
+        const assessmentDateText = new Date(assessment.assessment_date || assessment.created_at).toLocaleDateString();
+        doc.text(assessmentDateText, margin + 35, yPos);
         
         yPos += 7;
         doc.setFont(undefined, 'bold');
@@ -640,8 +640,8 @@ async function generatePDFReport(assessment) {
         doc.setFont(undefined, 'bold');
         doc.text('Date:', margin + 5, yPos);
         doc.setFont(undefined, 'normal');
-        const assessmentDate = new Date(assessment.assessment_date || assessment.created_at).toLocaleDateString();
-        doc.text(assessmentDate, margin + 35, yPos);
+        const assessmentDateText2 = new Date(assessment.assessment_date || assessment.created_at).toLocaleDateString();
+        doc.text(assessmentDateText2, margin + 35, yPos);
         
         yPos += 7;
         doc.setFont(undefined, 'bold');
@@ -651,7 +651,7 @@ async function generatePDFReport(assessment) {
         
         yPos += 15;
         
-        const results = assessment.results;
+        const results2 = assessment.results;
         
         // Overall Score Section
         doc.setFillColor(21, 158, 218);
@@ -663,10 +663,10 @@ async function generatePDFReport(assessment) {
         doc.text('Overall LEAN Maturity', pageWidth / 2, yPos + 10, { align: 'center' });
         
         doc.setFontSize(28);
-        doc.text(`${results.overallPercentage}%`, pageWidth / 2, yPos + 22, { align: 'center' });
+        doc.text(`${results2.overallPercentage}%`, pageWidth / 2, yPos + 22, { align: 'center' });
         
         doc.setFontSize(14);
-        doc.text(results.status, pageWidth / 2, yPos + 28, { align: 'center' });
+        doc.text(results2.status, pageWidth / 2, yPos + 28, { align: 'center' });
         
         yPos += 40;
         
@@ -678,7 +678,7 @@ async function generatePDFReport(assessment) {
         yPos += 15;
         
         // Add spider chart with unique variable names
-        const spiderChartImage = await generateSpiderChart(results);
+        const spiderChartImage = await generateSpiderChart(results2);
         const spiderChartWidth = 150;
         const spiderChartHeight = 150;
         doc.addImage(spiderChartImage, 'PNG', (pageWidth - spiderChartWidth) / 2, yPos, spiderChartWidth, spiderChartHeight);
@@ -697,7 +697,7 @@ async function generatePDFReport(assessment) {
         // Add questions by dimension
         const responses = assessment.responses;
         DIMENSIONS.forEach((dimension, dimIndex) => {
-            const dimensionResult = results.dimensions.find(d => d.dimension === dimension.name);
+            const dimensionResult = results2.dimensions.find(d => d.dimension === dimension.name);
             if (!dimensionResult) return;
             
             // Check if we need a new page
@@ -877,21 +877,41 @@ function generateSimplifiedFeedback(results) {
 // ============================================
 async function exportAssessmentData(assessmentId = null) {
     try {
-        let assessments;
-        
+        let assessments = [];
+
+        if (!currentUser) {
+            alert('Please login first');
+            return;
+        }
+
         if (assessmentId) {
-            // Export single assessment
-            const { data, error } = await supabase
-                .from('assessments')
-                .select('*')
-                .eq('id', assessmentId)
-                .single();
-            
-            if (error) throw error;
-            assessments = [data];
+            const doc = await db.collection('assessments').doc(assessmentId).get();
+            if (!doc.exists) {
+                alert('Assessment not found');
+                return;
+            }
+            assessments = [{ id: doc.id, ...doc.data() }];
         } else {
             // Export all user's assessments (or all for admin)
-            assessments = await loadUserAssessments();
+            let snapshot;
+
+            if (typeof isAdmin === 'function' && isAdmin()) {
+                snapshot = await db.collection('assessments').get();
+            } else {
+                snapshot = await db.collection('assessments')
+                    .where('user_id', '==', currentUser.uid)
+                    .get();
+            }
+
+            assessments = snapshot.docs
+                .map(doc => ({ id: doc.id, ...doc.data() }))
+                .sort((a, b) => {
+                    const aDate = convertTimestamp(a.created_at);
+                    const bDate = convertTimestamp(b.created_at);
+                    const aTime = aDate ? aDate.getTime() : 0;
+                    const bTime = bDate ? bDate.getTime() : 0;
+                    return bTime - aTime;
+                });
         }
         
         if (!assessments || assessments.length === 0) {
@@ -905,7 +925,8 @@ async function exportAssessmentData(assessmentId = null) {
         csv += 'Continuous Improvement,Flow & Pull Systems,Problem Solving\n';
         
         assessments.forEach(assessment => {
-            const date = new Date(assessment.assessment_date || assessment.created_at).toLocaleDateString();
+            const createdDate = convertTimestamp(assessment.assessment_date || assessment.created_at);
+            const date = createdDate ? createdDate.toLocaleDateString() : '';
             const status = assessment.is_draft ? 'Draft' : 'Completed';
             
             csv += `"${assessment.company_name}","${assessment.assessor_name}","${date}","${status}",`;
@@ -954,15 +975,23 @@ async function exportUserData() {
             alert('Please login first');
             return;
         }
-        
-        // Get all user data
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', currentUser.id)
-            .single();
-        
-        const assessments = await loadUserAssessments();
+
+        const profileDoc = await db.collection('profiles').doc(currentUser.uid).get();
+        const profile = profileDoc.exists ? { id: profileDoc.id, ...profileDoc.data() } : null;
+
+        const snapshot = await db.collection('assessments')
+            .where('user_id', '==', currentUser.uid)
+            .get();
+
+        const assessments = snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => {
+                const aDate = convertTimestamp(a.created_at);
+                const bDate = convertTimestamp(b.created_at);
+                const aTime = aDate ? aDate.getTime() : 0;
+                const bTime = bDate ? bDate.getTime() : 0;
+                return bTime - aTime;
+            });
         
         const userData = {
             profile: profile,

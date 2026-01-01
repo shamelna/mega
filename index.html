@@ -6,6 +6,14 @@
     <title>MEGA LEAN Assessment Tool</title>
     <link rel="icon" type="image/x-icon" href="https://practitioner.kaizenacademy.education/Tcia.ico">
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -36,6 +44,11 @@
                     <h2 style="color: #821874; text-align: center;">Welcome Back</h2>
                     <p style="text-align: center;">Sign in to access your assessments</p>
                     
+                    <div class="data-warning">
+                        <h4>☁️ Cloud Storage - Powered by Firebase</h4>
+                        <p><strong>Your assessments are stored securely in the cloud!</strong> Access them from any device.</p>
+                    </div>
+                    
                     <div style="margin: 30px 0;">
                         <label for="signinEmail" style="display: block; margin-bottom: 10px; font-weight: 600;">Email Address:</label>
                         <input type="email" id="signinEmail" placeholder="Enter your email" required>
@@ -48,6 +61,37 @@
                         <button class="btn btn-primary" onclick="handleSignIn()" style="width: 100%; margin-top: 20px;">
                             Sign In
                         </button>
+                        
+                        <button class="btn btn-secondary" onclick="showForgotPassword()" style="width: 100%; margin-top: 10px;">
+                            Forgot Password?
+                        </button>
+                        
+                        <div style="margin-top: 25px; text-align: center;">
+                            <p style="margin-bottom: 15px; color: #666; font-size: 14px;">Or sign in with:</p>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <button onclick="signInWithGoogle()" class="btn btn-social btn-google" style="width: 100%; background: #4285f4; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: 600; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="18" height="18" style="margin-right: 8px;" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                    </svg>
+                                    Sign in with Google
+                                </button>
+                                <button onclick="signInWithMicrosoft()" class="btn btn-social btn-microsoft" style="width: 100%; background: #00a1f1; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: 600; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="18" height="18" style="margin-right: 8px;" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M11.4 11.4H2.6V2.6h8.8v8.8zm-1-1h1v-8h-8v8h7zm1 10.6H2.6v-8.8h8.8v8.8zm-1-1h1v-8h-8v8h7zm10.6-9.6h-8.8V2.6h8.8v8.8zm-1-1h1v-8h-8v8h7zm1 10.6h-8.8v-8.8h8.8v8.8zm-1-1h1v-8h-8v8h7z"/>
+                                    </svg>
+                                    Sign in with Microsoft
+                                </button>
+                                <button onclick="signInWithApple()" class="btn btn-social btn-apple" style="width: 100%; background: #000; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: 600; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="18" height="18" style="margin-right: 8px;" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M17.05 20.28c-.98.95-2.05.88-3.08.43-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.43C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                                    </svg>
+                                    Sign in with Apple
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -79,6 +123,55 @@
                         
                         <button class="btn btn-primary" onclick="handleSignUp()" style="width: 100%; margin-top: 20px;">
                             Create Account
+                        </button>
+                        
+                        <div style="margin-top: 25px; text-align: center;">
+                            <p style="margin-bottom: 15px; color: #666; font-size: 14px;">Or sign up with:</p>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <button onclick="signInWithGoogle()" class="btn btn-social btn-google" style="width: 100%; background: #4285f4; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: 600; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="18" height="18" style="margin-right: 8px;" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                    </svg>
+                                    Sign up with Google
+                                </button>
+                                <button onclick="signInWithMicrosoft()" class="btn btn-social btn-microsoft" style="width: 100%; background: #00a1f1; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: 600; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="18" height="18" style="margin-right: 8px;" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M11.4 11.4H2.6V2.6h8.8v8.8zm-1-1h1v-8h-8v8h7zm1 10.6H2.6v-8.8h8.8v8.8zm-1-1h1v-8h-8v8h7zm10.6-9.6h-8.8V2.6h8.8v8.8zm-1-1h1v-8h-8v8h7zm1 10.6h-8.8v-8.8h8.8v8.8zm-1-1h1v-8h-8v8h7z"/>
+                                    </svg>
+                                    Sign up with Microsoft
+                                </button>
+                                <button onclick="signInWithApple()" class="btn btn-social btn-apple" style="width: 100%; background: #000; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: 600; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="18" height="18" style="margin-right: 8px;" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M17.05 20.28c-.98.95-2.05.88-3.08.43-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.43C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                                    </svg>
+                                    Sign up with Apple
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forgot Password Form -->
+                <div id="forgotPasswordForm" class="auth-form" style="display: none;">
+                    <h2 style="color: #821874; text-align: center;">Reset Password</h2>
+                    <p style="text-align: center;">Enter your email to receive a password reset link</p>
+                    
+                    <div style="margin: 30px 0;">
+                        <label for="resetEmail" style="display: block; margin-bottom: 10px; font-weight: 600;">Email Address:</label>
+                        <input type="email" id="resetEmail" placeholder="Enter your email" required>
+                        
+                        <div id="resetError" style="display: none; color: #dc3545; margin-top: 10px; padding: 10px; background: #f8d7da; border-radius: 5px;"></div>
+                        <div id="resetSuccess" style="display: none; color: #28a745; margin-top: 10px; padding: 10px; background: #d4edda; border-radius: 5px;"></div>
+                        
+                        <button class="btn btn-primary" onclick="handlePasswordReset()" style="width: 100%; margin-top: 20px;">
+                            Send Reset Link
+                        </button>
+                        
+                        <button class="btn btn-secondary" onclick="showAuthTab('signin')" style="width: 100%; margin-top: 10px;">
+                            Back to Sign In
                         </button>
                     </div>
                 </div>
@@ -119,17 +212,16 @@
                     </div>
                 </div>
 
+                <!-- Assessment questions will be dynamically generated here -->
                 <div id="questionsContainer"></div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn btn-primary" onclick="submitAssessment()">Submit Assessment</button>
-                    <button type="button" class="btn btn-secondary" onclick="saveAssessment()">Save Draft</button>
-                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+                    <button type="button" class="btn btn-secondary" onclick="saveDraft()">Save Draft</button>
+                    <button type="submit" class="btn btn-primary">Submit Assessment</button>
                 </div>
             </form>
         </div>
 
-        <!-- Dashboard Panel -->
         <div id="dashboardPanel" class="panel">
             <div class="status-overview">
                 <h2>LEAN Maturity Assessment Results</h2>
@@ -145,7 +237,6 @@
                 <div id="statusDescription">Complete an assessment to see your organization's LEAN maturity level</div>
             </div>
 
-            <!-- Tabs for different views -->
             <div class="tabs" id="dashboardTabs" style="display:none;">
                 <button class="tab active" onclick="showDashboardTab('overview')">Overview</button>
                 <button class="tab" onclick="showDashboardTab('detailed')">Detailed Scores</button>
@@ -155,11 +246,11 @@
             <div id="overviewTab" class="tab-content active">
                 <div class="results-grid" id="enhancedResultsGrid"></div>
             </div>
-            
+
             <div id="detailedTab" class="tab-content">
                 <div id="detailedScoresContainer"></div>
             </div>
-            
+
             <div id="feedbackTab" class="tab-content">
                 <div id="feedbackSection" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
             </div>
@@ -175,7 +266,6 @@
             </div>
         </div>
 
-        <!-- Saved Assessments Panel -->
         <div id="savedPanel" class="panel">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="color: #821874; margin: 0;">My Assessments</h2>
@@ -195,7 +285,6 @@
             <div class="saved-assessments" id="savedAssessments"></div>
         </div>
 
-        <!-- Individual Assessment Results Panel -->
         <div id="assessmentResultsPanel" class="panel">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <button class="btn btn-secondary" onclick="showPanel('saved')">
@@ -210,35 +299,31 @@
                     </button>
                 </div>
             </div>
-            
-            <!-- Tabs for individual results -->
+
             <div class="tabs" id="individualTabs">
                 <button class="tab active" onclick="showIndividualTab('overview')">Overview</button>
                 <button class="tab" onclick="showIndividualTab('detailed')">Detailed Scores</button>
                 <button class="tab" onclick="showIndividualTab('feedback')">Insights</button>
             </div>
-            
+
             <div id="individualOverviewTab" class="tab-content active">
                 <div id="individualResultsContainer"></div>
             </div>
-            
+
             <div id="individualDetailedTab" class="tab-content">
                 <div id="individualDetailedScoresContainer"></div>
             </div>
-            
+
             <div id="individualFeedbackTab" class="tab-content">
                 <div id="individualFeedbackSection" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
             </div>
         </div>
 
-        <!-- Help & Manual Panel -->
         <div id="manualPanel" class="panel">
             <div class="manual-content">
                 <h1 style="color: #821874;">MEGA LEAN Assessment Tool - User Manual</h1>
-                
                 <h2>Getting Started</h2>
                 <p>The MEGA LEAN Assessment Tool evaluates your organization's LEAN maturity across 7 key dimensions.</p>
-
                 <h2>Understanding Your Results</h2>
                 <h3>LEAN Maturity Levels</h3>
                 <table>
@@ -272,7 +357,6 @@
                         </tr>
                     </tbody>
                 </table>
-
                 <h2>Rating Scale</h2>
                 <ul>
                     <li><strong>1 - Strongly Disagree:</strong> This practice doesn't exist</li>
@@ -300,20 +384,15 @@
             </div>
         </div>
 
-        <!-- Admin Panel -->
         <div id="adminPanel" class="panel">
             <h2 style="color: #821874;">Administrator Dashboard</h2>
-            
-            <!-- Admin Statistics -->
             <div id="adminStats" class="results-grid" style="margin-bottom: 30px;"></div>
-            
-            <!-- Admin Tabs -->
+
             <div class="tabs">
                 <button class="tab active" onclick="showAdminTab('assessments')">Assessments</button>
                 <button class="tab" onclick="showAdminTab('users')">User Management</button>
             </div>
-            
-            <!-- Assessments Tab -->
+
             <div id="adminAssessmentsTab" class="tab-content active">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                     <div class="data-warning" style="flex: 1; margin-right: 15px; margin-bottom: 0;">
@@ -324,8 +403,7 @@
                         📊 Export All Data (CSV)
                     </button>
                 </div>
-                
-                <!-- Filters -->
+
                 <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                         <div>
@@ -346,11 +424,10 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div id="adminAssessmentsTable"></div>
             </div>
-            
-            <!-- Users Tab -->
+
             <div id="adminUsersTab" class="tab-content">
                 <div class="data-warning">
                     <h4>User Management</h4>
@@ -360,7 +437,6 @@
             </div>
         </div>
 
-        <!-- PDF Preview Modal -->
         <div id="pdfPreviewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; overflow: auto;">
             <div style="position: relative; max-width: 900px; margin: 20px auto; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
                 <div style="position: sticky; top: 0; background: linear-gradient(135deg, #821874 0%, #159eda 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; z-index: 10; display: flex; justify-content: space-between; align-items: center;">
@@ -375,7 +451,6 @@
             </div>
         </div>
 
-        <!-- Edit User Modal -->
         <div id="editUserModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; overflow: auto;">
             <div style="position: relative; max-width: 600px; margin: 50px auto; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
                 <div style="background: linear-gradient(135deg, #821874 0%, #159eda 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center;">
@@ -384,23 +459,18 @@
                 </div>
                 <div style="padding: 30px;">
                     <input type="hidden" id="editUserId">
-                    
+
                     <div style="margin-bottom: 20px;">
                         <label for="editUserName" style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d2d2d;">Full Name:</label>
                         <input type="text" id="editUserName" placeholder="Enter full name" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
                     </div>
-                    
+
                     <div style="margin-bottom: 20px;">
                         <label for="editUserEmail" style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d2d2d;">Email Address:</label>
-                        <input type="email" id="editUserEmail" placeholder="Enter email address" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        <input type="email" id="editUserEmail" placeholder="Email is managed by Firebase Auth" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;" disabled>
+                        <small style="color: #666; font-size: 12px;">Email cannot be changed from the client app</small>
                     </div>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <label for="editUserPassword" style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d2d2d;">New Password:</label>
-                        <input type="password" id="editUserPassword" placeholder="Leave blank to keep current password" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                        <small style="color: #666; font-size: 12px;">Leave empty if you don't want to change the password</small>
-                    </div>
-                    
+
                     <div id="editUserError" style="display: none; color: #dc3545; margin-bottom: 15px; padding: 10px; background: #f8d7da; border-radius: 5px;"></div>
                     <div id="editUserSuccess" style="display: none; color: #28a745; margin-bottom: 15px; padding: 10px; background: #d4edda; border-radius: 5px;"></div>
                 </div>
@@ -411,29 +481,70 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
             <p>© <span id="currentYear"></span> MEGA LEAN Assessment Tool</p>
             <p>Designed by <strong>Kaizen Academy™</strong></p>
             <p><a href="https://kaizenacademy.education/" target="_blank">Learn More</a> | <a href="mailto:learn@continuousimprovement.education">Contact Us</a></p>
         </div>
-        <script>
-            // Update year dynamically
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
-        </script>
+
     </div>
 
-    <!-- External Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
-    <!-- Application Scripts -->
-    <script src="config.js"></script>
-    <script src="auth.js"></script>
+    <!-- JavaScript Modules -->
+    <script src="config_firebase.js"></script>
+    <script src="auth_firebase.js"></script>
+    <script src="database_firebase.js"></script>
     <script src="assessment.js"></script>
     <script src="admin.js"></script>
     <script src="export.js"></script>
-    <script src="app.js"></script>
+
+    <!-- Initialize App -->
+    <script>
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAuth();
+            if (typeof initializeAssessment === 'function') {
+                initializeAssessment();
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('assessmentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (typeof submitAssessment === 'function') {
+                await submitAssessment();
+            }
+        });
+
+        const currentYearEl = document.getElementById('currentYear');
+        if (currentYearEl) {
+            currentYearEl.textContent = new Date().getFullYear();
+        }
+
+        // Basic panel switching function
+        function showPanel(panelName) {
+            // Hide all panels
+            document.querySelectorAll('.panel').forEach(panel => {
+                panel.style.display = 'none';
+                panel.classList.remove('active');
+            });
+            
+            // Show selected panel
+            const selectedPanel = document.getElementById(panelName + 'Panel');
+            if (selectedPanel) {
+                selectedPanel.style.display = 'block';
+                selectedPanel.classList.add('active');
+            }
+            
+            // Update navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const activeBtn = document.querySelector(`[onclick="showPanel('${panelName}')"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+        }
+    </script>
 </body>
 </html>

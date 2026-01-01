@@ -5,6 +5,10 @@
 let allAssessmentsCache = [];
 let allUsersCache = [];
 
+function loadAdminDashboard() {
+    initializeAdminDashboard();
+}
+
 // ============================================
 // ADMIN TAB MANAGEMENT
 // ============================================
@@ -30,6 +34,54 @@ function showAdminTab(tabName) {
     }
 }
 
+async function exportAllAssessmentsData() {
+    if (!isAdmin()) {
+        alert('Unauthorized action');
+        return;
+    }
+
+    try {
+        const snapshot = await db.collection('assessments').get();
+        const assessments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => {
+                const aDate = convertTimestamp(a.created_at);
+                const bDate = convertTimestamp(b.created_at);
+                const aTime = aDate ? aDate.getTime() : 0;
+                const bTime = bDate ? bDate.getTime() : 0;
+                return bTime - aTime;
+            });
+
+        if (!assessments.length) {
+            alert('No data to export');
+            return;
+        }
+
+        let csv = 'Created Date,User Email,User Name,Company,Assessor,Status,Overall Percentage\n';
+
+        assessments.forEach(a => {
+            const created = convertTimestamp(a.created_at);
+            const createdText = created ? created.toLocaleDateString() : '';
+            const status = a.is_draft ? 'Draft' : 'Completed';
+            const overall = a.results ? `${a.results.overallPercentage}%` : '';
+
+            csv += `"${createdText}","${a.user_email || ''}","${a.user_name || ''}","${a.company_name || ''}","${a.assessor_name || ''}","${status}","${overall}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `ALL_LEAN_Assessments_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        console.error('Error exporting all assessments:', error);
+        alert('Error exporting data. Please try again.');
+    }
+}
+
 // ============================================
 // ADMIN STATISTICS
 // ============================================
@@ -37,20 +89,11 @@ async function loadAdminStatistics() {
     if (!isAdmin()) return;
     
     try {
-        // Get all assessments
-        const { data: assessments, error: assessmentError } = await supabase
-            .from('assessments')
-            .select('*');
-        
-        // Get all users
-        const { data: users, error: userError } = await supabase
-            .from('profiles')
-            .select('*');
-        
-        if (assessmentError || userError) {
-            console.error('Error loading stats:', assessmentError || userError);
-            return;
-        }
+        const assessmentsSnapshot = await db.collection('assessments').get();
+        const usersSnapshot = await db.collection('profiles').get();
+
+        const assessments = assessmentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
         // Calculate statistics
         const completedAssessments = assessments.filter(a => !a.is_draft).length;
@@ -104,16 +147,16 @@ async function loadAdminAssessments() {
     if (!isAdmin()) return;
     
     try {
-        const { data: assessments, error } = await supabase
-            .from('assessments')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
-        if (error) {
-            console.error('Error loading assessments:', error);
-            return;
-        }
-        
+        const snapshot = await db.collection('assessments').get();
+        const assessments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => {
+                const aDate = convertTimestamp(a.created_at);
+                const bDate = convertTimestamp(b.created_at);
+                const aTime = aDate ? aDate.getTime() : 0;
+                const bTime = bDate ? bDate.getTime() : 0;
+                return bTime - aTime;
+            });
+
         allAssessmentsCache = assessments || [];
         renderAssessmentsTable(allAssessmentsCache);
         
@@ -148,7 +191,8 @@ function renderAssessmentsTable(assessments) {
     `;
     
     for (const assessment of assessments) {
-        const date = new Date(assessment.created_at).toLocaleDateString();
+        const createdDate = convertTimestamp(assessment.created_at);
+        const date = createdDate ? createdDate.toLocaleDateString() : '';
         const status = assessment.is_draft ? 'Draft' : 'Completed';
         const statusColor = assessment.is_draft ? '#ffc107' : '#28a745';
         const score = assessment.results ? `${assessment.results.overallPercentage}%` : 'N/A';
@@ -174,8 +218,8 @@ function renderAssessmentsTable(assessments) {
                 <td><span class="${statusClass}" style="padding: 4px 8px; border-radius: 4px; color: white; font-weight: 600;">${score}</span></td>
                 <td>${dimensionScores}</td>
                 <td>
-                    <button class="btn btn-sm btn-secondary" onclick="viewAssessmentResults(${assessment.id})">View</button>
-                    ${!assessment.is_draft ? `<button class="btn btn-sm btn-primary" onclick="exportAssessmentPDFById(${assessment.id})" title="Export PDF">📄</button>` : ''}
+                    <button class="btn btn-sm btn-secondary" onclick="viewAssessmentResults('${assessment.id}')">View</button>
+                    ${!assessment.is_draft ? `<button class="btn btn-sm btn-primary" onclick="exportAssessmentPDFById('${assessment.id}')" title="Export PDF">📄</button>` : ''}
                 </td>
             </tr>
         `;
@@ -220,16 +264,16 @@ async function loadAdminUsers() {
     if (!isAdmin()) return;
     
     try {
-        const { data: users, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
-        if (error) {
-            console.error('Error loading users:', error);
-            return;
-        }
-        
+        const snapshot = await db.collection('profiles').get();
+        const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => {
+                const aDate = convertTimestamp(a.created_at);
+                const bDate = convertTimestamp(b.created_at);
+                const aTime = aDate ? aDate.getTime() : 0;
+                const bTime = bDate ? bDate.getTime() : 0;
+                return bTime - aTime;
+            });
+
         allUsersCache = users || [];
         renderUsersTable(allUsersCache);
         
@@ -262,18 +306,19 @@ function renderUsersTable(users) {
     `;
     
     for (const user of users) {
-        const created = new Date(user.created_at).toLocaleDateString();
+        const createdDate = convertTimestamp(user.created_at);
+        const created = createdDate ? createdDate.toLocaleDateString() : '';
         const isActive = user.is_active !== false;
         const statusText = isActive ? 'Active' : 'Inactive';
         const statusColor = isActive ? '#28a745' : '#dc3545';
         const roleColor = user.role === 'admin' ? '#821874' : '#159eda';
         
-        const userName = (user.full_name || 'N/A').replace(/'/g, "\\'");
+        const userName = (user.display_name || user.full_name || 'N/A').replace(/'/g, "\\'");
         const userEmail = user.email.replace(/'/g, "\\'");
         
         html += `
             <tr>
-                <td>${user.full_name || 'N/A'}</td>
+                <td>${user.display_name || user.full_name || 'N/A'}</td>
                 <td>${user.email}</td>
                 <td><span style="background: ${roleColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${user.role}</span></td>
                 <td><span style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${statusText}</span></td>
@@ -286,7 +331,7 @@ function renderUsersTable(users) {
                     }
                     ${user.role !== 'admin' ? 
                         `<button class="btn btn-sm btn-primary" onclick="toggleUserRole('${user.id}', 'admin')">Make Admin</button>` :
-                        user.id !== currentUser.id ? `<button class="btn btn-sm btn-secondary" onclick="toggleUserRole('${user.id}', 'user')">Remove Admin</button>` : ''
+                        user.id !== currentUser.uid ? `<button class="btn btn-sm btn-secondary" onclick="toggleUserRole('${user.id}', 'user')">Remove Admin</button>` : ''
                     }
                 </td>
             </tr>
@@ -314,16 +359,10 @@ async function toggleUserStatus(userId, newStatus) {
     }
     
     try {
-        const { error } = await supabase
-            .from('profiles')
-            .update({ is_active: newStatus })
-            .eq('id', userId);
-        
-        if (error) {
-            console.error('Error updating user status:', error);
-            alert('Failed to update user status');
-            return;
-        }
+        await db.collection('profiles').doc(userId).update({
+            is_active: newStatus,
+            updated_at: firebase.firestore.FieldValue.serverTimestamp()
+        });
         
         alert(`User ${action}d successfully`);
         loadAdminUsers();
@@ -346,16 +385,10 @@ async function toggleUserRole(userId, newRole) {
     }
     
     try {
-        const { error } = await supabase
-            .from('profiles')
-            .update({ role: newRole })
-            .eq('id', userId);
-        
-        if (error) {
-            console.error('Error updating user role:', error);
-            alert('Failed to update user role');
-            return;
-        }
+        await db.collection('profiles').doc(userId).update({
+            role: newRole,
+            updated_at: firebase.firestore.FieldValue.serverTimestamp()
+        });
         
         alert(`User role updated successfully`);
         loadAdminUsers();
@@ -371,16 +404,13 @@ async function toggleUserRole(userId, newRole) {
 // ============================================
 async function viewAssessmentResults(assessmentId) {
     try {
-        const { data: assessment, error } = await supabase
-            .from('assessments')
-            .select('*')
-            .eq('id', assessmentId)
-            .single();
-        
-        if (error || !assessment) {
+        const doc = await db.collection('assessments').doc(assessmentId).get();
+        if (!doc.exists) {
             alert('Assessment not found');
             return;
         }
+
+        const assessment = { id: doc.id, ...doc.data() };
         
         // Render assessment results
         renderIndividualResults(assessment);
@@ -480,16 +510,13 @@ function renderIndividualResults(assessment) {
 // ============================================
 async function exportAssessmentPDFById(assessmentId) {
     try {
-        const { data: assessment, error } = await supabase
-            .from('assessments')
-            .select('*')
-            .eq('id', assessmentId)
-            .single();
-        
-        if (error || !assessment) {
+        const doc = await db.collection('assessments').doc(assessmentId).get();
+        if (!doc.exists) {
             alert('Failed to load assessment data');
             return;
         }
+
+        const assessment = { id: doc.id, ...doc.data() };
         
         await generatePDFReport(assessment);
     } catch (error) {
@@ -513,7 +540,8 @@ function showEditUserModal(userId, userName, userEmail) {
     document.getElementById('editUserId').value = userId;
     document.getElementById('editUserName').value = userName.replace(/\\'/g, "'");
     document.getElementById('editUserEmail').value = userEmail.replace(/\\'/g, "'");
-    document.getElementById('editUserPassword').value = '';
+    const passwordEl = document.getElementById('editUserPassword');
+    if (passwordEl) passwordEl.value = '';
     
     // Hide error/success messages
     document.getElementById('editUserError').style.display = 'none';
@@ -562,8 +590,8 @@ async function saveUserEdit() {
         return;
     }
     
-    if (newPassword && newPassword.length < 8) {
-        errorDiv.textContent = 'Password must be at least 8 characters long';
+    if (newPassword) {
+        errorDiv.textContent = 'Password updates are not supported from the client app. Use Firebase Admin SDK (server) if needed.';
         errorDiv.style.display = 'block';
         return;
     }
@@ -573,31 +601,17 @@ async function saveUserEdit() {
     saveBtn.innerHTML = '<span class="loading-spinner"></span> Saving...';
     
     try {
-        // Update profile in database
-        const { error: profileError } = await supabase
-            .from('profiles')
-            .update({
-                full_name: newName,
-                email: newEmail
-            })
-            .eq('id', userId);
-        
-        if (profileError) throw profileError;
-        
-        // Update email in Supabase Auth (requires admin API)
-        // Note: Email update in auth requires admin service role key
-        // For now, we only update the profile table
-        
-        // If password is provided, we need to use admin API to update it
-        // This is a limitation - password updates require admin service role
-        if (newPassword) {
-            // Show warning that password update requires backend
-            successDiv.textContent = 'Profile updated! Note: Password updates require Supabase admin access. Please update password via Supabase dashboard or implement admin API.';
-            successDiv.style.display = 'block';
-        } else {
-            successDiv.textContent = 'User details updated successfully!';
-            successDiv.style.display = 'block';
+        await db.collection('profiles').doc(userId).update({
+            display_name: newName,
+            updated_at: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        if (newEmail) {
+            console.warn('Email updates are not supported from the client app.');
         }
+
+        successDiv.textContent = 'User details updated successfully!';
+        successDiv.style.display = 'block';
         
         // Reload users table
         setTimeout(() => {

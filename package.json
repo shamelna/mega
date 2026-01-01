@@ -1,0 +1,16 @@
+{
+  "name": "mega-assessment-tool",
+  "version": "1.0.0",
+  "description": "MEGA LEAN Assessment Tool",
+  "main": "index_firebase.html",
+  "scripts": {
+    "dev": "npx live-server --port=5500 --open=index_firebase.html",
+    "start": "npx live-server --port=5500 --open=index_firebase.html"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "keywords": ["assessment", "lean", "firebase"],
+  "author": "Ahmed",
+  "license": "MIT"
+}

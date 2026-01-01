@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Migration Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .btn { padding: 10px 20px; margin: 10px; background: #821874; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background: #621456; }
+        .btn.danger { background: #dc3545; }
+        .btn.danger:hover { background: #c82333; }
+        .log { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; margin: 10px 0; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Supabase to Firebase Migration Tool</h1>
+        
+        <div class="status warning">
+            <strong>⚠️ Important:</strong> This tool will migrate all your data from Supabase to Firebase. 
+            Make sure you have Firebase properly configured before starting.
+        </div>
+
+        <h3>Migration Steps:</h3>
+        <ol>
+            <li>Ensure your Firebase project is set up and configured</li>
+            <li>Click "Initialize Migration" to prepare the environment</li>
+            <li>Click "Start Migration" to transfer all data</li>
+            <li>Use "Validate Migration" to verify success</li>
+        </ol>
+
+        <div>
+            <button class="btn" onclick="initializeMigration()">Initialize Migration</button>
+            <button class="btn" onclick="startMigration()">Start Migration</button>
+            <button class="btn" onclick="validateMigration()">Validate Migration</button>
+            <button class="btn danger" onclick="rollbackMigration()">⚠️ Rollback (Delete All)</button>
+        </div>
+
+        <h3>Migration Log:</h3>
+        <div id="migrationLog" class="log"></div>
+
+        <div id="statusMessage"></div>
+    </div>
+
+    <!-- Include both Supabase and Firebase SDKs -->
+    <script src="https://unpkg.com/@supabase/supabase-js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        let logElement = document.getElementById('migrationLog');
+        let statusElement = document.getElementById('statusMessage');
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function showStatus(message, type = 'success') {
+            statusElement.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function clearLog() {
+            logElement.innerHTML = '';
+        }
+
+        // Initialize Firebase (update with your config)
+        function initializeFirebase() {
+            const firebaseConfig = {
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+                projectId: "YOUR_PROJECT_ID",
+                storageBucket: "YOUR_PROJECT_ID.appspot.com",
+                messagingSenderId: "YOUR_SENDER_ID",
+                appId: "YOUR_APP_ID"
+            };
+            
+            firebase.initializeApp(firebaseConfig);
+            window.db = firebase.firestore();
+            log('✅ Firebase initialized');
+        }
+
+        // Initialize Supabase
+        function initializeSupabase() {
+            const SUPABASE_URL = 'https://hammdlesdcmenhronfml.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhbW1kbGVzZGNtZW5ocm9uZm1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwMzUwMTYsImV4cCI6MjA3NzYxMTAxNn0.pFmZoSrCLCSMLrbBmTh3L-MMdJ6GL-5G-NKDr4YIV6g';
+            
+            window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            log('✅ Supabase initialized');
+        }
+
+        function initializeMigration() {
+            clearLog();
+            log('🚀 Initializing migration environment...');
+            
+            try {
+                initializeFirebase();
+                initializeSupabase();
+                showStatus('Migration environment initialized successfully!', 'success');
+            } catch (error) {
+                log(`❌ Initialization failed: ${error.message}`);
+                showStatus('Initialization failed. Check console for details.', 'error');
+            }
+        }
+
+        async function startMigration() {
+            if (!window.db || !window.supabaseClient) {
+                showStatus('Please initialize migration first!', 'error');
+                return;
+            }
+
+            clearLog();
+            log('🔄 Starting migration from Supabase to Firebase...');
+            showStatus('Migration in progress... This may take a few minutes.', 'warning');
+
+            try {
+                // Load the migration script
+                await loadMigrationScript();
+                
+                // Run the migration
+                await window.migrateFromSupabaseToFirebase();
+                
+                showStatus('Migration completed! Check the log for details.', 'success');
+            } catch (error) {
+                log(`❌ Migration failed: ${error.message}`);
+                showStatus('Migration failed. Check console for details.', 'error');
+            }
+        }
+
+        async function loadMigrationScript() {
+            // This would load your migration script
+            // For now, we'll include the key functions here
+            log('📝 Loading migration functions...');
+        }
+
+        async function validateMigration() {
+            clearLog();
+            log('🔍 Validating migration...');
+            
+            try {
+                const profilesSnapshot = await db.collection('profiles').get();
+                const assessmentsSnapshot = await db.collection('assessments').get();
+                
+                log(`✅ Firebase profiles: ${profilesSnapshot.size}`);
+                log(`✅ Firebase assessments: ${assessmentsSnapshot.size}`);
+                
+                if (profilesSnapshot.size > 0) {
+                    const sampleProfile = profilesSnapshot.docs[0].data();
+                    log(`Sample profile: ${sampleProfile.email} (${sampleProfile.role})`);
+                }
+                
+                showStatus(`Validation complete: ${profilesSnapshot.size} profiles, ${assessmentsSnapshot.size} assessments`, 'success');
+            } catch (error) {
+                log(`❌ Validation failed: ${error.message}`);
+                showStatus('Validation failed!', 'error');
+            }
+        }
+
+        async function rollbackMigration() {
+            if (!confirm('⚠️ This will delete ALL migrated data from Firebase. Are you absolutely sure?')) {
+                return;
+            }
+
+            if (!confirm('⚠️ This action cannot be undone. Continue with rollback?')) {
+                return;
+            }
+
+            clearLog();
+            log('🔄 Rolling back migration...');
+            
+            try {
+                const assessmentsSnapshot = await db.collection('assessments').get();
+                const batch = db.batch();
+                
+                assessmentsSnapshot.docs.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                
+                await batch.commit();
+                log(`✅ Deleted ${assessmentsSnapshot.size} assessments`);
+                
+                const profilesSnapshot = await db.collection('profiles').get();
+                const profileBatch = db.batch();
+                
+                profilesSnapshot.docs.forEach(doc => {
+                    profileBatch.delete(doc.ref);
+                });
+                
+                await profileBatch.commit();
+                log(`✅ Deleted ${profilesSnapshot.size} profiles`);
+                
+                showStatus('Rollback completed successfully!', 'success');
+            } catch (error) {
+                log(`❌ Rollback failed: ${error.message}`);
+                showStatus('Rollback failed!', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
