@@ -5,6 +5,238 @@
 let currentAssessmentData = {};
 
 // ============================================
+// DASHBOARD RESULTS DISPLAY
+// ============================================
+function loadDashboardResults() {
+    if (!currentAssessmentData || !currentAssessmentData.results) {
+        console.log('No assessment data to display');
+        return;
+    }
+    
+    const results = currentAssessmentData.results;
+    const overallScore = results.overall_score || 0;
+    const overallPercentage = (overallScore / 5) * 100;
+    
+    // Update dashboard overview
+    const overviewContent = document.getElementById('overviewTab');
+    if (overviewContent) {
+        overviewContent.innerHTML = `
+            <div class="status-overview" style="text-align: center; padding: 30px;">
+                <div class="status-large" style="font-size: 48px; font-weight: bold; color: #821874;">
+                    ${overallPercentage.toFixed(0)}%
+                </div>
+                <h3 style="margin: 10px 0;">Overall LEAN Maturity</h3>
+                <p style="color: #666;">${getScoreStatus(overallPercentage).text}</p>
+            </div>
+            
+            <div class="results-grid" style="margin-top: 30px;">
+                ${generateDashboardDimensionResults(results)}
+            </div>
+        `;
+    }
+    
+    // Update detailed tab
+    const detailedContent = document.getElementById('detailedTab');
+    if (detailedContent) {
+        detailedContent.innerHTML = `
+            <h3>Detailed Assessment Results</h3>
+            <div class="detailed-scores">
+                ${generateDetailedScores(results)}
+            </div>
+        `;
+    }
+    
+    // Update feedback tab
+    const feedbackContent = document.getElementById('feedbackTab');
+    if (feedbackContent) {
+        feedbackContent.innerHTML = `
+            <h3>Recommendations</h3>
+            <div class="feedback-section">
+                ${generateFeedback(results)}
+            </div>
+        `;
+    }
+    
+    // Show PDF export buttons
+    const previewBtn = document.getElementById('previewDashboardPDF');
+    const exportBtn = document.getElementById('exportDashboardPDF');
+    if (previewBtn) previewBtn.style.display = 'inline-block';
+    if (exportBtn) exportBtn.style.display = 'inline-block';
+}
+
+function generateDashboardDimensionResults(results) {
+    let html = '';
+    if (results.dimension_scores && Array.isArray(results.dimension_scores)) {
+        results.dimension_scores.forEach((score, index) => {
+            const percentage = (score / 5) * 100;
+            const status = getScoreStatus(percentage);
+            const dimensionName = getDimensionName(index);
+            
+            html += `
+                <div class="dimension-card" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px;">
+                    <h4 style="margin: 0 0 10px 0; color: #821874;">${dimensionName}</h4>
+                    <div class="progress-container" style="background: #f0f0f0; border-radius: 10px; overflow: hidden; height: 20px;">
+                        <div class="progress-bar ${status.class}" style="width: ${percentage}%; height: 100%; background: linear-gradient(90deg, #821874, #159eda); transition: width 0.3s ease;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 14px;">
+                        <span>${score.toFixed(1)}/5.0</span>
+                        <span>${percentage.toFixed(0)}%</span>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    return html;
+}
+
+function generateDetailedScores(results) {
+    let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">';
+    
+    if (results.dimension_scores && Array.isArray(results.dimension_scores)) {
+        results.dimension_scores.forEach((score, index) => {
+            const percentage = (score / 5) * 100;
+            const status = getScoreStatus(percentage);
+            const dimensionName = getDimensionName(index);
+            
+            html += `
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h4 style="color: #821874; margin-bottom: 15px;">${dimensionName}</h4>
+                    <div style="font-size: 24px; font-weight: bold; color: #821874; margin-bottom: 10px;">
+                        ${score.toFixed(2)}/5.0
+                    </div>
+                    <div style="background: #f0f0f0; padding: 10px; border-radius: 5px;">
+                        <strong>Status:</strong> <span class="${status.class}" style="padding: 2px 8px; border-radius: 12px; font-size: 12px; color: white;">${status.text}</span>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+function generateFeedback(results) {
+    const overallPercentage = ((results.overall_score || 0) / 5) * 100;
+    
+    let feedback = `
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h4 style="color: #821874; margin-bottom: 15px;">Overall Assessment</h4>
+            <p>Your organization has achieved <strong>${overallPercentage.toFixed(0)}%</strong> LEAN maturity. ${getOverallFeedback(overallPercentage)}</p>
+        </div>
+    `;
+    
+    if (results.dimension_scores && Array.isArray(results.dimension_scores)) {
+        feedback += '<h4 style="margin-top: 30px; margin-bottom: 15px;">Dimension-Specific Recommendations</h4>';
+        
+        results.dimension_scores.forEach((score, index) => {
+            const percentage = (score / 5) * 100;
+            const dimensionName = getDimensionName(index);
+            
+            feedback += `
+                <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px;">
+                    <h5 style="color: #821874; margin-bottom: 10px;">${dimensionName}</h5>
+                    <p>${getDimensionFeedback(percentage)}</p>
+                </div>
+            `;
+        });
+    }
+    
+    return feedback;
+}
+
+function getDimensionName(index) {
+    const dimensions = [
+        'Leadership & Culture', 'Strategy & Planning', 'Process Management',
+        'Performance Measurement', 'Continuous Improvement', 'Customer Focus',
+        'Supplier & Partner Relationships'
+    ];
+    return dimensions[index] || `Dimension ${index + 1}`;
+}
+
+function getOverallFeedback(percentage) {
+    if (percentage <= 48) return 'Focus on establishing basic LEAN principles and building awareness.';
+    if (percentage <= 66) return 'Good progress! Continue developing standardized processes and employee engagement.';
+    if (percentage <= 82) return 'Advanced level achieved! Focus on optimization and continuous improvement culture.';
+    return 'Excellent! Your organization demonstrates mature LEAN practices. Consider mentoring others and innovation.';
+}
+
+function getDimensionFeedback(percentage) {
+    if (percentage <= 48) return 'Begin with foundational training and identify quick wins to build momentum.';
+    if (percentage <= 66) return 'Develop standard work procedures and increase visual management.';
+    if (percentage <= 82) return 'Enhance cross-functional collaboration and advanced problem-solving techniques.';
+    return 'Share best practices and drive innovation in this area.';
+}
+
+// ============================================
+// VIEW ASSESSMENT (WRAPPER FUNCTION)
+// ============================================
+function viewAssessment(assessmentId) {
+    // This function is called from database_firebase.js
+    // Redirect to the admin function if available, otherwise create a basic view
+    if (typeof viewAssessmentResults === 'function') {
+        viewAssessmentResults(assessmentId);
+    } else {
+        console.error('viewAssessmentResults function not found');
+        showErrorMessage('Unable to view assessment. Function not available.');
+    }
+}
+
+// ============================================
+// UI HELPERS
+// ============================================
+function showSuccessMessage(message) {
+    // Create or update success notification
+    let notification = document.getElementById('successNotification');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'successNotification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            z-index: 10000;
+            font-weight: 500;
+            max-width: 350px;
+            animation: slideIn 0.3s ease-out;
+        `;
+        document.body.appendChild(notification);
+    }
+    
+    notification.textContent = message;
+    notification.style.display = 'block';
+    
+    // Auto-hide after 4 seconds
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 4000);
+}
+
+// Add slide-in animation
+if (!document.getElementById('successNotificationStyles')) {
+    const style = document.createElement('style');
+    style.id = 'successNotificationStyles';
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// ============================================
 // INITIALIZATION
 // ============================================
 function initializeAssessment() {
@@ -503,11 +735,21 @@ async function submitAssessment() {
 
     await saveAssessmentToStorage(assessment);
     
+    // Store current assessment data for dashboard display
+    currentAssessmentData = {
+        ...assessment,
+        user_name: currentUserProfile?.display_name || currentUser.email,
+        user_email: currentUser.email,
+        created_at: new Date().toISOString()
+    };
+    
     currentAssessmentId = null;
     document.getElementById('assessmentForm').reset();
     document.getElementById('assessmentDate').value = new Date().toISOString().split('T')[0];
     
+    // Show dashboard with results
     showPanel('dashboard');
+    loadDashboardResults();
 }
 
 async function saveAssessment() {
@@ -569,9 +811,47 @@ async function saveAssessmentToStorage(assessment) {
             currentAssessmentId = docRef.id;
         }
 
-        alert('✓ Assessment saved successfully!');
+        // Show success message
+        showSuccessMessage('✓ Assessment saved successfully! Your results are ready to view.');
+        
+        // Calculate and display results
+        calculateAndDisplayResults(formData);
+        
     } catch (error) {
         console.error('Exception:', error?.message || error);
-        alert('Error: ' + (error?.message || 'Unknown error'));
+        // Show error message
+        showErrorMessage('❌ Failed to save assessment. Please try again.');
     }
+}
+
+function showErrorMessage(message) {
+    // Create or update error notification
+    let notification = document.getElementById('errorNotification');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'errorNotification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+            z-index: 10000;
+            font-weight: 500;
+            max-width: 350px;
+            animation: slideIn 0.3s ease-out;
+        `;
+        document.body.appendChild(notification);
+    }
+    
+    notification.textContent = message;
+    notification.style.display = 'block';
+    
+    // Auto-hide after 5 seconds (longer for errors)
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 5000);
 }

@@ -400,17 +400,8 @@ async function userLogout() {
 }
 
 function forceCleanLogout() {
-    currentUser = null;
-    currentUserProfile = null;
-    currentAssessmentData = null;
-    currentIndividualAssessment = null;
-    
-    // Call the same cleanup as handleSignOut
+    // Use the same comprehensive cleanup as handleSignOut
     handleSignOut();
-    
-    setTimeout(() => {
-        window.location.reload();
-    }, 100);
 }
 
 // ============================================
@@ -480,6 +471,7 @@ function handleSignOut() {
     currentUserProfile = null;
     currentAssessmentData = null;
     currentIndividualAssessment = null;
+    currentAssessmentId = null;
     
     // Hide navigation completely
     const navigation = document.getElementById('mainNavigation');
@@ -487,11 +479,8 @@ function handleSignOut() {
         navigation.style.display = 'none';
     }
     
-    // Clear all assessment displays
-    const savedAssessments = document.getElementById('savedAssessments');
-    if (savedAssessments) {
-        savedAssessments.innerHTML = '';
-    }
+    // Clear ALL assessment-related content
+    clearAllAssessmentContent();
     
     // Clear admin panel content completely
     const adminPanel = document.getElementById('adminPanel');
@@ -523,22 +512,6 @@ function handleSignOut() {
     if (filterCompany) filterCompany.value = '';
     if (filterStatus) filterStatus.value = 'all';
     
-    // Clear dashboard content
-    const enhancedResultsGrid = document.getElementById('enhancedResultsGrid');
-    if (enhancedResultsGrid) {
-        enhancedResultsGrid.innerHTML = '';
-    }
-    
-    const detailedScoresContainer = document.getElementById('detailedScoresContainer');
-    if (detailedScoresContainer) {
-        detailedScoresContainer.innerHTML = '';
-    }
-    
-    const feedbackSection = document.getElementById('feedbackSection');
-    if (feedbackSection) {
-        feedbackSection.innerHTML = '';
-    }
-    
     // Hide all panels and show only auth section
     document.querySelectorAll('.panel').forEach(panel => {
         panel.style.display = 'none';
@@ -555,6 +528,139 @@ function handleSignOut() {
     const signinPassword = document.getElementById('signinPassword');
     if (signinEmail) signinEmail.value = '';
     if (signinPassword) signinPassword.value = '';
+    
+    // Clear any notifications
+    clearAllNotifications();
+    
+    // Clear browser history to prevent back button access
+    if (window.history && window.history.pushState) {
+        window.history.pushState('auth', null, './');
+        window.onpopstate = function(event) {
+            if (event.state === 'auth') {
+                // User tried to go back - keep them on auth page
+                window.history.pushState('auth', null, './');
+                return false;
+            }
+        };
+    }
+    
+    // Clear session storage
+    if (typeof(Storage) !== "undefined") {
+        sessionStorage.clear();
+        localStorage.removeItem('currentAssessmentData');
+        localStorage.removeItem('currentUserProfile');
+    }
+    
+    // Force page reload to ensure complete cleanup
+    setTimeout(() => {
+        window.location.reload();
+    }, 100);
+}
+
+function clearAllAssessmentContent() {
+    // Clear saved assessments list
+    const savedAssessments = document.getElementById('savedAssessments');
+    if (savedAssessments) {
+        savedAssessments.innerHTML = '';
+    }
+    
+    // Clear dashboard content
+    const overviewTab = document.getElementById('overviewTab');
+    if (overviewTab) {
+        overviewTab.innerHTML = '';
+    }
+    
+    const detailedTab = document.getElementById('detailedTab');
+    if (detailedTab) {
+        detailedTab.innerHTML = '';
+    }
+    
+    const feedbackTab = document.getElementById('feedbackTab');
+    if (feedbackTab) {
+        feedbackTab.innerHTML = '';
+    }
+    
+    // Clear assessment form
+    const assessmentForm = document.getElementById('assessmentForm');
+    if (assessmentForm) {
+        assessmentForm.reset();
+    }
+    
+    // Clear results containers
+    const resultsContainer = document.getElementById('resultsContainer');
+    if (resultsContainer) {
+        resultsContainer.innerHTML = '';
+        resultsContainer.style.display = 'none';
+    }
+    
+    // Clear dashboard panels
+    const enhancedResultsGrid = document.getElementById('enhancedResultsGrid');
+    if (enhancedResultsGrid) {
+        enhancedResultsGrid.innerHTML = '';
+    }
+    
+    const detailedScoresContainer = document.getElementById('detailedScoresContainer');
+    if (detailedScoresContainer) {
+        detailedScoresContainer.innerHTML = '';
+    }
+    
+    const feedbackSection = document.getElementById('feedbackSection');
+    if (feedbackSection) {
+        feedbackSection.innerHTML = '';
+    }
+    
+    // Hide PDF export buttons
+    const previewDashboardPDF = document.getElementById('previewDashboardPDF');
+    const exportDashboardPDF = document.getElementById('exportDashboardPDF');
+    if (previewDashboardPDF) previewDashboardPDF.style.display = 'none';
+    if (exportDashboardPDF) exportDashboardPDF.style.display = 'none';
+    
+    // Clear any assessment results panels
+    const assessmentResultsPanel = document.getElementById('assessmentResultsPanel');
+    if (assessmentResultsPanel) {
+        assessmentResultsPanel.innerHTML = '';
+        assessmentResultsPanel.style.display = 'none';
+    }
+    
+    // Clear individual assessment results
+    const individualOverviewTab = document.getElementById('individualOverviewTab');
+    const individualDetailedTab = document.getElementById('individualDetailedTab');
+    const individualFeedbackTab = document.getElementById('individualFeedbackTab');
+    
+    if (individualOverviewTab) individualOverviewTab.innerHTML = '';
+    if (individualDetailedTab) individualDetailedTab.innerHTML = '';
+    if (individualFeedbackTab) individualFeedbackTab.innerHTML = '';
+    
+    // Reset assessment date to today
+    const assessmentDate = document.getElementById('assessmentDate');
+    if (assessmentDate) {
+        assessmentDate.value = new Date().toISOString().split('T')[0];
+    }
+}
+
+function clearAllNotifications() {
+    // Clear success notifications
+    const successNotification = document.getElementById('successNotification');
+    if (successNotification) {
+        successNotification.style.display = 'none';
+    }
+    
+    // Clear error notifications
+    const errorNotification = document.getElementById('errorNotification');
+    if (errorNotification) {
+        errorNotification.style.display = 'none';
+    }
+    
+    // Clear any auth error messages
+    const signinError = document.getElementById('signinError');
+    const signupError = document.getElementById('signupError');
+    const resetError = document.getElementById('resetError');
+    const resetSuccess = document.getElementById('resetSuccess');
+    
+    if (signinError) signinError.style.display = 'none';
+    if (signupError) signupError.style.display = 'none';
+    if (resetError) resetError.style.display = 'none';
+    if (resetSuccess) resetSuccess.style.display = 'none';
 }
 
 // ============================================
