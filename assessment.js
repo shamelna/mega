@@ -2,76 +2,154 @@
 // ASSESSMENT MODULE
 // ============================================
 
-let currentAssessmentData = {};
-
 // ============================================
 // DASHBOARD RESULTS DISPLAY
 // ============================================
 function loadDashboardResults() {
-    if (!currentAssessmentData || !currentAssessmentData.results) {
-        console.log('No assessment data to display');
+    console.log('loadDashboardResults called');
+    console.log('window.allAssessments:', window.allAssessments);
+    console.log('window.currentUser:', window.currentUser);
+    
+    // Check if assessments are already loaded
+    if (window.allAssessments && window.allAssessments.length > 0) {
+        console.log('Using existing assessments:', window.allAssessments.length);
+        displayDashboardWithAllAssessments();
         return;
     }
     
-    const results = currentAssessmentData.results;
-    const overallScore = results.overall_score || 0;
-    const overallPercentage = (overallScore / 5) * 100;
+    // Load all assessments for the dashboard
+    if (typeof loadUserAssessments === 'function') {
+        console.log('Calling loadUserAssessments...');
+        loadUserAssessments().then((assessments) => {
+            console.log('Assessments loaded successfully:', assessments?.length);
+            displayDashboardWithAllAssessments();
+        }).catch(error => {
+            console.error('Error loading assessments for dashboard:', error);
+            displayDashboardFallback();
+        });
+    } else {
+        console.warn('loadUserAssessments function not available');
+        displayDashboardFallback();
+    }
+}
+
+function displayDashboardWithAllAssessments() {
+    const allAssessments = window.allAssessments || [];
+    const totalAssessments = allAssessments.length;
+    
+    // Calculate overall statistics
+    let overallScores = [];
+    let statusCounts = { novice: 0, emerging: 0, developing: 0, advanced: 0 };
+    
+    allAssessments.forEach(assessment => {
+        if (assessment.results && assessment.results.overallPercentage) {
+            overallScores.push(assessment.results.overallPercentage);
+            const status = getScoreStatus(assessment.results.overallPercentage).label.toLowerCase();
+            if (statusCounts[status] !== undefined) {
+                statusCounts[status]++;
+            }
+        }
+    });
     
     // Update dashboard overview
     const overviewContent = document.getElementById('overviewTab');
     if (overviewContent) {
         overviewContent.innerHTML = `
-            <div class="status-overview" style="text-align: center; padding: 30px;">
-                <div class="progress-ring">
-                    <svg>
-                        <circle class="background" cx="100" cy="100" r="85"></circle>
-                        <circle class="progress" cx="100" cy="100" r="85" id="progressCircle"></circle>
-                    </svg>
-                    <div class="progress-text">${overallPercentage.toFixed(0)}%</div>
-                </div>
-                <h3 style="margin: 10px 0;">Overall LEAN Maturity</h3>
-                <p style="color: #666;">${getScoreStatus(overallPercentage).text}</p>
+            <div class="assessment-count" style="text-align: center; padding: 30px; background: linear-gradient(135deg, #821874, #159eda); border-radius: 12px; margin-bottom: 30px;">
+                <h4 style="color: white; margin-bottom: 15px; font-size: 18px;">Total Assessments Completed</h4>
+                <div style="font-size: 48px; font-weight: bold; color: white;">${totalAssessments}</div>
+                <div style="color: rgba(255,255,255,0.9); margin-top: 10px;">Assessments</div>
             </div>
             
-            <div class="results-grid" style="margin-top: 30px;">
-                ${generateDashboardDimensionResults(results)}
+            <div class="chart-container" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 30px;">
+                <h4 style="color: #821874; margin-bottom: 25px; font-size: 18px;">Performance Comparison</h4>
+                <div style="height: 300px; width: 100%; position: relative;">
+                    <canvas id="performanceChart" style="width: 100%; height: 100%;"></canvas>
+                </div>
             </div>
+            
+            <div class="status-distribution" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 30px;">
+                <h4 style="color: #821874; margin-bottom: 20px; font-size: 18px;">Status Distribution</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #dc2626;">${statusCounts.novice || 0}</div>
+                        <div style="color: #666; font-size: 14px; margin-top: 5px;">Novice</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #f59e0b;">${statusCounts.emerging || 0}</div>
+                        <div style="color: #666; font-size: 14px; margin-top: 5px;">Emerging</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #0891b2;">${statusCounts.developing || 0}</div>
+                        <div style="color: #666; font-size: 14px; margin-top: 5px;">Developing</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #059669;">${statusCounts.advanced || 0}</div>
+                        <div style="color: #666; font-size: 14px; margin-top: 5px;">Advanced</div>
+                    </div>
+                </div>
+            </div>
+            
+            ${totalAssessments > 0 ? generateRecentAssessmentsList(allAssessments.slice(-5)) : '<div style="text-align: center; padding: 40px; color: #666;">No assessments completed yet. Complete your first assessment to see results here!</div>'}
         `;
         
-        // Update progress circle animation
+        // Draw performance chart with assessment data
         setTimeout(() => {
-            updateProgressCircle(overallPercentage);
-        }, 100);
+            drawPerformanceChart(allAssessments);
+        }, 200);
     }
-    
-    // Update detailed tab
-    const detailedContent = document.getElementById('detailedTab');
-    if (detailedContent) {
-        detailedContent.innerHTML = `
-            <h3>Detailed Assessment Results</h3>
-            <div class="detailed-scores">
-                ${generateDetailedScores(results)}
-            </div>
-        `;
-    }
-    
-    // Update feedback tab
-    const feedbackContent = document.getElementById('feedbackTab');
-    if (feedbackContent) {
-        feedbackContent.innerHTML = `
-            <h3>Recommendations</h3>
-            <div class="feedback-section">
-                ${generateFeedback(results)}
-            </div>
-        `;
-    }
-    
-    // Show PDF export buttons
-    const previewBtn = document.getElementById('previewDashboardPDF');
-    const exportBtn = document.getElementById('exportDashboardPDF');
-    if (previewBtn) previewBtn.style.display = 'inline-block';
-    if (exportBtn) exportBtn.style.display = 'inline-block';
 }
+
+function displayDashboardFallback() {
+    const overviewContent = document.getElementById('overviewTab');
+    if (overviewContent) {
+        overviewContent.innerHTML = `
+            <div style="text-align: center; padding: 60px 20px;">
+                <h3 style="color: #821874; margin-bottom: 20px;">Welcome to Your Dashboard</h3>
+                <p style="color: #666; margin-bottom: 30px;">Complete assessments to see your LEAN maturity progress and performance analytics here.</p>
+                <button onclick="showPanel('assessment')" style="background: #821874; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Start New Assessment</button>
+            </div>
+        `;
+    }
+}
+
+function generateRecentAssessmentsList(recentAssessments) {
+    let html = `
+        <div class="recent-assessments" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            <h4 style="color: #821874; margin-bottom: 20px; font-size: 18px;">Recent Assessments</h4>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+    `;
+    
+    recentAssessments.reverse().forEach(assessment => {
+        const date = new Date(assessment.assessment_date || assessment.created_at).toLocaleDateString();
+        const percentage = assessment.results ? assessment.results.overallPercentage : 0;
+        const status = getScoreStatus(percentage);
+        
+        html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid ${status.color};">
+                <div>
+                    <div style="font-weight: 600; color: #2d2d2d;">${assessment.company_name || 'Assessment'}</div>
+                    <div style="color: #666; font-size: 14px;">${date}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 20px; font-weight: bold; color: ${status.color};">${percentage}%</div>
+                    <div style="color: #666; font-size: 12px;">${status.label}</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+            </div>
+        </div>
+    `;
+    
+    return html;
+}
+
+// ============================================
+// ASSESSMENT FORM HANDLING
+// ============================================
 
 function generateDashboardDimensionResults(results) {
     let html = '';
@@ -98,83 +176,262 @@ function generateDashboardDimensionResults(results) {
     return html;
 }
 
-function generateDetailedScores(results) {
-    let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">';
+function generateDetailedScores(assessment) {
+    if (!assessment || !assessment.responses || !assessment.results) {
+        return '<p>No data available</p>';
+    }
     
-    if (results.dimension_scores && Array.isArray(results.dimension_scores)) {
-        results.dimension_scores.forEach((score, index) => {
-            const percentage = (score / 5) * 100;
-            const status = getScoreStatus(percentage);
-            const dimensionName = getDimensionName(index);
-            
-            html += `
-                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                    <h4 style="color: #821874; margin-bottom: 15px;">${dimensionName}</h4>
-                    <div style="font-size: 24px; font-weight: bold; color: #821874; margin-bottom: 10px;">
-                        ${score.toFixed(2)}/5.0
-                    </div>
-                    <div style="background: #f0f0f0; padding: 10px; border-radius: 5px;">
-                        <strong>Status:</strong> <span class="${status.class}" style="padding: 2px 8px; border-radius: 12px; font-size: 12px; color: white;">${status.text}</span>
+    const responses = assessment.responses;
+    const results = assessment.results;
+    
+    let html = '<div style="padding: 20px;">';
+    
+    // Group questions by dimension
+    DIMENSIONS.forEach((dimension, dimIndex) => {
+        const dimensionResult = results.dimensions.find(d => d.dimension === dimension.name);
+        if (!dimensionResult) return;
+        
+        const statusClass = getStatusClass(dimensionResult.percentage);
+        
+        html += `
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="color: #821874; margin: 0;">${dimension.name}</h3>
+                    <div>
+                        <span class="${statusClass}" style="padding: 6px 12px; border-radius: 4px; color: white; font-weight: 600; font-size: 18px;">
+                            ${dimensionResult.percentage}%
+                        </span>
+                        <span style="margin-left: 10px; color: #666;">${dimensionResult.score}/${dimensionResult.maxScore} points</span>
                     </div>
                 </div>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">${dimension.description}</p>
+                
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8f4f8;">
+                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #821874;">Question</th>
+                            <th style="padding: 10px; text-align: center; border-bottom: 2px solid #821874; width: 120px;">Your Answer</th>
+                            <th style="padding: 10px; text-align: center; border-bottom: 2px solid #821874; width: 80px;">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        // Get questions for this dimension
+        const dimensionQuestions = QUESTIONS.filter(q => q.dimension === dimIndex);
+        
+        dimensionQuestions.forEach(question => {
+            const answer = responses[`q${question.id}`];
+            const answerText = answer ? RATING_OPTIONS.find(opt => opt.value == answer)?.label || 'N/A' : 'Not Answered';
+            const score = answer || 0;
+            
+            // Color code the answer
+            let answerColor = '#999';
+            if (score >= 4) answerColor = '#28a745';
+            else if (score === 3) answerColor = '#ffc107';
+            else if (score > 0) answerColor = '#dc3545';
+            
+            html += `
+                <tr style="border-bottom: 1px solid #ebebeb;">
+                    <td style="padding: 12px;">
+                        <strong>Q${question.id}.</strong> ${question.text}
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <span style="color: ${answerColor}; font-weight: 600;">${answerText}</span>
+                    </td>
+                    <td style="padding: 12px; text-align: center; font-weight: 600; color: ${answerColor};">
+                        ${score}/5
+                    </td>
+                </tr>
             `;
         });
-    }
+        
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    });
     
     html += '</div>';
     return html;
 }
 
 function generateFeedback(results) {
-    const overallPercentage = ((results.overall_score || 0) / 5) * 100;
+    if (!results || !results.dimensions) return '';
     
-    let feedback = `
-        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <h4 style="color: #821874; margin-bottom: 15px;">Overall Assessment</h4>
-            <p>Your organization has achieved <strong>${overallPercentage.toFixed(0)}%</strong> LEAN maturity. ${getOverallFeedback(overallPercentage)}</p>
-        </div>
-    `;
+    // Sort dimensions by percentage
+    const sorted = [...results.dimensions].sort((a, b) => b.percentage - a.percentage);
+    const best = sorted.slice(0, 2); // Top 2
+    const worst = sorted.slice(-2).reverse(); // Bottom 2
     
-    if (results.dimension_scores && Array.isArray(results.dimension_scores)) {
-        feedback += '<h4 style="margin-top: 30px; margin-bottom: 15px;">Dimension-Specific Recommendations</h4>';
-        
-        results.dimension_scores.forEach((score, index) => {
-            const percentage = (score / 5) * 100;
-            const dimensionName = getDimensionName(index);
+    let feedback = '';
+    
+    // Overall assessment
+    const overallStatus = results.status;
+    feedback += `<div style="margin-bottom: 20px;">`;
+    feedback += `<h3 style="color: #821874; margin-bottom: 10px;">Overall LEAN Maturity: ${overallStatus}</h3>`;
+    feedback += `<p>Your organization scored ${results.overallPercentage}% (${results.totalScore}/${results.overallMaxScore} points) across all seven LEAN dimensions.</p>`;
+    feedback += `</div>`;
+    
+    // Strengths
+    feedback += `<div style="margin-bottom: 20px;">`;
+    feedback += `<h3 style="color: #28a745; margin-bottom: 10px;">🌟 Key Strengths</h3>`;
+    feedback += `<p>Your organization demonstrates strong performance in:</p><ul style="margin-left: 20px;">`;
+    best.forEach(dim => {
+        feedback += `<li><strong>${dim.dimension}</strong>: ${dim.percentage}% (${dim.score}/${dim.maxScore}) - `;
+        feedback += getDimensionFeedback(dim.dimension, dim.percentage, true);
+        feedback += `</li>`;
+    });
+    feedback += `</ul></div>`;
+    
+    // Areas for Improvement
+    feedback += `<div style="margin-bottom: 20px;">`;
+    feedback += `<h3 style="color: #dc3545; margin-bottom: 10px;">🎯 Focus Areas for Improvement</h3>`;
+    feedback += `<p>Priority should be given to strengthening:</p><ul style="margin-left: 20px;">`;
+    worst.forEach(dim => {
+        feedback += `<li><strong>${dim.dimension}</strong>: ${dim.percentage}% (${dim.score}/${dim.maxScore}) - `;
+        feedback += getDimensionFeedback(dim.dimension, dim.percentage, false);
+        feedback += `</li>`;
+    });
+    feedback += `</ul></div>`;
+    
+    // Recommendations
+    feedback += `<div style="margin-bottom: 20px;">`;
+    feedback += `<h3 style="color: #159eda; margin-bottom: 10px;">💡 Recommended Actions</h3>`;
+    feedback += getRecommendations(results.overallPercentage, worst);
+    feedback += `</div>`;
+    
+    // Next Steps Section
+    feedback += `
+    <div style="margin: 30px 0; border-top: 2px solid #f0f0f0; padding-top: 20px;">
+        <h3 style="color: #821874; margin-bottom: 15px;">🚀 What's Next?</h3>
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #821874;">
+            <p style="font-size: 1.1em; margin-bottom: 20px; font-weight: 600;">1. Review your detailed assessment report</p>
+            <p style="margin: 0 0 20px 20px;">
+                Take time to review your comprehensive assessment results and export the PDF report for your reference.
+            </p>
             
-            feedback += `
-                <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px;">
-                    <h5 style="color: #821874; margin-bottom: 10px;">${dimensionName}</h5>
-                    <p>${getDimensionFeedback(percentage)}</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; margin: 25px 0;">
+                <div style="flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h4 style="color: #159eda; margin-top: 0; margin-bottom: 10px;">2. Schedule a Consultation</h4>
+                    <p style="margin-bottom: 10px;">Contact Barry Taylor to discuss your results and create a customized improvement plan:</p>
+                    <p style="margin: 10px 0 0 0; text-align: center;">
+                        <a href="mailto:barry.taylor@midulstermega.com" style="color: #821874; font-weight: 600; text-decoration: none; background: #f8f0f7; padding: 8px 15px; border-radius: 4px; display: inline-block;">
+                            ✉️ Contact Barry Taylor
+                        </a>
+                    </p>
                 </div>
-            `;
-        });
-    }
+                
+                <div style="flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h4 style="color: #159eda; margin-top: 0; margin-bottom: 10px;">3. Explore Training Options</h4>
+                    <p style="margin-bottom: 10px;">We offer flexible training programs tailored to your needs:</p>
+                    <ul style="margin: 10px 0 0 20px; padding: 0;">
+                        <li>Team Training (5-10 people)</li>
+                        <li>Individual Certification</li>
+                        <li>Customized Workshops</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 6px; margin: 25px 0 15px 0; border: 1px solid #e9ecef;">
+                <p style="margin: 0; color: #6c757d; font-size: 0.95em;">
+                    <strong>Special Offer:</strong> Contact Barry Taylor for information about special pricing and packages available for MEGA.
+                </p>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center; padding: 10px; background: #f1f8ff; border-radius: 6px;">
+                <p style="margin: 0; font-weight: 500;">
+                    Learn more: 
+                    <a href="https://midulstermega.com/" target="_blank" style="color: #159eda; margin: 0 10px; text-decoration: none;">MEGA Website</a> | 
+                    <a href="https://kaizenacademy.education/" target="_blank" style="color: #159eda; text-decoration: none;">Kaizen Academy</a>
+                </p>
+            </div>
+        </div>
+    </div>`;
     
     return feedback;
 }
 
-function getDimensionName(index) {
-    const dimensions = [
-        'Leadership & Culture', 'Strategy & Planning', 'Process Management',
-        'Performance Measurement', 'Continuous Improvement', 'Customer Focus',
-        'Supplier & Partner Relationships'
-    ];
-    return dimensions[index] || `Dimension ${index + 1}`;
+function getDimensionFeedback(dimensionName, percentage, isStrength) {
+    const feedbackMap = {
+        'Leadership & Culture': {
+            strength: 'Strong leadership commitment to LEAN principles creates a solid foundation for continuous improvement.',
+            weakness: 'Leadership alignment and cultural transformation are critical first steps. Focus on visible leadership commitment and communication.'
+        },
+        'Customer Value Focus': {
+            strength: 'Excellent understanding of customer needs positions you well for delivering real value.',
+            weakness: 'Reconnect with your customers. Regular feedback loops and value stream mapping can help identify what truly matters.'
+        },
+        'Process Efficiency': {
+            strength: 'Well-standardized processes and effective visual management support operational excellence.',
+            weakness: 'Start with process mapping and standardization. Visual management tools can quickly improve visibility and control.'
+        },
+        'Waste Elimination - Muda': {
+            strength: 'Strong waste awareness and systematic elimination practices drive efficiency gains.',
+            weakness: 'Train teams to recognize the 8 wastes in daily operations. Quick wins in waste elimination can build momentum.'
+        },
+        'Continuous Improvement - Kaizen': {
+            strength: 'Active Kaizen culture with engaged frontline staff drives sustained improvement.',
+            weakness: 'Establish regular improvement cycles (PDCA) and create systems to capture and implement employee ideas.'
+        },
+        'Flow and Pull Systems': {
+            strength: 'Smooth workflow and pull systems minimize delays and inventory.',
+            weakness: 'Map your value streams to identify bottlenecks. Implement basic pull signals before advancing to complex systems.'
+        },
+        'Problem Solving & Root Cause Analysis': {
+            strength: 'Structured problem-solving methods ensure issues are resolved at the root cause.',
+            weakness: 'Invest in problem-solving training (A3, 5 Whys). Data-driven decisions prevent recurring problems.'
+        }
+    };
+    
+    const feedback = feedbackMap[dimensionName];
+    return feedback ? (isStrength ? feedback.strength : feedback.weakness) : '';
 }
 
-function getOverallFeedback(percentage) {
-    if (percentage <= 48) return 'Focus on establishing basic LEAN principles and building awareness.';
-    if (percentage <= 66) return 'Good progress! Continue developing standardized processes and employee engagement.';
-    if (percentage <= 82) return 'Advanced level achieved! Focus on optimization and continuous improvement culture.';
-    return 'Excellent! Your organization demonstrates mature LEAN practices. Consider mentoring others and innovation.';
+function getRecommendations(overallPercentage, weakestDimensions) {
+    let recommendations = '<ul style="margin-left: 20px;">';
+    
+    if (overallPercentage <= 48) {
+        recommendations += '<li>Start with <strong>Leadership Development</strong>: Ensure leadership understands and champions LEAN principles</li>';
+        recommendations += '<li>Focus on <strong>Quick Wins</strong>: Identify and eliminate obvious wastes to build momentum</li>';
+        recommendations += '<li>Invest in <strong>Basic Training</strong>: Educate staff on fundamental LEAN concepts</li>';
+    } else if (overallPercentage <= 66) {
+        recommendations += '<li>Strengthen <strong>Standardization</strong>: Document and follow standard work procedures</li>';
+        recommendations += '<li>Implement <strong>Visual Management</strong>: Make problems and performance visible</li>';
+        recommendations += '<li>Develop <strong>Problem-Solving Skills</strong>: Train teams in structured problem-solving methods</li>';
+    } else if (overallPercentage <= 82) {
+        recommendations += '<li>Advance <strong>Continuous Improvement</strong>: Formalize Kaizen events and suggestion systems</li>';
+        recommendations += '<li>Optimize <strong>Flow</strong>: Implement pull systems and reduce batch sizes</li>';
+        recommendations += '<li>Deepen <strong>Customer Understanding</strong>: Regular voice-of-customer analysis</li>';
+    } else {
+        recommendations += '<li>Pursue <strong>Operational Excellence</strong>: Benchmark against best-in-class organizations</li>';
+        recommendations += '<li>Expand <strong>Integration</strong>: Extend LEAN principles across the value chain</li>';
+        recommendations += '<li>Focus on <strong>Innovation</strong>: Use LEAN thinking to drive breakthrough improvements</li>';
+    }
+    
+    // Add dimension-specific recommendations
+    weakestDimensions.forEach(dim => {
+        recommendations += `<li>For <strong>${dim.dimension}</strong>: `;
+        recommendations += getDimensionRecommendation(dim.dimension);
+        recommendations += '</li>';
+    });
+    
+    recommendations += '</ul>';
+    return recommendations;
 }
 
-function getDimensionFeedback(percentage) {
-    if (percentage <= 48) return 'Begin with foundational training and identify quick wins to build momentum.';
-    if (percentage <= 66) return 'Develop standard work procedures and increase visual management.';
-    if (percentage <= 82) return 'Enhance cross-functional collaboration and advanced problem-solving techniques.';
-    return 'Share best practices and drive innovation in this area.';
+function getDimensionRecommendation(dimensionName) {
+    const recommendations = {
+        'Leadership & Culture': 'Conduct leadership workshops and establish visible LEAN performance boards',
+        'Customer Value Focus': 'Implement regular customer surveys and value stream mapping sessions',
+        'Process Efficiency': 'Start 5S implementation and create standard work documents',
+        'Waste Elimination - Muda': 'Run waste identification workshops and establish waste tracking metrics',
+        'Continuous Improvement - Kaizen': 'Launch a suggestion system and schedule monthly Kaizen events',
+        'Flow and Pull Systems': 'Map current state, identify bottlenecks, and pilot kanban systems',
+        'Problem Solving & Root Cause Analysis': 'Provide A3 training and establish problem-solving forums'
+    };
+    return recommendations[dimensionName] || 'Seek expert consultation for tailored improvement strategies';
 }
 
 // ============================================
@@ -199,8 +456,11 @@ function updateProgressCircle(percentage) {
 // ============================================
 async function viewAssessment(assessmentId) {
     try {
+        console.log('View assessment called with ID:', assessmentId);
+        
         // Check if user is logged in
-        if (!currentUser) {
+        if (!window.currentUser) {
+            console.log('User not logged in');
             showErrorMessage('Please sign in to view assessments.');
             // Try to access auth functions
             if (typeof showAuthTab === 'function') {
@@ -209,10 +469,14 @@ async function viewAssessment(assessmentId) {
             return;
         }
         
+        console.log('User logged in, checking functions...');
+        
         // Try to use admin function if available
         if (typeof viewAssessmentResults === 'function') {
+            console.log('Using viewAssessmentResults function');
             await viewAssessmentResults(assessmentId);
         } else {
+            console.log('viewAssessmentResults not available, using basic view');
             // Fallback: create a basic view
             await basicViewAssessment(assessmentId);
         }
@@ -227,13 +491,17 @@ async function viewAssessment(assessmentId) {
 // ============================================
 async function basicViewAssessment(assessmentId) {
     try {
+        console.log('Basic view assessment called with ID:', assessmentId);
+        
         const doc = await db.collection('assessments').doc(assessmentId).get();
         if (!doc.exists) {
+            console.log('Assessment not found');
             showErrorMessage('Assessment not found.');
             return;
         }
         
         const assessment = doc.data();
+        console.log('Assessment data loaded:', assessment);
         
         // Create a simple modal to display assessment
         const modal = document.createElement('div');
@@ -252,6 +520,8 @@ async function basicViewAssessment(assessmentId) {
         
         const overallScore = assessment.results?.overall_score || 0;
         const percentage = (overallScore / 5) * 100;
+        
+        console.log('Creating modal with percentage:', percentage);
         
         modal.innerHTML = `
             <div style="position: relative; max-width: 800px; margin: 50px auto; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
@@ -276,6 +546,7 @@ async function basicViewAssessment(assessmentId) {
             </div>
         `;
         
+        console.log('Adding modal to body');
         document.body.appendChild(modal);
         
     } catch (error) {
@@ -297,7 +568,7 @@ function closeAssessmentViewModal() {
 async function editAssessment(assessmentId) {
     try {
         // Check if user is logged in
-        if (!currentUser) {
+        if (!window.currentUser) {
             showErrorMessage('Please sign in to edit assessments.');
             if (typeof showAuthTab === 'function') {
                 showAuthTab('signin');
@@ -314,13 +585,13 @@ async function editAssessment(assessmentId) {
         const assessment = doc.data();
         
         // Check if user owns this assessment or is admin
-        if (assessment.user_id !== currentUser.uid && currentUserProfile?.role !== 'admin') {
+        if (assessment.user_id !== window.currentUser.uid && window.currentUserProfile?.role !== 'admin') {
             showErrorMessage('You can only edit your own assessments.');
             return;
         }
         
         // Load assessment data into form
-        currentAssessmentId = assessmentId;
+        window.currentAssessmentId = assessmentId;
         
         // Set form values
         document.getElementById('companyName').value = assessment.company_name || '';
@@ -351,7 +622,7 @@ async function editAssessment(assessmentId) {
 async function deleteAssessment(assessmentId) {
     try {
         // Check if user is logged in
-        if (!currentUser) {
+        if (!window.currentUser) {
             showErrorMessage('Please sign in to delete assessments.');
             if (typeof showAuthTab === 'function') {
                 showAuthTab('signin');
@@ -373,7 +644,7 @@ async function deleteAssessment(assessmentId) {
         const assessment = doc.data();
         
         // Check if user owns this assessment or is admin
-        if (assessment.user_id !== currentUser.uid && currentUserProfile?.role !== 'admin') {
+        if (assessment.user_id !== window.currentUser.uid && window.currentUserProfile?.role !== 'admin') {
             showErrorMessage('You can only delete your own assessments.');
             return;
         }
@@ -398,11 +669,15 @@ async function deleteAssessment(assessmentId) {
 // HELPER FUNCTIONS
 // ============================================
 function loadResponsesIntoForm(responses) {
-    // Load responses into the assessment form
+    // Load responses into assessment form
     Object.keys(responses).forEach(questionId => {
-        const input = document.querySelector(`input[name="${questionId}"]:checked`);
-        if (input) {
-            input.checked = true;
+        const responseValue = responses[questionId];
+        if (responseValue) {
+            // Find the radio button with the matching value
+            const input = document.querySelector(`input[name="${questionId}"][value="${responseValue}"]`);
+            if (input) {
+                input.checked = true;
+            }
         }
     });
 }
@@ -516,7 +791,7 @@ function closeResetConfirmModal(confirmed) {
     if (confirmed) {
         document.getElementById('assessmentForm').reset();
         document.getElementById('assessmentDate').value = new Date().toISOString().split('T')[0];
-        currentAssessmentId = null;
+        window.currentAssessmentId = null;
         showSuccessMessage('✓ Form has been reset successfully.');
     }
 }
@@ -640,93 +915,6 @@ function generateDimensionQuestions(dimensionIndex) {
     }
     
     return questionsHtml;
-}
-
-// ============================================
-// FORM HANDLING
-// ============================================
-async function submitAssessment() {
-    try {
-        const formData = collectFormData();
-        
-        // Validate form
-        if (!validateForm(formData)) {
-            showError('Please fill in all required fields');
-            return;
-        }
-        
-        // Save to Firebase
-        const result = await saveAssessment(formData);
-        
-        if (result.error) {
-            showError('Failed to save assessment: ' + result.error.message);
-            return;
-        }
-        
-        showSuccess('Assessment saved successfully!');
-        
-        // Calculate and display results
-        calculateAndDisplayResults(formData);
-        
-    } catch (error) {
-        console.error('Submit assessment error:', error);
-        showError('An error occurred while submitting assessment');
-    }
-}
-
-function collectFormData() {
-    const formData = {
-        companyName: document.getElementById('companyName').value,
-        assessorName: document.getElementById('assessorName').value,
-        assessmentDate: document.getElementById('assessmentDate').value,
-        responses: {},
-        dimension_scores: [],
-        overall_score: 0
-    };
-    
-    // Collect all question responses
-    for (let i = 1; i <= 35; i++) {
-        const radios = document.getElementsByName(`q${i}`);
-        const selected = Array.from(radios).find(radio => radio.checked);
-        if (selected) {
-            formData.responses[`q${i}`] = parseInt(selected.value);
-        }
-    }
-    
-    // Calculate dimension scores
-    DIMENSIONS.forEach((dimension, index) => {
-        const startQuestion = index * 5 + 1;
-        const endQuestion = startQuestion + 4;
-        
-        let dimensionTotal = 0;
-        let questionCount = 0;
-        
-        for (let i = startQuestion; i <= endQuestion; i++) {
-            if (formData.responses[`q${i}`]) {
-                dimensionTotal += formData.responses[`q${i}`];
-                questionCount++;
-            }
-        }
-        
-        if (questionCount > 0) {
-            formData.dimension_scores[index] = dimensionTotal / questionCount;
-        }
-    });
-    
-    // Calculate overall score
-    const validScores = formData.dimension_scores.filter(score => score > 0);
-    if (validScores.length > 0) {
-        formData.overall_score = validScores.reduce((sum, score) => sum + score, 0) / validScores.length;
-    }
-    
-    return formData;
-}
-
-function validateForm(formData) {
-    return formData.companyName.trim() !== '' &&
-           formData.assessorName.trim() !== '' &&
-           formData.assessmentDate !== '' &&
-           Object.keys(formData.responses).length >= 30; // At least 30 questions answered
 }
 
 // ============================================
@@ -911,7 +1099,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ASSESSMENT MODULE
 // ============================================
 
-let currentAssessmentId = null;
+window.currentAssessmentId = null;
 
 // ============================================
 // RENDER ASSESSMENT FORM
@@ -1063,7 +1251,7 @@ async function submitAssessment() {
 
     const results = calculateResults();
     const assessment = {
-        id: currentAssessmentId || null,
+        id: window.currentAssessmentId || null,
         companyName: document.getElementById('companyName').value,
         assessorName: document.getElementById('assessorName').value,
         assessmentDate: document.getElementById('assessmentDate').value,
@@ -1075,14 +1263,14 @@ async function submitAssessment() {
     await saveAssessmentToStorage(assessment);
     
     // Store current assessment data for dashboard display
-    currentAssessmentData = {
+    window.currentAssessmentData = {
         ...assessment,
-        user_name: currentUserProfile?.display_name || currentUser.email,
-        user_email: currentUser.email,
+        user_name: window.currentUserProfile?.display_name || window.currentUser.email,
+        user_email: window.currentUser.email,
         created_at: new Date().toISOString()
     };
     
-    currentAssessmentId = null;
+    window.currentAssessmentId = null;
     document.getElementById('assessmentForm').reset();
     document.getElementById('assessmentDate').value = new Date().toISOString().split('T')[0];
     
@@ -1098,7 +1286,7 @@ async function saveAssessment() {
     }
 
     const assessment = {
-        id: currentAssessmentId,
+        id: window.currentAssessmentId,
         companyName: document.getElementById('companyName').value,
         assessorName: document.getElementById('assessorName').value,
         assessmentDate: document.getElementById('assessmentDate').value,
@@ -1115,7 +1303,7 @@ function resetForm() {
 }
 
 async function saveAssessmentToStorage(assessment) {
-    if (!currentUser) {
+    if (!window.currentUser) {
         showErrorMessage('Please login first.');
         return;
     }
@@ -1124,9 +1312,9 @@ async function saveAssessmentToStorage(assessment) {
         const now = firebase.firestore.FieldValue.serverTimestamp();
 
         const assessmentData = {
-            user_id: currentUser.uid,
-            user_email: currentUser.email,
-            user_name: currentUserProfile?.display_name || currentUser.email.split('@')[0],
+            user_id: window.currentUser.uid,
+            user_email: window.currentUser.email,
+            user_name: window.currentUserProfile?.display_name || window.currentUser.email.split('@')[0],
             company_name: assessment.companyName,
             assessor_name: assessment.assessorName,
             assessment_date: assessment.assessmentDate,
@@ -1153,9 +1341,198 @@ async function saveAssessmentToStorage(assessment) {
             showSuccessMessage('✓ Assessment saved successfully! Your results are ready to view.');
         }
         
+        // Update all assessments array for chart display
+        if (!window.allAssessments) {
+            window.allAssessments = [];
+        }
+        
+        // Add or update assessment in the array
+        const existingIndex = window.allAssessments.findIndex(a => a.id === currentAssessmentId);
+        const assessmentWithResults = {
+            ...assessmentData,
+            results: assessment.results
+        };
+        
+        if (existingIndex >= 0) {
+            window.allAssessments[existingIndex] = assessmentWithResults;
+        } else {
+            window.allAssessments.push(assessmentWithResults);
+        }
+        
+        // Update total assessments count
+        window.totalAssessments = window.allAssessments.length;
+        
     } catch (error) {
         console.error('Exception:', error?.message || error);
         showErrorMessage('Failed to save assessment. Please try again.');
+    }
+}
+
+function drawPerformanceChart(assessments) {
+    try {
+        const canvas = document.getElementById('performanceChart');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        
+        // Handle both array of assessment objects and other formats
+        let chartScores, labels, assessmentData;
+        
+        if (Array.isArray(assessments) && assessments.length > 0 && assessments[0].results) {
+            // New dashboard: array of assessment objects
+            assessmentData = assessments;
+            chartScores = assessments.map(assessment => {
+                // Try multiple ways to get the percentage
+                if (assessment.results && assessment.results.overallPercentage !== undefined) {
+                    return assessment.results.overallPercentage;
+                } else if (assessment.results && assessment.results.overall_score !== undefined) {
+                    return (assessment.results.overall_score / 5) * 100;
+                } else if (assessment.overallPercentage !== undefined) {
+                    return assessment.overallPercentage;
+                } else {
+                    console.log('Assessment data:', assessment);
+                    return 0; // Fallback
+                }
+            });
+            
+            // Extract dates for labels
+            labels = assessments.map(assessment => {
+                const date = assessment.assessment_date || assessment.created_at;
+                const dateObj = new Date(date);
+                return dateObj.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+            });
+        } else if (assessments && assessments.dimensions) {
+            // Old format: results object with dimensions
+            chartScores = assessments.dimensions.map(dim => dim.percentage);
+            labels = assessments.dimensions.map(dim => dim.dimension);
+            assessmentData = null;
+        } else {
+            // Fallback: use all assessments
+            const allAssessments = window.allAssessments || [];
+            assessmentData = allAssessments;
+            chartScores = allAssessments.map(assessment => {
+                if (assessment.results && assessment.results.overallPercentage !== undefined) {
+                    return assessment.results.overallPercentage;
+                } else if (assessment.results && assessment.results.overall_score !== undefined) {
+                    return (assessment.results.overall_score / 5) * 100;
+                } else {
+                    return 0;
+                }
+            });
+            labels = allAssessments.map((_, index) => `Assessment ${index + 1}`);
+        }
+        
+        console.log('Chart data prepared:', { chartScores, labels, assessmentDataCount: assessmentData?.length });
+        
+        // Get status colors
+        const colors = chartScores.map(score => {
+            const status = getScoreStatus(score);
+            return status.color || '#821874';
+        });
+        
+        // Create bar chart with assessment data
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Overall LEAN Maturity %',
+                    data: chartScores,
+                    backgroundColor: colors,
+                    borderColor: colors.map(color => color),
+                    borderWidth: 2,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        top: 20,
+                        bottom: 20,
+                        left: 10,
+                        right: 10
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const index = context[0].dataIndex;
+                                if (assessmentData && assessmentData[index]) {
+                                    const assessment = assessmentData[index];
+                                    return `Assessment: ${assessment.company_name || 'Unknown'}`;
+                                }
+                                return 'Assessment';
+                            },
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                const score = context.parsed.y;
+                                const status = getScoreStatus(score);
+                                
+                                let tooltipLines = [
+                                    `Score: ${score.toFixed(1)}%`,
+                                    `Status: ${status.label}`
+                                ];
+                                
+                                // Add date if assessment data is available
+                                if (assessmentData && assessmentData[index]) {
+                                    const assessment = assessmentData[index];
+                                    const date = assessment.assessment_date || assessment.created_at;
+                                    const dateObj = new Date(date);
+                                    tooltipLines.push(`Date: ${dateObj.toLocaleDateString()}`);
+                                }
+                                
+                                return tooltipLines;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            callback: function(value) {
+                                return value + '%';
+                            },
+                            padding: 10
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            display: true,
+                            font: {
+                                size: 11
+                            },
+                            padding: 10,
+                            autoSkip: false,
+                            maxRotation: 45,
+                            minRotation: 0
+                        }
+                    }
+                }
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error drawing performance chart:', error);
     }
 }
 

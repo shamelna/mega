@@ -65,7 +65,7 @@ async function deleteAssessment(assessmentId) {
 async function getUserAssessments() {
     try {
         const snapshot = await db.collection('assessments')
-            .where('user_id', '==', currentUser.uid)
+            .where('user_id', '==', window.currentUser.uid)
             .get();
         
         const assessments = snapshot.docs.map(doc => ({
@@ -224,10 +224,10 @@ async function getAssessmentStats() {
 // ============================================
 
 function listenToUserAssessments(callback) {
-    if (!currentUser) return null;
+    if (!window.currentUser) return null;
     
     return db.collection('assessments')
-        .where('user_id', '==', currentUser.uid)
+        .where('user_id', '==', window.currentUser.uid)
         .orderBy('created_at', 'desc')
         .onSnapshot((snapshot) => {
             const assessments = snapshot.docs.map(doc => ({
@@ -265,13 +265,25 @@ async function loadUserAssessments() {
         
         if (error) {
             console.error('Error loading assessments:', error);
-            return;
+            throw error;
         }
         
+        // Store assessments globally for dashboard use
+        window.allAssessments = assessments;
+        window.totalAssessments = assessments.length;
+        
+        // Display assessments in saved assessments panel
         displayUserAssessments(assessments);
+        
+        // Return assessments for dashboard use
+        return assessments;
         
     } catch (error) {
         console.error('Load assessments error:', error);
+        // Set empty arrays as fallback
+        window.allAssessments = [];
+        window.totalAssessments = 0;
+        throw error;
     }
 }
 

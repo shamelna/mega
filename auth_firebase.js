@@ -111,6 +111,37 @@ function showAuthenticatedUI() {
     document.getElementById('authSection').style.display = 'none';
     document.getElementById('mainNavigation').style.display = 'flex';
     
+    // Show and populate user menu
+    const userMenu = document.getElementById('userMenu');
+    if (userMenu && window.currentUser) {
+        userMenu.style.display = 'block';
+        
+        // Update user name
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl) {
+            userNameEl.textContent = window.currentUserProfile?.name || window.currentUser.email.split('@')[0];
+        }
+        
+        // Update user email
+        const userEmailEl = document.getElementById('userEmail');
+        if (userEmailEl) {
+            userEmailEl.textContent = window.currentUser.email;
+        }
+        
+        // Update user role
+        const userRoleEl = document.getElementById('userRole');
+        if (userRoleEl) {
+            userRoleEl.textContent = isAdmin() ? 'Admin' : 'Regular User';
+        }
+        
+        // Update user initial
+        const userInitialEl = document.getElementById('userInitial');
+        if (userInitialEl) {
+            const name = window.currentUserProfile?.name || window.currentUser.email;
+            userInitialEl.textContent = name.charAt(0).toUpperCase();
+        }
+    }
+    
     if (isAdmin()) {
         document.getElementById('adminNav').style.display = 'block';
         loadAdminDashboard();
@@ -133,6 +164,13 @@ function showAuthenticatedUI() {
 function showAuthSection() {
     document.getElementById('authSection').style.display = 'block';
     document.getElementById('mainNavigation').style.display = 'none';
+    
+    // Hide user menu
+    const userMenu = document.getElementById('userMenu');
+    if (userMenu) {
+        userMenu.style.display = 'none';
+    }
+    
     window.currentUser = null;
     window.currentUserProfile = null;
 }
@@ -747,4 +785,184 @@ function showSuccess(elementId, message) {
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+}
+
+// ============================================
+// USER MENU FUNCTIONS
+// ============================================
+function toggleUserDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    const arrow = document.querySelector('.dropdown-arrow');
+    
+    if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+        arrow.style.transform = 'rotate(0deg)';
+    } else {
+        dropdown.classList.add('show');
+        arrow.style.transform = 'rotate(180deg)';
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const userMenu = document.getElementById('userMenu');
+    const dropdown = document.getElementById('userDropdown');
+    
+    if (userMenu && !userMenu.contains(event.target)) {
+        dropdown.classList.remove('show');
+        const arrow = document.querySelector('.dropdown-arrow');
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+    }
+});
+
+function showEditProfileModal() {
+    if (!window.currentUser || !window.currentUserProfile) {
+        showErrorMessage('User information not available');
+        return;
+    }
+    
+    // Populate modal with current user data
+    document.getElementById('editProfileUserId').value = window.currentUser.uid;
+    document.getElementById('editProfileName').value = window.currentUserProfile.name || '';
+    document.getElementById('editProfileEmail').value = window.currentUser.email;
+    
+    // Clear messages
+    hideError('editProfileError');
+    hideSuccess('editProfileSuccess');
+    
+    // Show modal
+    document.getElementById('editProfileModal').style.display = 'block';
+    
+    // Close dropdown
+    document.getElementById('userDropdown').classList.remove('show');
+}
+
+function closeEditProfileModal() {
+    document.getElementById('editProfileModal').style.display = 'none';
+    document.getElementById('editProfileName').value = '';
+    document.getElementById('editProfileEmail').value = '';
+}
+
+async function saveProfileChanges() {
+    try {
+        const userId = document.getElementById('editProfileUserId').value;
+        const newName = document.getElementById('editProfileName').value.trim();
+        
+        if (!newName) {
+            showError('editProfileError', 'Please enter your name');
+            return;
+        }
+        
+        hideError('editProfileError');
+        
+        // Update profile in Firestore
+        await db.collection('profiles').doc(userId).update({
+            name: newName,
+            updated_at: new Date()
+        });
+        
+        // Update local profile
+        window.currentUserProfile.name = newName;
+        
+        // Update UI
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl) {
+            userNameEl.textContent = newName;
+        }
+        
+        // Update user initial
+        const userInitialEl = document.getElementById('userInitial');
+        if (userInitialEl) {
+            userInitialEl.textContent = newName.charAt(0).toUpperCase();
+        }
+        
+        showSuccess('editProfileSuccess', 'Profile updated successfully!');
+        
+        // Close modal after delay
+        setTimeout(() => {
+            closeEditProfileModal();
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        showError('editProfileError', 'Failed to update profile. Please try again.');
+    }
+}
+
+function showChangePasswordModal() {
+    // Clear form
+    document.getElementById('currentPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmNewPassword').value = '';
+    
+    // Clear messages
+    hideError('changePasswordError');
+    hideSuccess('changePasswordSuccess');
+    
+    // Show modal
+    document.getElementById('changePasswordModal').style.display = 'block';
+    
+    // Close dropdown
+    document.getElementById('userDropdown').classList.remove('show');
+}
+
+function closeChangePasswordModal() {
+    document.getElementById('changePasswordModal').style.display = 'none';
+    document.getElementById('currentPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmNewPassword').value = '';
+}
+
+async function changePassword() {
+    try {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmNewPassword').value;
+        
+        // Validation
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            showError('changePasswordError', 'Please fill in all password fields');
+            return;
+        }
+        
+        if (newPassword.length < 8) {
+            showError('changePasswordError', 'New password must be at least 8 characters long');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            showError('changePasswordError', 'New passwords do not match');
+            return;
+        }
+        
+        hideError('changePasswordError');
+        
+        // Re-authenticate user
+        const credential = firebase.auth.EmailAuthProvider.credential(
+            window.currentUser.email,
+            currentPassword
+        );
+        
+        await window.currentUser.reauthenticateWithCredential(credential);
+        
+        // Update password
+        await window.currentUser.updatePassword(newPassword);
+        
+        showSuccess('changePasswordSuccess', 'Password changed successfully!');
+        
+        // Close modal after delay
+        setTimeout(() => {
+            closeChangePasswordModal();
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error changing password:', error);
+        if (error.code === 'auth/wrong-password') {
+            showError('changePasswordError', 'Current password is incorrect');
+        } else if (error.code === 'auth/weak-password') {
+            showError('changePasswordError', 'New password is too weak');
+        } else {
+            showError('changePasswordError', 'Failed to change password. Please try again.');
+        }
+    }
 }

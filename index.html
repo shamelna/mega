@@ -25,6 +25,37 @@
                 <h1>LEAN Assessment Tool</h1>
                 <p>Comprehensive evaluation of your organization's LEAN maturity</p>
             </div>
+            
+            <!-- User Menu (shown when logged in) -->
+            <div class="user-menu" id="userMenu" style="display: none;">
+                <button class="user-menu-btn" onclick="toggleUserDropdown()">
+                    <div class="user-avatar">
+                        <span id="userInitial">👤</span>
+                    </div>
+                    <span id="userName">User</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="user-info">
+                        <div class="user-email" id="userEmail">user@example.com</div>
+                        <div class="user-role" id="userRole">Regular User</div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" onclick="showEditProfileModal(); return false;">
+                        <span class="icon">👤</span> Edit Profile
+                    </a>
+                    <a href="#" class="dropdown-item" onclick="showChangePasswordModal(); return false;">
+                        <span class="icon">🔒</span> Change Password
+                    </a>
+                    <a href="#" class="dropdown-item" onclick="exportUserData(); return false;">
+                        <span class="icon">📊</span> Export My Data
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item logout-item" onclick="handleSignOut(); return false;">
+                        <span class="icon">🚪</span> Logout
+                    </a>
+                </div>
+            </div>
         </div>
 
         <!-- AUTH SECTION -->
@@ -218,39 +249,13 @@
         </div>
 
         <div id="dashboardPanel" class="panel">
-            <div class="status-overview">
-                <h2>LEAN Maturity Assessment Results</h2>
-                <div id="assessmentDetails" style="background: linear-gradient(135deg, #f8f4f8 0%, #f0f7fa 100%); padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #821874;"></div>
-                <div class="progress-ring">
-                    <svg>
-                        <circle class="background" cx="100" cy="100" r="85"></circle>
-                        <circle class="progress" cx="100" cy="100" r="85" id="progressCircle"></circle>
-                    </svg>
-                    <div class="progress-text" id="progressText">0%</div>
-                </div>
-                <div class="status-large" id="statusLarge">Not Assessed</div>
-                <div id="statusDescription">Complete an assessment to see your organization's LEAN maturity level</div>
-            </div>
-
-            <div class="tabs" id="dashboardTabs" style="display:none;">
-                <button class="tab active" onclick="showDashboardTab('overview')">Overview</button>
-                <button class="tab" onclick="showDashboardTab('detailed')">Detailed Scores</button>
-                <button class="tab" onclick="showDashboardTab('feedback')">Insights</button>
-            </div>
-
+            <!-- Dashboard tabs hidden - showing overview only -->
             <div id="overviewTab" class="tab-content active">
-                <div class="results-grid" id="enhancedResultsGrid"></div>
+                <div id="dashboardResultsContainer"></div>
             </div>
+        </div>
 
-            <div id="detailedTab" class="tab-content">
-                <div id="detailedScoresContainer"></div>
-            </div>
-
-            <div id="feedbackTab" class="tab-content">
-                <div id="feedbackSection" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
-            </div>
-
-            <div class="form-actions">
+        <div class="form-actions">
                 <button type="button" class="btn btn-secondary" onclick="previewCurrentAssessmentPDF()" id="previewDashboardPDF" style="display:none;">
                     <span style="margin-right: 5px;">👁️</span> Preview Report
                 </button>
@@ -487,6 +492,7 @@
     <script src="assessment.js"></script>
     <script src="admin.js"></script>
     <script src="export.js"></script>
+    <script src="app.js"></script>
 
     <!-- Initialize App -->
     <script>
@@ -499,10 +505,10 @@
         });
 
         // Handle form submission
-        document.getElementById('assessmentForm').addEventListener('submit', async function(e) {
+        document.getElementById('assessmentForm').addEventListener('submit', function(e) {
             e.preventDefault();
             if (typeof submitAssessment === 'function') {
-                await submitAssessment();
+                submitAssessment();
             }
         });
 
@@ -535,7 +541,83 @@
             if (activeBtn) {
                 activeBtn.classList.add('active');
             }
+            
+            // Load dashboard data when dashboard panel is shown
+            if (panelName === 'dashboard') {
+                setTimeout(() => {
+                    if (typeof loadDashboardResults === 'function') {
+                        loadDashboardResults();
+                    }
+                    if (typeof showDashboardTab === 'function') {
+                        showDashboardTab('overview');
+                    }
+                }, 100);
+            }
         }
     </script>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👤 Edit Profile</h2>
+                <button onclick="closeEditProfileModal()" style="background: white; color: #821874; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">✕ Close</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editProfileUserId">
+                
+                <div style="margin-bottom: 20px;">
+                    <label for="editProfileName" style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d2d2d;">Full Name:</label>
+                    <input type="text" id="editProfileName" placeholder="Enter your full name" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label for="editProfileEmail" style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d2d2d;">Email Address:</label>
+                    <input type="email" id="editProfileEmail" placeholder="Enter your email" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;" readonly>
+                    <small style="color: #666; font-size: 12px;">Email cannot be changed here. Contact admin if needed.</small>
+                </div>
+                
+                <div id="editProfileError" style="display: none; color: #dc3545; margin-bottom: 15px; padding: 10px; background: #f8d7da; border-radius: 5px;"></div>
+                <div id="editProfileSuccess" style="display: none; color: #28a745; margin-bottom: 15px; padding: 10px; background: #d4edda; border-radius: 5px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeEditProfileModal()" class="btn btn-secondary">Cancel</button>
+                <button onclick="saveProfileChanges()" class="btn btn-primary">💾 Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔒 Change Password</h2>
+                <button onclick="closeChangePasswordModal()" style="background: white; color: #821874; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">✕ Close</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <label for="currentPassword" style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d2d2d;">Current Password:</label>
+                    <input type="password" id="currentPassword" placeholder="Enter your current password" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label for="newPassword" style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d2d2d;">New Password:</label>
+                    <input type="password" id="newPassword" placeholder="Choose a strong password (min. 8 characters)" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label for="confirmNewPassword" style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d2d2d;">Confirm New Password:</label>
+                    <input type="password" id="confirmNewPassword" placeholder="Re-enter your new password" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                </div>
+                
+                <div id="changePasswordError" style="display: none; color: #dc3545; margin-bottom: 15px; padding: 10px; background: #f8d7da; border-radius: 5px;"></div>
+                <div id="changePasswordSuccess" style="display: none; color: #28a745; margin-bottom: 15px; padding: 10px; background: #d4edda; border-radius: 5px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeChangePasswordModal()" class="btn btn-secondary">Cancel</button>
+                <button onclick="changePassword()" class="btn btn-primary">🔒 Change Password</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

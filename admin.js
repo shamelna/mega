@@ -322,7 +322,7 @@ function renderUsersTable(users) {
         const created = createdDate ? createdDate.toLocaleDateString() : '';
         const isActive = user.is_active !== false;
         const statusText = isActive ? 'Active' : 'Inactive';
-        const statusColor = isActive ? '#28a745' : '#dc3545';
+        const statusColor = isActive ? '#059669' : '#dc2626';
         const roleColor = user.role === 'admin' ? '#821874' : '#159eda';
         
         const userName = (user.display_name || user.full_name || 'N/A').replace(/'/g, "\\'");
@@ -501,8 +501,11 @@ function closeAdminActionConfirmModal(confirmed) {
 // ============================================
 async function viewAssessmentResults(assessmentId) {
     try {
+        console.log('viewAssessmentResults called with ID:', assessmentId);
+        
         const doc = await db.collection('assessments').doc(assessmentId).get();
         if (!doc.exists) {
+            console.log('Assessment not found in database');
             if (typeof showErrorMessage === 'function') {
                 showErrorMessage('Assessment not found');
             } else {
@@ -512,13 +515,42 @@ async function viewAssessmentResults(assessmentId) {
         }
 
         const assessment = { id: doc.id, ...doc.data() };
+        console.log('Assessment data loaded:', assessment);
         
         // Render assessment results
+        console.log('Calling renderIndividualResults...');
         renderIndividualResults(assessment);
         
         // Show results panel
+        console.log('Switching to assessmentResultsPanel...');
         document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
-        document.getElementById('assessmentResultsPanel').classList.add('active');
+        
+        const resultsPanel = document.getElementById('assessmentResultsPanel');
+        if (resultsPanel) {
+            resultsPanel.classList.add('active');
+            console.log('assessmentResultsPanel activated');
+            console.log('Panel classes:', resultsPanel.className);
+            console.log('Panel display style:', window.getComputedStyle(resultsPanel).display);
+        } else {
+            console.error('assessmentResultsPanel not found in DOM');
+        }
+        
+        // Check tab visibility
+        const overviewTab = document.getElementById('individualOverviewTab');
+        if (overviewTab) {
+            console.log('Overview tab classes:', overviewTab.className);
+            console.log('Overview tab display style:', window.getComputedStyle(overviewTab).display);
+        } else {
+            console.error('individualOverviewTab not found');
+        }
+        
+        const resultsContainer = document.getElementById('individualResultsContainer');
+        if (resultsContainer) {
+            console.log('Results container display style:', window.getComputedStyle(resultsContainer).display);
+            console.log('Results container content:', resultsContainer.innerHTML.substring(0, 100) + '...');
+        } else {
+            console.error('individualResultsContainer not found');
+        }
         
     } catch (error) {
         console.error('Error loading assessment:', error);
@@ -531,12 +563,16 @@ async function viewAssessmentResults(assessmentId) {
 }
 
 function renderIndividualResults(assessment) {
+    console.log('renderIndividualResults called with:', assessment);
+    
     const results = assessment.results;
     
     // Store full assessment for export
     window.currentIndividualAssessment = assessment;
+    console.log('Stored assessment in window.currentIndividualAssessment');
     
     if (!results) {
+        console.log('No results found - showing draft message');
         document.getElementById('individualResultsContainer').innerHTML = `
             <div class="data-warning">
                 <h4>Draft Assessment</h4>
@@ -548,8 +584,31 @@ function renderIndividualResults(assessment) {
         return;
     }
     
-    const date = new Date(assessment.created_at).toLocaleDateString();
+    console.log('Results found, processing...');
     
+    // Handle date properly - check if it's a Firestore Timestamp or regular date
+    let date = 'Unknown';
+    if (assessment.created_at) {
+        try {
+            if (assessment.created_at.toDate) {
+                // Firestore Timestamp
+                date = assessment.created_at.toDate().toLocaleDateString();
+            } else if (assessment.assessment_date) {
+                // Use assessment_date as fallback
+                date = new Date(assessment.assessment_date).toLocaleDateString();
+            } else {
+                // Try regular date conversion
+                date = new Date(assessment.created_at).toLocaleDateString();
+            }
+        } catch (dateError) {
+            console.warn('Date conversion error:', dateError);
+            date = 'Invalid Date';
+        }
+    }
+    
+    console.log('Using date:', date);
+    
+    console.log('Generating HTML...');
     let html = `
         <div class="status-overview">
             <h2>${assessment.company_name}</h2>
@@ -569,34 +628,99 @@ function renderIndividualResults(assessment) {
         <div class="results-grid">
     `;
     
-    for (const dim of results.dimensions) {
-        const statusClass = getStatusClass(dim.percentage);
+    console.log('Processing dimensions...');
+    // Use the original data structure - check if we have dimension_scores or dimensions
+    const dimensionData = results.dimension_scores || results.dimensions || [];
+    
+    for (let i = 0; i < dimensionData.length; i++) {
+        const dim = dimensionData[i];
+        // Handle both data structures
+        let percentage, score, dimensionName, maxScore;
+        
+        if (results.dimension_scores) {
+            // Old data structure
+            percentage = (dim / 5) * 100;
+            score = dim;
+            dimensionName = getDimensionName(i);
+            maxScore = 5;
+        } else {
+            // New data structure
+            percentage = dim.percentage || 0;
+            score = dim.score || 0;
+            dimensionName = dim.dimension || `Dimension ${i + 1}`;
+            maxScore = dim.maxScore || 5;
+        }
+        
+        const statusClass = getStatusClass(percentage);
         html += `
             <div class="dimension-card">
-                <h4>${dim.dimension}</h4>
+                <h4>${dimensionName}</h4>
                 <div class="progress-container">
-                    <div class="progress-bar ${statusClass}" style="width: ${dim.percentage}%;">
-                        ${dim.percentage}%
+                    <div class="progress-bar ${statusClass}" style="width: ${percentage}%;">
+                        ${percentage.toFixed(1)}%
                     </div>
                 </div>
-                <div class="status-label">${dim.score} / ${dim.maxScore}</div>
+                <div class="status-label">${score.toFixed(2)} / ${maxScore}</div>
             </div>
         `;
     }
     
     html += `</div>`;
+    console.log('HTML generated, updating DOM...');
     
-    document.getElementById('individualResultsContainer').innerHTML = html;
+    const resultsContainer = document.getElementById('individualResultsContainer');
+    if (resultsContainer) {
+        resultsContainer.innerHTML = html;
+        console.log('individualResultsContainer updated');
+        
+        // Check if container is actually visible
+        const containerStyle = window.getComputedStyle(resultsContainer);
+        const containerRect = resultsContainer.getBoundingClientRect();
+        console.log('Container visibility check:');
+        console.log('- Display:', containerStyle.display);
+        console.log('- Visibility:', containerStyle.visibility);
+        console.log('- Opacity:', containerStyle.opacity);
+        console.log('- Rect:', containerRect);
+        
+        if (containerRect.width === 0 || containerRect.height === 0) {
+            console.warn('Container has zero dimensions, forcing visibility');
+            resultsContainer.style.display = 'block';
+            resultsContainer.style.visibility = 'visible';
+            resultsContainer.style.opacity = '1';
+        }
+    } else {
+        console.error('individualResultsContainer not found');
+    }
     
     // Generate and display feedback
-    const feedback = generateFeedback(results);
-    document.getElementById('individualFeedbackSection').innerHTML = feedback;
-    document.getElementById('individualFeedbackSection').style.display = 'block';
+    console.log('Generating feedback...');
+    try {
+        const feedback = generateFeedback(results);
+        const feedbackSection = document.getElementById('individualFeedbackSection');
+        if (feedbackSection) {
+            feedbackSection.innerHTML = feedback;
+            feedbackSection.style.display = 'block';
+            console.log('individualFeedbackSection updated');
+        } else {
+            console.error('individualFeedbackSection not found');
+        }
+    } catch (error) {
+        console.error('Error generating feedback:', error);
+    }
     
-    // Generate detailed scores
-    const detailedScores = generateDetailedScores(assessment);
-    document.getElementById('individualDetailedScoresContainer').innerHTML = detailedScores;
-    document.getElementById('individualDetailedScoresContainer').style.display = 'block';
+    // Initialize detailed scores and feedback sections with original functions
+    const detailedContainer = document.getElementById('individualDetailedScoresContainer');
+    const feedbackContainer = document.getElementById('individualFeedbackSection');
+    
+    if (detailedContainer) {
+        detailedContainer.innerHTML = generateDetailedScores(assessment);
+        detailedContainer.style.display = 'none'; // Hidden by default
+    }
+    
+    if (feedbackContainer) {
+        feedbackContainer.innerHTML = generateFeedback(results);
+        feedbackContainer.style.display = 'none'; // Hidden by default
+    }
     
     // Update progress circle
     setTimeout(() => {
@@ -627,7 +751,21 @@ async function exportAssessmentPDFById(assessmentId) {
 
         const assessment = { id: doc.id, ...doc.data() };
         
-        await generatePDFReport(assessment);
+        try {
+            // Use the simple PDF generation from app.js
+            if (typeof generateSimplePDF === 'function') {
+                await generateSimplePDF(assessment);
+            } else {
+                throw new Error('PDF generation function not available');
+            }
+        } catch (pdfError) {
+            console.error('PDF generation error:', pdfError);
+            if (typeof showErrorMessage === 'function') {
+                showErrorMessage('Failed to generate PDF: ' + pdfError.message);
+            } else {
+                alert('Failed to generate PDF: ' + pdfError.message);
+            }
+        }
     } catch (error) {
         console.error('Error:', error);
         if (typeof showErrorMessage === 'function') {
