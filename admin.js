@@ -7,11 +7,187 @@ let allUsersCache = [];
 
 function loadAdminDashboard() {
     initializeAdminDashboard();
+    syncUsersWithAuth(); // Add user synchronization
 }
 
 // ============================================
-// ADMIN TAB MANAGEMENT
+// USER SYNCHRONIZATION
 // ============================================
+async function syncUsersWithAuth() {
+    try {
+        console.log('Syncing Firestore profiles with Firebase Auth users...');
+        
+        // Get all Firestore profiles
+        const profilesSnapshot = await db.collection('profiles').get();
+        const profiles = profilesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        console.log(`Found ${profiles.length} Firestore profiles`);
+        
+        // Since we can't list Firebase Auth users without admin SDK, we'll work with what we have
+        // Mark profiles that haven't been updated recently as potentially orphaned
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        
+        let inactiveCount = 0;
+        for (const profile of profiles) {
+            const lastUpdated = profile.updated_at ? profile.updated_at.toDate() : profile.created_at.toDate();
+            
+            // If profile hasn't been updated in 30 days and has no sync status, mark it
+            if (lastUpdated < thirtyDaysAgo && !profile.sync_status) {
+                await db.collection('profiles').doc(profile.id).update({
+                    sync_status: 'needs_verification',
+                    sync_note: 'Profile not updated recently - may need verification',
+                    updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                inactiveCount++;
+                console.log(`Marked profile for verification: ${profile.email}`);
+            }
+        }
+        
+        if (inactiveCount > 0) {
+            console.log(`Marked ${inactiveCount} profiles for verification`);
+        }
+        
+        console.log('User synchronization completed (limited without admin SDK access)');
+        console.log('💡 For full synchronization, use Firebase Admin SDK or check Firebase Console manually');
+        
+    } catch (error) {
+        console.error('Error syncing users:', error);
+    }
+}
+
+// ============================================
+// USER DEBUGGING FUNCTIONS
+// ============================================
+async function debugUserAuth(email) {
+    try {
+        console.log(`🔍 Debugging authentication for: ${email}`);
+        
+        // Check Firestore profiles first
+        const profilesSnapshot = await db.collection('profiles').where('email', '==', email).get();
+        
+        if (!profilesSnapshot.empty) {
+            const profile = profilesSnapshot.docs[0].data();
+            const profileId = profilesSnapshot.docs[0].id;
+            console.log('✅ Profile found in Firestore:', {
+                id: profileId,
+                email: profile.email,
+                displayName: profile.display_name,
+                role: profile.role,
+                isActive: profile.is_active,
+                createdAt: profile.created_at,
+                syncStatus: profile.sync_status
+            });
+            
+            // Try to get user info from Firebase Auth by trying to sign in with a dummy method
+            // Since we can't use listUsers() without admin SDK, we'll check other ways
+            console.log('📝 Note: Firebase Auth user details require admin privileges to list');
+            console.log('💡 To check Firebase Auth status:');
+            console.log('   1. Go to Firebase Console → Authentication → Users');
+            console.log('   2. Search for this email');
+            console.log('   3. Check if user is disabled or has issues');
+            
+            // Check if user can be found by UID in auth system
+            try {
+                // This will work if we have the user's UID from the profile
+                console.log('🔍 Profile UID suggests Firebase Auth UID:', profileId);
+                console.log('📋 User should exist in Firebase Auth with this UID');
+            } catch (e) {
+                console.log('⚠️ Cannot verify Firebase Auth user without admin privileges');
+            }
+            
+        } else {
+            console.log('❌ No profile found in Firestore for:', email);
+            console.log('💡 This means the user either:');
+            console.log('   1. Has never signed in to this app');
+            console.log('   2. Profile was deleted');
+            console.log('   3. Email address is different');
+        }
+        
+        // Additional debugging suggestions
+        console.log('\n🔧 Troubleshooting steps for Barry:');
+        console.log('1. Check if Barry is trying the correct email');
+        console.log('2. Verify Barry\'s account is not disabled in Firebase Console');
+        console.log('3. Check if Barry needs to reset password');
+        console.log('4. Verify Barry\'s email is verified in Firebase Auth');
+        
+    } catch (error) {
+        console.error('Error debugging user:', error);
+    }
+}
+
+// Add this to send Barry a password reset email: sendBarryPasswordReset()
+async function sendBarryPasswordReset() {
+    try {
+        console.log('🔧 Sending password reset email to Barry...');
+        
+        await auth.sendPasswordResetEmail('barry.taylor@midulstermega.com');
+        
+        console.log('✅ Password reset email sent to Barry!');
+        console.log('📧 Email: barry.taylor@midulstermega.com');
+        console.log('📋 Barry should check his inbox (and spam folder) for the reset link');
+        console.log('⏰ The reset link expires in 1 hour');
+        
+    } catch (error) {
+        console.error('❌ Error sending password reset:', error);
+        if (error.code === 'auth/user-not-found') {
+            console.log('⚠️ This should not happen since we confirmed Barry exists');
+        }
+    }
+}
+async function createBarryAuthAccount(password) {
+    try {
+        console.log('🔧 Creating Firebase Auth account for Barry...');
+        
+        // Create the user in Firebase Auth
+        const userCredential = await auth.createUserWithEmailAndPassword(
+            'barry.taylor@midulstermega.com', 
+            password
+        );
+        
+        console.log('✅ Firebase Auth account created successfully!');
+        console.log('📧 Email: barry.taylor@midulstermega.com');
+        console.log('🔑 Temporary password:', password);
+        console.log('⚠️ IMPORTANT: Give Barry this password and have him change it immediately!');
+        
+        // Update display name
+        await userCredential.user.updateProfile({
+            displayName: 'Barry Taylor'
+        });
+        
+        console.log('✅ Display name set to: Barry Taylor');
+        console.log('🎯 Barry can now sign in with the temporary password!');
+        
+    } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+            console.log('⚠️ Barry already has a Firebase Auth account. The issue is likely the password.');
+            console.log('💡 Use Firebase Console to reset Barry\'s password instead.');
+        } else {
+            console.error('❌ Error creating account:', error);
+        }
+    }
+}
+async function fixBarryProfile() {
+    try {
+        console.log('🔧 Fixing Barry Taylor\'s profile...');
+        
+        const profilesSnapshot = await db.collection('profiles').where('email', '==', 'barry.taylor@midulstermega.com').get();
+        
+        if (!profilesSnapshot.empty) {
+            const profileDoc = profilesSnapshot.docs[0];
+            await db.collection('profiles').doc(profileDoc.id).update({
+                is_active: true,
+                sync_status: 'verified',
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log('✅ Barry\'s profile has been updated with is_active: true');
+            console.log('📋 Try signing in again. If it still fails, the issue is in Firebase Auth.');
+        } else {
+            console.log('❌ Barry\'s profile not found');
+        }
+    } catch (error) {
+        console.error('Error fixing Barry\'s profile:', error);
+    }
+}
 function showAdminTab(tabName) {
     // Hide all tab contents
     document.getElementById('adminAssessmentsTab').classList.remove('active');
@@ -345,6 +521,10 @@ function renderUsersTable(users) {
                         `<button class="btn btn-sm btn-primary" onclick="toggleUserRole('${user.id}', 'admin')">Make Admin</button>` :
                         user.id !== currentUser.uid ? `<button class="btn btn-sm btn-secondary" onclick="toggleUserRole('${user.id}', 'user')">Remove Admin</button>` : ''
                     }
+                    ${user.id !== currentUser.uid ? 
+                        `<button class="btn btn-sm btn-danger" onclick="removeUser('${user.id}', '${userEmail}', '${userName}')">🗑️ Remove</button>` : 
+                        '<span class="text-muted">Current User</span>'
+                    }
                 </td>
             </tr>
         `;
@@ -357,6 +537,72 @@ function renderUsersTable(users) {
     `;
     
     document.getElementById('adminUsersTable').innerHTML = html;
+}
+
+async function removeUser(userId, userEmail, userName) {
+    if (!isAdmin()) {
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Unauthorized action');
+        } else {
+            alert('Unauthorized action');
+        }
+        return;
+    }
+    
+    if (!await showAdminActionConfirmation('remove user', `permanently remove ${userName} (${userEmail}) and all their data? This action cannot be undone.`)) {
+        return;
+    }
+    
+    try {
+        console.log(`🗑️ Removing user: ${userEmail} (${userId})`);
+        
+        // 1. Delete user's Firestore profile
+        await db.collection('profiles').doc(userId).delete();
+        console.log('✅ User profile deleted from Firestore');
+        
+        // 2. Delete all user's assessments
+        const assessmentsSnapshot = await db.collection('assessments').where('user_uid', '==', userId).get();
+        const deletePromises = [];
+        
+        assessmentsSnapshot.forEach(doc => {
+            deletePromises.push(doc.ref.delete());
+        });
+        
+        await Promise.all(deletePromises);
+        console.log(`✅ Deleted ${assessmentsSnapshot.size} assessments`);
+        
+        // 3. Note: We cannot delete Firebase Auth user from client-side
+        // This requires Firebase Admin SDK on the server
+        console.log('⚠️ Note: Firebase Auth user account requires manual deletion');
+        console.log('🔧 To complete removal:');
+        console.log('   1. Go to Firebase Console → Authentication → Users');
+        console.log('   2. Search for the user email');
+        console.log('   3. Click the 3-dot menu → Delete account');
+        console.log('   4. Confirm deletion');
+        
+        // 4. Show success message with complete instructions
+        const message = `✅ User ${userName} removed successfully!\n\n📊 Deleted: ${assessmentsSnapshot.size} assessments\n🔐 Next step: Delete Firebase Auth account\n\nGo to Firebase Console → Authentication → Users → Find ${userEmail} → Delete`;
+        
+        if (typeof showSuccessMessage === 'function') {
+            showSuccessMessage(message);
+        } else {
+            alert(message);
+        }
+        
+        // 5. Refresh the users list
+        loadUsers();
+        
+        // 6. Log the action for audit purposes
+        console.log(`📋 AUDIT: User ${currentUser.email} removed user ${userEmail} at ${new Date().toISOString()}`);
+        
+    } catch (error) {
+        console.error('Error removing user:', error);
+        if (typeof showErrorMessage === 'function') {
+            showErrorMessage('Error removing user. Please try again.');
+        } else {
+            alert('Error removing user. Please try again.');
+        }
+    }
 }
 
 async function toggleUserStatus(userId, newStatus) {

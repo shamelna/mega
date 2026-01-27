@@ -16,8 +16,6 @@ async function initializeAuth() {
     try {
         // Listen for auth state changes
         auth.onAuthStateChanged(async (user) => {
-            console.log('Auth state changed:', user ? user.email : 'null');
-            
             if (user) {
                 await handleAuthenticatedUser(user);
             } else {
@@ -168,6 +166,28 @@ function showAuthenticatedUI() {
 }
 
 function showAuthSection() {
+    // Hide all panels first
+    const allPanels = document.querySelectorAll('.panel');
+    allPanels.forEach((panel) => {
+        panel.style.display = 'none';
+        panel.classList.remove('active');
+    });
+    
+    // Specifically hide assessment panel
+    const assessmentPanel = document.getElementById('assessmentPanel');
+    if (assessmentPanel) {
+        assessmentPanel.style.display = 'none';
+    }
+    
+    // Hide all other authenticated panels specifically
+    const panelsToHide = ['dashboardPanel', 'savedPanel', 'assessmentResultsPanel', 'adminPanel'];
+    panelsToHide.forEach(panelId => {
+        const panel = document.getElementById(panelId);
+        if (panel) {
+            panel.style.display = 'none';
+        }
+    });
+    
     document.getElementById('authSection').style.display = 'block';
     document.getElementById('mainNavigation').style.display = 'none';
     
@@ -185,6 +205,25 @@ function showAuthSection() {
     
     window.currentUser = null;
     window.currentUserProfile = null;
+    
+    // Reset sign-in button state
+    const signinBtn = document.querySelector('button[onclick="handleSignIn()"]');
+    if (signinBtn) {
+        signinBtn.disabled = false;
+        signinBtn.innerHTML = 'Sign In';
+    }
+    
+    // Reset social sign-in buttons
+    document.querySelectorAll('.btn-social').forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    });
+    
+    // Clear form fields
+    const signinEmail = document.getElementById('signinEmail');
+    const signinPassword = document.getElementById('signinPassword');
+    if (signinEmail) signinEmail.value = '';
+    if (signinPassword) signinPassword.value = '';
 }
 
 function isAdmin() {
@@ -262,51 +301,142 @@ async function handleSignUp() {
 }
 
 // ============================================
-// SIGN IN
 // ============================================
 async function handleSignIn() {
     const email = document.getElementById('signinEmail').value.trim();
     const password = document.getElementById('signinPassword').value;
-    
-    hideError('signinError');
+    const signinBtn = document.querySelector('button[onclick="handleSignIn()"]');
     
     if (!email || !password) {
-        showError('signinError', 'Please enter both email and password');
+        showError('signinError', 'Please enter both email and password.');
         return;
     }
     
-    if (!isValidEmail(email)) {
-        showError('signinError', 'Please enter a valid email address');
-        return;
-    }
-    
-    const signinBtn = event.target;
+    // Show loading state
     signinBtn.disabled = true;
     signinBtn.innerHTML = '<span class="loading-spinner"></span> Signing in...';
+    
+    // Hide form fields during sign-in process
+    const emailField = document.getElementById('signinEmail');
+    const passwordField = document.getElementById('signinPassword');
+    const emailLabel = emailField.previousElementSibling;
+    const passwordLabel = passwordField.previousElementSibling;
+    
+    // Store original values
+    const originalEmail = emailField.value;
+    const originalPassword = passwordField.value;
+    
+    // Hide form elements
+    emailField.style.display = 'none';
+    passwordField.style.display = 'none';
+    emailLabel.style.display = 'none';
+    passwordLabel.style.display = 'none';
+    
+    // Show loading animation
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'signinLoading';
+    loadingDiv.style.cssText = `
+        text-align: center;
+        padding: 40px 20px;
+        color: #821874;
+        font-size: 16px;
+        font-weight: 600;
+    `;
+    loadingDiv.innerHTML = `
+        <div style="margin-bottom: 15px;">
+            <div class="loading-spinner" style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #821874; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+        </div>
+        <div>Signing in...</div>
+    `;
+    
+    // Insert loading animation after the password field
+    passwordField.parentNode.insertBefore(loadingDiv, passwordField.nextSibling);
     
     try {
         await auth.signInWithEmailAndPassword(email, password);
         
+        // Show success animation
+        loadingDiv.innerHTML = `
+            <div style="margin-bottom: 15px;">
+                <div style="width: 40px; height: 40px; margin: 0 auto; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                </div>
+            </div>
+            <div style="color: #28a745;">Signed in successfully!</div>
+        `;
+        
         console.log('Sign in successful');
         
+        // Wait a moment for user to see success message
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Clear form fields AFTER success animation (but keep form hidden)
         document.getElementById('signinEmail').value = '';
         document.getElementById('signinPassword').value = '';
         
-    } catch (error) {
-        console.error('Sign in error:', error);
-        
-        let errorMessage = 'Failed to sign in. Please check your credentials.';
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-            errorMessage = 'Invalid email or password. Please try again.';
-        } else if (error.code === 'auth/user-disabled') {
-            errorMessage = 'This account has been disabled. Please contact support.';
-        } else if (error.code === 'auth/too-many-requests') {
-            errorMessage = 'Too many failed attempts. Please try again later.';
+        // Remove loading animation
+        const loadingElement = document.getElementById('signinLoading');
+        if (loadingElement) {
+            loadingElement.remove();
         }
         
-        showError('signinError', errorMessage);
+        // Keep form elements hidden - they'll be shown by auth state change if needed
+        // Don't restore form elements here to prevent the brief flash
+        
+        // The auth state change will handle showing the main app
+        
+    } catch (error) {
+        // Remove loading animation
+        const loadingElement = document.getElementById('signinLoading');
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+        
+        // Restore form elements
+        emailField.style.display = '';
+        passwordField.style.display = '';
+        emailLabel.style.display = '';
+        passwordLabel.style.display = '';
+        emailField.value = originalEmail;
+        passwordField.value = originalPassword;
+        
+        // Clear any existing error first
+        hideError('signinError');
+        
+        let errorMessage = 'Failed to sign in. Please check your credentials.';
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-login-credentials') {
+            errorMessage = '❌ Incorrect email or password. Please try again.';
+        } else if (error.code === 'auth/user-disabled') {
+            errorMessage = '🚫 This account has been disabled. Please contact support.';
+        } else if (error.code === 'auth/too-many-requests') {
+            errorMessage = '⏰ Too many failed attempts. Please try again later.';
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = '📧 Invalid email address format.';
+        } else if (error.code === 'auth/invalid-credential') {
+            errorMessage = '❌ Invalid credentials. Please check your email and password.';
+        }
+        
+        // Direct approach - bypass showError function
+        const errorElement = document.getElementById('signinError');
+        if (errorElement) {
+            errorElement.innerHTML = errorMessage;
+            errorElement.style.setProperty('display', 'block', 'important');
+            errorElement.style.setProperty('visibility', 'visible', 'important');
+            errorElement.style.setProperty('opacity', '1', 'important');
+            errorElement.style.setProperty('color', '#dc3545', 'important');
+        }
+        
+        // Reset button state
         signinBtn.disabled = false;
         signinBtn.innerHTML = 'Sign In';
+    } finally {
+        // Only reset button if there was an error
+        if (signinBtn.innerHTML.includes('Signing in')) {
+            signinBtn.disabled = false;
+            signinBtn.innerHTML = 'Sign In';
+        }
     }
 }
 
@@ -516,9 +646,8 @@ async function confirmLogout() {
     
     try {
         await auth.signOut();
-        console.log('User signed out successfully');
     } catch (error) {
-        console.error('Sign out error:', error);
+        console.error('Firebase sign out error:', error);
         // Force logout even if API fails
         forceCleanLogout();
     }
@@ -543,55 +672,114 @@ function handleSignOut() {
         dashboardActions.style.display = 'none';
     }
     
+    // Hide ALL panels immediately
+    document.querySelectorAll('.panel').forEach(panel => {
+        panel.style.display = 'none';
+        panel.classList.remove('active');
+    });
+    
+    // Show auth section immediately
+    const authSection = document.getElementById('authSection');
+    if (authSection) {
+        authSection.style.display = 'block';
+        authSection.classList.add('active');
+    }
+    
     // Clear ALL assessment-related content
     clearAllAssessmentContent();
     
-    // Clear admin panel content completely
-    const adminPanel = document.getElementById('adminPanel');
-    if (adminPanel) {
-        adminPanel.style.display = 'none';
-        adminPanel.classList.remove('active');
+    // Clear saved assessments list
+    const savedAssessments = document.getElementById('savedAssessments');
+    if (savedAssessments) {
+        savedAssessments.innerHTML = '';
     }
     
-    const adminAssessments = document.getElementById('adminAssessmentsTable');
-    if (adminAssessments) {
-        adminAssessments.innerHTML = '';
+    // Clear dashboard content
+    const overviewTab = document.getElementById('overviewTab');
+    if (overviewTab) {
+        overviewTab.innerHTML = '';
     }
     
-    const adminUsers = document.getElementById('adminUsersTable');
-    if (adminUsers) {
-        adminUsers.innerHTML = '';
+    const detailedTab = document.getElementById('detailedTab');
+    if (detailedTab) {
+        detailedTab.innerHTML = '';
     }
     
-    const adminStats = document.getElementById('adminStats');
-    if (adminStats) {
-        adminStats.innerHTML = '';
+    const feedbackTab = document.getElementById('feedbackTab');
+    if (feedbackTab) {
+        feedbackTab.innerHTML = '';
     }
+    
+    // Clear assessment form
+    const assessmentForm = document.getElementById('assessmentForm');
+    if (assessmentForm) {
+        assessmentForm.reset();
+    }
+    
+    // Clear results containers
+    const resultsContainer = document.getElementById('resultsContainer');
+    if (resultsContainer) {
+        resultsContainer.innerHTML = '';
+        resultsContainer.style.display = 'none';
+    }
+    
+    // Clear dashboard panels
+    const enhancedResultsGrid = document.getElementById('enhancedResultsGrid');
+    if (enhancedResultsGrid) {
+        enhancedResultsGrid.innerHTML = '';
+    }
+    
+    const detailedScoresContainer = document.getElementById('detailedScoresContainer');
+    if (detailedScoresContainer) {
+        detailedScoresContainer.innerHTML = '';
+    }
+    
+    const feedbackSection = document.getElementById('feedbackSection');
+    if (feedbackSection) {
+        feedbackSection.innerHTML = '';
+    }
+    
+    // Hide PDF export buttons
+    const previewDashboardPDF = document.getElementById('previewDashboardPDF');
+    const exportDashboardPDF = document.getElementById('exportDashboardPDF');
+    const previewIndividualPDF = document.getElementById('previewIndividualPDF');
+    const exportIndividualPDF = document.getElementById('exportIndividualPDF');
+    
+    if (previewDashboardPDF) previewDashboardPDF.style.display = 'none';
+    if (exportDashboardPDF) exportDashboardPDF.style.display = 'none';
+    if (previewIndividualPDF) previewIndividualPDF.style.display = 'none';
+    if (exportIndividualPDF) exportIndividualPDF.style.display = 'none';
     
     // Clear admin filters
     const filterUser = document.getElementById('filterUser');
     const filterCompany = document.getElementById('filterCompany');
     const filterStatus = document.getElementById('filterStatus');
+    
     if (filterUser) filterUser.value = '';
     if (filterCompany) filterCompany.value = '';
     if (filterStatus) filterStatus.value = 'all';
     
-    // Hide all panels and show only auth section
-    document.querySelectorAll('.panel').forEach(panel => {
-        panel.style.display = 'none';
-        panel.classList.remove('active');
-    });
-    document.getElementById('authSection').style.display = 'block';
-    document.getElementById('authSection').classList.add('active');
-    
     // Reset auth form to sign in
     showAuthTab('signin');
     
-    // Clear form fields
+    // Clear form fields and reset button states
     const signinEmail = document.getElementById('signinEmail');
     const signinPassword = document.getElementById('signinPassword');
     if (signinEmail) signinEmail.value = '';
     if (signinPassword) signinPassword.value = '';
+    
+    // Reset sign-in button state
+    const signinBtn = document.querySelector('button[onclick="handleSignIn()"]');
+    if (signinBtn) {
+        signinBtn.disabled = false;
+        signinBtn.innerHTML = 'Sign In';
+    }
+    
+    // Reset social sign-in buttons
+    document.querySelectorAll('.btn-social').forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    });
     
     // Clear any notifications
     clearAllNotifications();
@@ -603,16 +791,8 @@ function handleSignOut() {
             if (event.state === 'auth') {
                 // User tried to go back - keep them on auth page
                 window.history.pushState('auth', null, './');
-                return false;
             }
         };
-    }
-    
-    // Clear session storage
-    if (typeof(Storage) !== "undefined") {
-        sessionStorage.clear();
-        localStorage.removeItem('currentAssessmentData');
-        localStorage.removeItem('currentUserProfile');
     }
     
     // Force page reload to ensure complete cleanup
@@ -621,10 +801,16 @@ function handleSignOut() {
         document.body.innerHTML = '';
         // Reload with cache busting
         window.location.href = window.location.href + '?t=' + Date.now();
-    }, 100);
+    }, 50);
 }
 
 function clearAllAssessmentContent() {
+    // Hide all panels first
+    document.querySelectorAll('.panel').forEach(panel => {
+        panel.style.display = 'none';
+        panel.classList.remove('active');
+    });
+    
     // Clear saved assessments list
     const savedAssessments = document.getElementById('savedAssessments');
     if (savedAssessments) {
@@ -778,8 +964,14 @@ function showForgotPassword() {
 
 function showError(elementId, message) {
     const element = document.getElementById(elementId);
-    element.textContent = message;
-    element.style.display = 'block';
+    if (element) {
+        element.innerHTML = message;
+        element.style.setProperty('display', 'block', 'important');
+        element.style.setProperty('visibility', 'visible', 'important');
+        element.style.setProperty('opacity', '1', 'important');
+        element.style.setProperty('color', '#dc3545', 'important');
+        element.style.setProperty('font-size', '14px', 'important');
+    }
 }
 
 function hideError(elementId) {
