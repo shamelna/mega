@@ -111,6 +111,12 @@ function showAuthenticatedUI() {
     document.getElementById('authSection').style.display = 'none';
     document.getElementById('mainNavigation').style.display = 'flex';
     
+    // Show dashboard actions
+    const dashboardActions = document.getElementById('dashboardActions');
+    if (dashboardActions) {
+        dashboardActions.style.display = 'block';
+    }
+    
     // Show and populate user menu
     const userMenu = document.getElementById('userMenu');
     if (userMenu && window.currentUser) {
@@ -164,6 +170,12 @@ function showAuthenticatedUI() {
 function showAuthSection() {
     document.getElementById('authSection').style.display = 'block';
     document.getElementById('mainNavigation').style.display = 'none';
+    
+    // Hide dashboard actions
+    const dashboardActions = document.getElementById('dashboardActions');
+    if (dashboardActions) {
+        dashboardActions.style.display = 'none';
+    }
     
     // Hide user menu
     const userMenu = document.getElementById('userMenu');
@@ -523,6 +535,12 @@ function handleSignOut() {
     const navigation = document.getElementById('mainNavigation');
     if (navigation) {
         navigation.style.display = 'none';
+    }
+    
+    // Hide dashboard actions
+    const dashboardActions = document.getElementById('dashboardActions');
+    if (dashboardActions) {
+        dashboardActions.style.display = 'none';
     }
     
     // Clear ALL assessment-related content
