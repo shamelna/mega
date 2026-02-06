@@ -374,55 +374,67 @@
         </div>
 
         <div id="adminPanel" class="panel" style="display: none;">
-            <h2 style="color: #821874;">Administrator Dashboard</h2>
-            <div id="adminStats" class="results-grid" style="margin-bottom: 30px;"></div>
+            <h2 style="color: #821874; margin-bottom: 30px;">Administrator Dashboard</h2>
+            
+            <!-- Statistics Section -->
+            <div id="adminStats" class="results-grid" style="margin-bottom: 40px;"></div>
 
-            <div class="tabs">
+            <!-- Tabs Navigation -->
+            <div class="tabs" style="margin-bottom: 25px;">
                 <button class="tab active" onclick="showAdminTab('assessments')">Assessments</button>
                 <button class="tab" onclick="showAdminTab('users')">User Management</button>
             </div>
 
-            <div id="adminAssessmentsTab" class="tab-content active">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                    <div class="data-warning" style="flex: 1; margin-right: 15px; margin-bottom: 0;">
-                        <h4>Assessment Management</h4>
-                        <p>View and manage all assessments in the system.</p>
+            <!-- Tab Content Container -->
+            <div>
+                <!-- Assessments Tab -->
+                <div id="adminAssessmentsTab" class="tab-content active">
+                    <!-- Header Section -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; gap: 20px;">
+                        <div class="data-warning" style="flex: 1; margin: 0;">
+                            <h4 style="margin-bottom: 8px;">Assessment Management</h4>
+                            <p style="margin: 0;">View and manage all assessments in the system.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="exportAllAssessmentsData()" title="Export all assessments to CSV" style="white-space: nowrap; flex-shrink: 0;">
+                            📊 Export All Data (CSV)
+                        </button>
                     </div>
-                    <button class="btn btn-primary" onclick="exportAllAssessmentsData()" title="Export all assessments to CSV" style="white-space: nowrap;">
-                        📊 Export All Data (CSV)
-                    </button>
-                </div>
 
-                <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Filter by User:</label>
-                            <input type="text" id="filterUser" placeholder="Email or name" onkeyup="filterAssessments()" style="margin-bottom: 0;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Filter by Company:</label>
-                            <input type="text" id="filterCompany" placeholder="Company name" onkeyup="filterAssessments()" style="margin-bottom: 0;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Status:</label>
-                            <select id="filterStatus" onchange="filterAssessments()" style="margin-bottom: 0;">
-                                <option value="all">All</option>
-                                <option value="completed">Completed</option>
-                                <option value="draft">Draft</option>
-                            </select>
+                    <!-- Filters Section -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e9ecef;">
+                        <h5 style="margin-bottom: 15px; color: #495057;">🔍 Filters</h5>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">Filter by User:</label>
+                                <input type="text" id="filterUser" placeholder="Email or name" onkeyup="filterAssessments()" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">Filter by Company:</label>
+                                <input type="text" id="filterCompany" placeholder="Company name" onkeyup="filterAssessments()" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057;">Status:</label>
+                                <select id="filterStatus" onchange="filterAssessments()" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+                                    <option value="all">All</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="draft">Draft</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Results Table -->
+                    <div id="adminAssessmentsTable"></div>
                 </div>
 
-                <div id="adminAssessmentsTable"></div>
-            </div>
-
-            <div id="adminUsersTab" class="tab-content">
-                <div class="data-warning">
-                    <h4>User Management</h4>
-                    <p>Manage user accounts and permissions.</p>
+                <!-- Users Tab -->
+                <div id="adminUsersTab" class="tab-content">
+                    <div class="data-warning" style="margin-bottom: 25px;">
+                        <h4 style="margin-bottom: 8px;">User Management</h4>
+                        <p style="margin: 0;">Manage user accounts and permissions.</p>
+                    </div>
+                    <div id="adminUsersTable"></div>
                 </div>
-                <div id="adminUsersTable"></div>
             </div>
         </div>
 
@@ -619,5 +631,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" title="Back to top" onclick="scrollToTop()"></button>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Back to top functionality
+        window.onscroll = function() {
+            const backToTopButton = document.getElementById('backToTop');
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                backToTopButton.classList.add('visible');
+            } else {
+                backToTopButton.classList.remove('visible');
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
 </body>
 </html>

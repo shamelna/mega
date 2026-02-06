@@ -55,6 +55,18 @@ async function handleAuthenticatedUser(user) {
         
     } catch (error) {
         console.error('Error handling authenticated user:', error);
+        
+        // Check if it's a permission error
+        if (error.message && error.message.includes('Missing or insufficient permissions')) {
+            console.warn('Firebase security rules need to be deployed. Using fallback mode.');
+            // Create a basic profile in memory for testing
+            window.currentUserProfile = {
+                email: user.email,
+                display_name: user.displayName || user.email.split('@')[0],
+                role: 'user'
+            };
+        }
+        
         // Still show UI even if profile fetch fails
         showAuthenticatedUI();
     }
@@ -201,6 +213,23 @@ function showAuthSection() {
     const userMenu = document.getElementById('userMenu');
     if (userMenu) {
         userMenu.style.display = 'none';
+    }
+    
+    // IMPORTANT: Restore form elements visibility
+    const emailField = document.getElementById('signinEmail');
+    const passwordField = document.getElementById('signinPassword');
+    const emailLabel = document.querySelector('label[for="signinEmail"]');
+    const passwordLabel = document.querySelector('label[for="signinPassword"]');
+    
+    if (emailField) emailField.style.display = '';
+    if (passwordField) passwordField.style.display = '';
+    if (emailLabel) emailLabel.style.display = '';
+    if (passwordLabel) passwordLabel.style.display = '';
+    
+    // Remove any loading animation that might be stuck
+    const loadingElement = document.getElementById('signinLoading');
+    if (loadingElement) {
+        loadingElement.remove();
     }
     
     window.currentUser = null;

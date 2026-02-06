@@ -16,6 +16,9 @@ function loadAdminDashboard() {
 async function syncUsersWithAuth() {
     try {
         console.log('Syncing Firestore profiles with Firebase Auth users...');
+        console.log('Current admin user UID:', window.currentUser?.uid);
+        console.log('Current user profile:', window.currentUserProfile);
+        console.log('Current user role:', window.currentUserProfile?.role);
         
         // Get all Firestore profiles
         const profilesSnapshot = await db.collection('profiles').get();
@@ -52,6 +55,16 @@ async function syncUsersWithAuth() {
         
     } catch (error) {
         console.error('Error syncing users:', error);
+        
+        // Check if it's a permission error
+        if (error.message && error.message.includes('Missing or insufficient permissions')) {
+            console.warn('⚠️ Firebase security rules need to be deployed for admin functionality.');
+            console.warn('📋 Current admin features will work in limited mode:');
+            console.warn('   - User synchronization: Disabled');
+            console.warn('   - Admin statistics: Limited to current user data');
+            console.warn('   - Assessment management: Limited to current user data');
+            console.warn('💡 Deploy updated firestore.rules to enable full admin features');
+        }
     }
 }
 
@@ -325,6 +338,42 @@ async function loadAdminStatistics() {
         
     } catch (error) {
         console.error('Error loading admin statistics:', error);
+        
+        // Check if it's a permission error
+        if (error.message && error.message.includes('Missing or insufficient permissions')) {
+            console.warn('⚠️ Admin statistics limited due to Firebase security rules');
+            
+            // Show limited statistics based on current user data
+            const html = `
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <h4 style="color: #856404; margin-bottom: 10px;">🔒 Limited Admin Access</h4>
+                    <p style="color: #856404; margin-bottom: 15px;">Admin features are limited until Firebase security rules are deployed.</p>
+                    <p style="color: #856404; font-size: 14px;">Please deploy the updated firestore.rules to enable full admin functionality.</p>
+                </div>
+                <div class="dimension-card">
+                    <h4>Total Assessments</h4>
+                    <div class="status-large" style="font-size: 2.5em; margin: 10px 0;">?</div>
+                    <div class="status-label">Limited Access</div>
+                </div>
+                <div class="dimension-card">
+                    <h4>Total Users</h4>
+                    <div class="status-large" style="font-size: 2.5em; margin: 10px 0;">?</div>
+                    <div class="status-label">Limited Access</div>
+                </div>
+                <div class="dimension-card">
+                    <h4>Average Score</h4>
+                    <div class="status-large" style="font-size: 2.5em; margin: 10px 0;">?</div>
+                    <div class="status-label">Limited Access</div>
+                </div>
+                <div class="dimension-card">
+                    <h4>Completion Rate</h4>
+                    <div class="status-large" style="font-size: 2.5em; margin: 10px 0;">?</div>
+                    <div class="status-label">Limited Access</div>
+                </div>
+            `;
+            
+            document.getElementById('adminStats').innerHTML = html;
+        }
     }
 }
 
@@ -350,6 +399,23 @@ async function loadAdminAssessments() {
         
     } catch (error) {
         console.error('Error loading admin assessments:', error);
+        
+        // Check if it's a permission error
+        if (error.message && error.message.includes('Missing or insufficient permissions')) {
+            console.warn('⚠️ Admin assessments limited due to Firebase security rules');
+            
+            // Show limited access message
+            const html = `
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <h4 style="color: #856404; margin-bottom: 10px;">🔒 Limited Admin Access</h4>
+                    <p style="color: #856404; margin-bottom: 15px;">Assessment management is limited until Firebase security rules are deployed.</p>
+                    <p style="color: #856404; font-size: 14px;">Please deploy the updated firestore.rules to enable full admin functionality.</p>
+                </div>
+                <p style="text-align: center; color: #999; padding: 40px;">No assessments available due to limited access.</p>
+            `;
+            
+            document.getElementById('adminAssessmentsTable').innerHTML = html;
+        }
     }
 }
 
