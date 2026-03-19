@@ -1,456 +1,551 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEGA LEAN Assessment - Welcome</title>
     <link rel="icon" type="image/x-icon" href="https://practitioner.kaizenacademy.education/Tcia.ico">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .welcome-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .hero-section {
-            background: linear-gradient(135deg, #821874 0%, #159eda 100%);
-            color: white;
-            padding: 60px 40px;
-            border-radius: 15px;
-            text-align: center;
-            margin-bottom: 40px;
-            box-shadow: 0 6px 20px rgba(130, 24, 116, 0.3);
-        }
-        
-        .hero-section h1 {
-            font-size: 3em;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        
-        .hero-section p {
-            font-size: 1.3em;
-            margin-bottom: 30px;
-            opacity: 0.9;
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-bottom: 50px;
-        }
-        
-        .feature-card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-        
-        .feature-icon {
-            font-size: 3em;
-            margin-bottom: 20px;
-            color: #821874;
-        }
-        
-        .feature-card h3 {
-            color: #821874;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-        }
-        
-        .feature-card p {
-            color: #666;
-            line-height: 1.6;
-        }
-        
-        .dimensions-section {
-            background: #f8f9fa;
-            padding: 50px 40px;
-            border-radius: 15px;
-            margin-bottom: 40px;
-        }
-        
-        .dimensions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
-        }
-        
-        .dimension-card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            border-left: 4px solid #821874;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .dimension-card h4 {
-            color: #821874;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-        
-        .dimension-card p {
-            color: #666;
-            font-size: 0.95em;
-            line-height: 1.5;
-        }
-        
-        .process-section {
-            margin-bottom: 50px;
-        }
-        
-        .process-timeline {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 40px 0;
-            position: relative;
-        }
-        
-        .process-timeline::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #821874, #159eda);
-            z-index: 1;
-        }
-        
-        .process-step {
-            background: white;
-            border: 3px solid #821874;
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #821874;
-            position: relative;
-            z-index: 2;
-            box-shadow: 0 4px 15px rgba(130, 24, 116, 0.2);
-        }
-        
-        .process-info {
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        .cta-section {
-            text-align: center;
-            padding: 50px 40px;
-            background: linear-gradient(135deg, rgba(130, 24, 116, 0.1) 0%, rgba(21, 158, 218, 0.1) 100%);
-            border-radius: 15px;
-            margin-bottom: 40px;
-        }
-        
-        .cta-button {
-            display: inline-block;
-            background: linear-gradient(135deg, #821874 0%, #159eda 100%);
-            color: white;
-            padding: 18px 40px;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 1.2em;
-            box-shadow: 0 4px 15px rgba(130, 24, 116, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            margin: 20px 10px;
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(130, 24, 116, 0.4);
-        }
-        
-        .cta-button-secondary {
-            background: white;
-            color: #821874;
-            border: 2px solid #821874;
-        }
-        
-        .info-box {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        
-        .info-box h4 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-        
-        .info-box p {
-            color: #856404;
-            margin: 0;
-        }
-        
-        @media (max-width: 768px) {
-            .hero-section h1 {
-                font-size: 2em;
-            }
-            
-            .hero-section p {
-                font-size: 1.1em;
-            }
-            
-            .process-timeline {
-                flex-direction: column;
-                gap: 30px;
-            }
-            
-            .process-timeline::before {
-                display: none;
-            }
-            
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .dimensions-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+        /* ─── Design Tokens ─── */
+        :root {
+            --plum:        #821874;
+            --plum-dark:   #5e1155;
+            --plum-light:  #b03099;
+            --sky:         #159eda;
+            --sky-dark:    #0d7aab;
+            --navy:        #033d5c;
+            --navy-deep:   #012236;
+
+```
+        /* Neutral ramp — always legible */
+        --white:       #ffffff;
+        --off-white:   #f7f4f9;
+        --grey-100:    #f0ebf5;
+        --grey-200:    #e0d4ec;
+        --grey-400:    #9e86b0;
+        --grey-600:    #5a4670;
+        --grey-800:    #2e1f3e;
+
+        /* Semantic text colours */
+        --text-on-dark:       #ffffff;
+        --text-on-light:      var(--grey-800);
+        --text-muted-on-light: var(--grey-600);
+        --text-on-plum:       #ffffff;
+        --text-link-on-dark:  #7dd9ff;
+        --text-link-on-light: var(--sky-dark);
+
+        /* Warm accent for info boxes */
+        --amber-bg:   #fef9ec;
+        --amber-border: #f0c040;
+        --amber-text: #6b4a00;
+
+        --radius-card: 16px;
+        --radius-pill: 100px;
+        --shadow-card: 0 4px 24px rgba(46,31,62,.10);
+        --shadow-card-hover: 0 12px 36px rgba(46,31,62,.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background: var(--off-white);
+        color: var(--text-on-light);
+        line-height: 1.6;
+    }
+
+    /* ─── Legacy header (styles.css hook) ─── */
+    .header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 24px 32px;
+        background: var(--white);
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-card);
+        margin-bottom: 32px;
+    }
+    .logo { height: 56px; width: auto; }
+    .header-text h1 { font-family: 'DM Serif Display', serif; font-size: 1.6em; color: var(--plum); }
+    .header-text p  { font-size: .95em; color: var(--text-muted-on-light); margin-top: 4px; }
+
+    /* ─── Wrapper ─── */
+    .welcome-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 20px 60px;
+    }
+
+    /* ─── Hero ─── */
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--plum-dark) 0%, var(--sky) 100%);
+        color: var(--text-on-dark);
+        padding: 72px 48px 56px;
+        border-radius: var(--radius-card);
+        text-align: center;
+        margin-bottom: 48px;
+        box-shadow: 0 8px 32px rgba(130,24,116,.35);
+    }
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+        pointer-events: none;
+    }
+    .hero-section h1 {
+        font-family: 'DM Serif Display', serif;
+        font-size: clamp(2em, 5vw, 3.2em);
+        margin-bottom: 18px;
+        text-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    .hero-section > p {
+        font-size: clamp(1em, 2vw, 1.25em);
+        margin-bottom: 32px;
+        opacity: .92;
+    }
+
+    /* ─── Info Box ─── */
+    .info-box {
+        background: var(--amber-bg);
+        border: 1.5px solid var(--amber-border);
+        border-radius: 10px;
+        padding: 18px 24px;
+        margin: 20px 0 0;
+        text-align: center;
+        display: inline-block;
+        max-width: 600px;
+    }
+    .info-box h4 { color: var(--amber-text); margin-bottom: 8px; font-weight: 700; font-size: .95em; }
+    .info-box p  { color: var(--amber-text); margin: 0; font-size: .92em; }
+
+    /* ─── Section headings ─── */
+    .section-heading {
+        text-align: center;
+        margin-bottom: 12px;
+    }
+    .section-heading h2 {
+        font-family: 'DM Serif Display', serif;
+        font-size: clamp(1.6em, 3vw, 2.2em);
+        color: var(--plum);
+    }
+    .section-heading p {
+        color: var(--text-muted-on-light);
+        font-size: 1.05em;
+        margin-top: 8px;
+    }
+
+    /* ─── Feature cards (white bg) ─── */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 28px;
+        margin-bottom: 52px;
+    }
+    .feature-card {
+        background: var(--white);
+        padding: 32px 28px;
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-card);
+        text-align: center;
+        transition: transform .3s ease, box-shadow .3s ease;
+        border-top: 3px solid transparent;
+        border-image: linear-gradient(135deg, var(--plum), var(--sky)) 1;
+    }
+    .feature-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-card-hover);
+    }
+    .feature-icon { font-size: 2.8em; margin-bottom: 16px; }
+    .feature-card h3 { color: var(--plum-dark); margin-bottom: 12px; font-size: 1.25em; font-weight: 700; }
+    .feature-card p  { color: var(--text-muted-on-light); line-height: 1.65; font-size: .97em; }
+
+    /* ─── Dimensions section ─── */
+    .dimensions-section {
+        background: var(--grey-100);
+        padding: 52px 40px;
+        border-radius: var(--radius-card);
+        margin-bottom: 48px;
+    }
+    .dimensions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 22px;
+        margin-top: 32px;
+    }
+    .dimension-card {
+        background: var(--white);
+        padding: 24px 22px;
+        border-radius: 12px;
+        border-left: 4px solid var(--plum);
+        box-shadow: var(--shadow-card);
+        transition: border-color .2s;
+    }
+    .dimension-card:hover { border-color: var(--sky); }
+    .dimension-card h4 { color: var(--plum-dark); margin-bottom: 10px; font-size: 1.05em; font-weight: 700; }
+    .dimension-card p  { color: var(--text-muted-on-light); font-size: .93em; line-height: 1.55; }
+
+    /* ─── Process ─── */
+    .process-section { margin-bottom: 52px; }
+    .process-timeline {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin: 40px 0 0;
+        position: relative;
+    }
+    .process-timeline::before {
+        content: '';
+        position: absolute;
+        top: 38px;
+        left: 5%;
+        right: 5%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--plum), var(--sky));
+        z-index: 1;
+    }
+    .process-step-wrap { flex: 1; text-align: center; position: relative; z-index: 2; }
+    .process-step {
+        background: linear-gradient(135deg, var(--plum), var(--sky));
+        border-radius: 50%;
+        width: 76px;
+        height: 76px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.5em;
+        color: var(--text-on-dark);
+        box-shadow: 0 4px 16px rgba(130,24,116,.3);
+    }
+    .process-info { margin-top: 14px; }
+    .process-info strong { display: block; color: var(--grey-800); font-weight: 700; }
+    .process-info small  { color: var(--text-muted-on-light); font-size: .85em; }
+
+    /* ─── CTA section ─── */
+    .cta-section {
+        text-align: center;
+        padding: 56px 40px;
+        background: linear-gradient(135deg, rgba(130,24,116,.07), rgba(21,158,218,.07));
+        border: 1.5px solid var(--grey-200);
+        border-radius: var(--radius-card);
+        margin-bottom: 48px;
+    }
+    .cta-section h2 { font-family: 'DM Serif Display', serif; color: var(--plum); font-size: clamp(1.5em,3vw,2em); margin-bottom: 14px; }
+    .cta-section > p { color: var(--text-muted-on-light); font-size: 1.05em; margin-bottom: 28px; }
+
+    .cta-button {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--plum) 0%, var(--sky) 100%);
+        color: var(--text-on-dark) !important;
+        padding: 16px 38px;
+        text-decoration: none;
+        border-radius: var(--radius-pill);
+        font-weight: 700;
+        font-size: 1.1em;
+        box-shadow: 0 4px 18px rgba(130,24,116,.3);
+        transition: transform .3s ease, box-shadow .3s ease;
+        margin: 10px 8px;
+        letter-spacing: .02em;
+    }
+    .cta-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 28px rgba(130,24,116,.42);
+        color: var(--text-on-dark) !important;
+    }
+    .cta-button-secondary {
+        background: var(--white) !important;
+        color: var(--plum) !important;
+        border: 2px solid var(--plum);
+        box-shadow: 0 4px 12px rgba(130,24,116,.12);
+    }
+    .cta-button-secondary:hover { color: var(--plum) !important; }
+
+    /* ─── About section ─── */
+    .about-section {
+        margin-bottom: 52px;
+    }
+    .about-card {
+        background: var(--white);
+        padding: 44px 40px;
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-card);
+    }
+    .about-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        align-items: start;
+    }
+    .about-grid h3 { font-family: 'DM Serif Display', serif; color: var(--plum); margin-bottom: 18px; font-size: 1.35em; }
+    .about-grid p  { color: var(--text-muted-on-light); line-height: 1.7; margin-bottom: 16px; font-size: .97em; }
+    .about-links { margin-top: 24px; display: flex; gap: 20px; flex-wrap: wrap; }
+    .about-links a { color: var(--sky-dark); text-decoration: none; font-weight: 600; transition: color .2s; }
+    .about-links a:hover { color: var(--plum); }
+
+    .contact-box {
+        background: var(--grey-100);
+        padding: 24px;
+        border-radius: 12px;
+        text-align: center;
+        margin-top: 12px;
+    }
+    .contact-box h4 { color: var(--plum-dark); margin-bottom: 14px; font-size: 1em; font-weight: 700; }
+    .contact-box p   { color: var(--text-muted-on-light); margin: 8px 0; font-size: .93em; }
+    .contact-box a   { color: var(--sky-dark); text-decoration: none; font-weight: 600; }
+    .contact-box a:hover { color: var(--plum); }
+    .contact-box strong { color: var(--grey-800); }
+
+    .about-logo { max-width: 220px; margin-bottom: 24px; display: block; margin-inline: auto; }
+
+    /* ─── Footer ─── */
+    .site-footer {
+        background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 100%);
+        color: var(--text-on-dark);
+        padding: 52px 40px 36px;
+        border-radius: var(--radius-card);
+        text-align: center;
+    }
+    .site-footer h3 { font-family: 'DM Serif Display', serif; font-size: 1.6em; margin-bottom: 14px; }
+    .site-footer > p { opacity: .85; margin-bottom: 32px; font-size: 1em; }
+
+    /* Override CTA button inside dark footer */
+    .site-footer .cta-button {
+        background: var(--white) !important;
+        color: var(--plum) !important;
+        border: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    }
+    .site-footer .cta-button:hover { color: var(--plum-dark) !important; }
+
+    .footer-divider {
+        margin: 32px 0 24px;
+        border: none;
+        border-top: 1px solid rgba(255,255,255,.18);
+    }
+    .footer-meta p  { opacity: .85; font-size: .95em; line-height: 1.8; }
+    .footer-meta strong { color: var(--white); opacity: 1; }
+    .footer-links { margin: 14px 0; }
+    .footer-links a {
+        color: var(--text-link-on-dark);
+        text-decoration: none;
+        margin: 0 10px;
+        font-weight: 500;
+        font-size: .95em;
+        transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--white); }
+    .footer-copy { margin-top: 18px; font-size: .8em; opacity: .55; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+        .hero-section { padding: 48px 24px 40px; }
+        .dimensions-section { padding: 36px 20px; }
+        .cta-section { padding: 40px 20px; }
+        .about-card { padding: 28px 20px; }
+        .about-grid { grid-template-columns: 1fr; gap: 28px; }
+        .site-footer { padding: 40px 20px 28px; }
+        .process-timeline { flex-direction: column; align-items: center; gap: 32px; }
+        .process-timeline::before { display: none; }
+        .features-grid { grid-template-columns: 1fr; }
+        .dimensions-grid { grid-template-columns: 1fr; }
+    }
+</style>
+```
+
 </head>
 <body>
-    <div class="welcome-container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo-container">
-                <img src="https://mega.kaizenacademy.education/images/mega_logo.png" alt="MEGA Logo" class="logo">
-            </div>
-            <div class="header-text">
-                <h1>LEAN Assessment Tool</h1>
-                <p>Comprehensive evaluation of your organization's LEAN maturity</p>
-            </div>
-        </div>
+<div class="welcome-container">
 
-        <!-- Hero Section -->
-        <div class="hero-section">
-            <h1>MEGA LEAN Maturity Assessment</h1>
-            <p>Transform your organization through continuous improvement and operational excellence</p>
-            <div class="info-box">
-                <h4>📝 Assessment Information</h4>
-                <p><strong>Duration:</strong> 30-45 minutes | <strong>Questions:</strong> 7 Dimensions | <strong>Results:</strong> Instant detailed report</p>
-            </div>
-        </div>
+```
+<!-- Header -->
+<div class="header">
+    <img src="https://mega.kaizenacademy.education/images/mega_logo.png" alt="MEGA Logo" class="logo">
+    <div class="header-text">
+        <h1>LEAN Assessment Tool</h1>
+        <p>Comprehensive evaluation of your organisation's LEAN maturity</p>
+    </div>
+</div>
 
-        <!-- Features Section -->
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">🎯</div>
-                <h3>Baseline Establishment</h3>
-                <p>Determine your organization's current LEAN maturity level across 7 key dimensions. Establish a clear starting point for your continuous improvement journey.</p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <h3>Detailed Analytics</h3>
-                <p>Receive comprehensive insights into your strengths and opportunities for improvement. Get data-driven recommendations tailored to your organization.</p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">🚀</div>
-                <h3>Improvement Roadmap</h3>
-                <p>Obtain a personalized action plan with prioritized initiatives. Track progress and measure the impact of your continuous improvement efforts.</p>
-            </div>
-        </div>
+<!-- Hero -->
+<div class="hero-section">
+    <h1>MEGA LEAN Maturity Assessment</h1>
+    <p>Transform your organisation through continuous improvement and operational excellence</p>
+    <div class="info-box">
+        <h4>📝 Assessment Information</h4>
+        <p><strong>Duration:</strong> 30–45 minutes &nbsp;|&nbsp; <strong>Dimensions:</strong> 7 &nbsp;|&nbsp; <strong>Results:</strong> Instant detailed report</p>
+    </div>
+</div>
 
-        <!-- Dimensions Section -->
-        <div class="dimensions-section">
-            <h2 style="text-align: center; color: #821874; margin-bottom: 20px;">🔍 Assessment Dimensions</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 1.1em;">Our comprehensive evaluation covers the 7 essential dimensions of LEAN maturity:</p>
-            
-            <div class="dimensions-grid">
-                <div class="dimension-card">
-                    <h4>👥 Leadership & Culture</h4>
-                    <p>Management commitment, employee engagement, and continuous improvement mindset throughout the organization.</p>
-                </div>
-                
-                <div class="dimension-card">
-                    <h4>⚙️ Process Management</h4>
-                    <p>Standardized work, process optimization, and systematic approach to operations and workflows.</p>
-                </div>
-                
-                <div class="dimension-card">
-                    <h4>🏆 Quality & Continuous Improvement</h4>
-                    <p>Quality systems, improvement cycles, problem-solving methodologies, and performance measurement.</p>
-                </div>
-                
-                <div class="dimension-card">
-                    <h4>🎯 Customer Focus</h4>
-                    <p>Customer value, satisfaction, feedback systems, and customer-centric approach to operations.</p>
-                </div>
-                
-                <div class="dimension-card">
-                    <h4>🔧 Operational Excellence</h4>
-                    <p>Workplace organization, visual management, equipment effectiveness, and operational efficiency.</p>
-                </div>
-                
-                <div class="dimension-card">
-                    <h4>📈 Performance Measurement</h4>
-                    <p>Key performance indicators, data-driven decision making, and performance monitoring systems.</p>
-                </div>
-                
-                <div class="dimension-card">
-                    <h4>🔄 Supply Chain & Flow</h4>
-                    <p>Value stream mapping, flow optimization, inventory management, and supply chain integration.</p>
-                </div>
-            </div>
-        </div>
+<!-- Features -->
+<div class="features-grid">
+    <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Baseline Establishment</h3>
+        <p>Determine your organisation's current LEAN maturity level across 7 key dimensions. Establish a clear starting point for your continuous improvement journey.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Detailed Analytics</h3>
+        <p>Receive comprehensive insights into your strengths and opportunities for improvement. Get data-driven recommendations tailored to your organisation.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🚀</div>
+        <h3>Improvement Roadmap</h3>
+        <p>Obtain a personalised action plan with prioritised initiatives. Track progress and measure the impact of your continuous improvement efforts.</p>
+    </div>
+</div>
 
-        <!-- Process Section -->
-        <div class="process-section">
-            <h2 style="text-align: center; color: #821874; margin-bottom: 20px;">📋 How It Works</h2>
-            
-            <div class="process-timeline">
-                <div>
-                    <div class="process-step">1</div>
-                    <div class="process-info">
-                        <strong>Register</strong><br>
-                        <small>Create your account</small>
-                    </div>
-                </div>
-                <div>
-                    <div class="process-step">2</div>
-                    <div class="process-info">
-                        <strong>Assess</strong><br>
-                        <small>Complete evaluation</small>
-                    </div>
-                </div>
-                <div>
-                    <div class="process-step">3</div>
-                    <div class="process-info">
-                        <strong>Analyze</strong><br>
-                        <small>Review your results</small>
-                    </div>
-                </div>
-                <div>
-                    <div class="process-step">4</div>
-                    <div class="process-info">
-                        <strong>Improve</strong><br>
-                        <small>Implement roadmap</small>
-                    </div>
-                </div>
-            </div>
+<!-- Dimensions -->
+<div class="dimensions-section">
+    <div class="section-heading">
+        <h2>🔍 Assessment Dimensions</h2>
+        <p>Our comprehensive evaluation covers the 7 essential dimensions of LEAN maturity</p>
+    </div>
+    <div class="dimensions-grid">
+        <div class="dimension-card">
+            <h4>👥 Leadership &amp; Culture</h4>
+            <p>Management commitment, employee engagement, and continuous improvement mindset throughout the organisation.</p>
         </div>
-
-        <!-- Benefits Section -->
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">📈</div>
-                <h3>Track Progress</h3>
-                <p>Monitor your improvement journey over time. Compare results and celebrate achievements as your organization matures.</p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">🎯</div>
-                <h3>Targeted Improvements</h3>
-                <p>Focus on the areas that matter most. Get specific recommendations based on your unique organizational context.</p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">🏢</div>
-                <h3>Organizational Excellence</h3>
-                <p>Achieve operational excellence through systematic continuous improvement and LEAN principles implementation.</p>
-            </div>
+        <div class="dimension-card">
+            <h4>⚙️ Process Management</h4>
+            <p>Standardised work, process optimisation, and systematic approach to operations and workflows.</p>
         </div>
+        <div class="dimension-card">
+            <h4>🏆 Quality &amp; Continuous Improvement</h4>
+            <p>Quality systems, improvement cycles, problem-solving methodologies, and performance measurement.</p>
+        </div>
+        <div class="dimension-card">
+            <h4>🎯 Customer Focus</h4>
+            <p>Customer value, satisfaction, feedback systems, and customer-centric approach to operations.</p>
+        </div>
+        <div class="dimension-card">
+            <h4>🔧 Operational Excellence</h4>
+            <p>Workplace organisation, visual management, equipment effectiveness, and operational efficiency.</p>
+        </div>
+        <div class="dimension-card">
+            <h4>📈 Performance Measurement</h4>
+            <p>Key performance indicators, data-driven decision making, and performance monitoring systems.</p>
+        </div>
+        <div class="dimension-card">
+            <h4>🔄 Supply Chain &amp; Flow</h4>
+            <p>Value stream mapping, flow optimisation, inventory management, and supply chain integration.</p>
+        </div>
+    </div>
+</div>
 
-        <!-- Call to Action Section -->
-        <div class="cta-section">
-            <h2 style="color: #821874; margin-bottom: 20px;">Ready to Start Your Journey?</h2>
-            <p style="color: #666; font-size: 1.1em; margin-bottom: 30px;">Take the first step towards operational excellence and continuous improvement.</p>
-            
+<!-- Process -->
+<div class="process-section">
+    <div class="section-heading">
+        <h2>📋 How It Works</h2>
+    </div>
+    <div class="process-timeline">
+        <div class="process-step-wrap">
+            <div class="process-step">1</div>
+            <div class="process-info"><strong>Register</strong><small>Create your account</small></div>
+        </div>
+        <div class="process-step-wrap">
+            <div class="process-step">2</div>
+            <div class="process-info"><strong>Assess</strong><small>Complete evaluation</small></div>
+        </div>
+        <div class="process-step-wrap">
+            <div class="process-step">3</div>
+            <div class="process-info"><strong>Analyse</strong><small>Review your results</small></div>
+        </div>
+        <div class="process-step-wrap">
+            <div class="process-step">4</div>
+            <div class="process-info"><strong>Improve</strong><small>Implement roadmap</small></div>
+        </div>
+    </div>
+</div>
+
+<!-- Benefits -->
+<div class="features-grid">
+    <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Track Progress</h3>
+        <p>Monitor your improvement journey over time. Compare results and celebrate achievements as your organisation matures.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Targeted Improvements</h3>
+        <p>Focus on the areas that matter most. Get specific recommendations based on your unique organisational context.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🏢</div>
+        <h3>Organisational Excellence</h3>
+        <p>Achieve operational excellence through systematic continuous improvement and LEAN principles implementation.</p>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+    <h2>Ready to Start Your Journey?</h2>
+    <p>Take the first step towards operational excellence and continuous improvement.</p>
+    <div>
+        <a href="https://mega.kaizenacademy.education/" class="cta-button">🚀 Start Assessment</a>
+        <a href="#learn-more" class="cta-button cta-button-secondary">📚 Learn More</a>
+    </div>
+    <div class="info-box" style="margin-top:28px;">
+        <h4>💡 Pro Tip</h4>
+        <p>Set aside 30–45 minutes of uninterrupted time. Encourage team members to provide honest feedback for the most accurate results.</p>
+    </div>
+</div>
+
+<!-- About -->
+<div class="about-section" id="learn-more">
+    <div class="section-heading" style="margin-bottom:28px;">
+        <h2>📚 About MEGA</h2>
+    </div>
+    <div class="about-card">
+        <div class="about-grid">
             <div>
-                <a href="https://mega.kaizenacademy.education/" class="cta-button">🚀 Start Assessment</a>
-                <a href="#learn-more" class="cta-button cta-button-secondary">📚 Learn More</a>
-            </div>
-            
-            <div class="info-box" style="margin-top: 30px;">
-                <h4>💡 Pro Tip</h4>
-                <p>Set aside 30-45 minutes of uninterrupted time. Encourage team members to provide honest feedback for the most accurate results.</p>
-            </div>
-        </div>
-
-        <!-- Learn More Section -->
-        <div id="learn-more" style="margin-bottom: 50px;">
-            <h2 style="text-align: center; color: #821874; margin-bottom: 30px;">📚 About MEGA</h2>
-            
-            <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;">
-                    <div>
-                        <h3 style="color: #821874; margin-bottom: 20px;">MEGA Continuous Improvement Training & Coaching Model</h3>
-                        <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
-                            The MEGA (Mid Ulster Enterprises Group) Continuous Improvement Training and Coaching Model is a comprehensive framework designed to help organizations achieve operational excellence through LEAN principles. Our proven approach combines assessment, training, and ongoing coaching to ensure sustainable improvement.
-                        </p>
-                        <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
-                            Our model supports organizations at every stage of their continuous improvement journey - from initial assessment through implementation and beyond. The LEAN Maturity Assessment serves as the foundational tool that informs your personalized coaching program and improvement roadmap.
-                        </p>
-                        <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
-                            Through our structured approach, organizations develop the capabilities, culture, and systems needed for long-term operational excellence and continuous improvement success.
-                        </p>
-                        <div style="margin-top: 30px;">
-                            <a href="https://midulstermega.com/" target="_blank" style="color: #159eda; text-decoration: none; margin-right: 20px;">🌐 MEGA Website</a>
-                            <a href="https://kaizenacademy.education/" target="_blank" style="color: #159eda; text-decoration: none;">🎓 Kaizen Academy</a>
-                        </div>
-                    </div>
-                    <div style="text-align: center;">
-                        <img src="https://mega.kaizenacademy.education/images/mega_logo.png" alt="MEGA Logo" style="max-width: 250px; margin-bottom: 30px;">
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
-                            <h4 style="color: #821874; margin-bottom: 15px;">📞 Contact Us</h4>
-                            <p style="color: #666; margin: 10px 0;">
-                                <strong>Barry Taylor</strong><br>
-                                <a href="mailto:barry.taylor@midulstermega.com" style="color: #159eda; text-decoration: none;">barry.taylor@midulstermega.com</a>
-                            </p>
-                            <p style="color: #666; margin: 10px 0;">
-                                For training programs and coaching services
-                            </p>
-                        </div>
-                    </div>
+                <h3>MEGA Continuous Improvement Training &amp; Coaching Model</h3>
+                <p>The MEGA (Mid Ulster Enterprises Group) Continuous Improvement Training and Coaching Model is a comprehensive framework designed to help organisations achieve operational excellence through LEAN principles. Our proven approach combines assessment, training, and ongoing coaching to ensure sustainable improvement.</p>
+                <p>Our model supports organisations at every stage of their continuous improvement journey — from initial assessment through implementation and beyond. The LEAN Maturity Assessment serves as the foundational tool that informs your personalised coaching programme and improvement roadmap.</p>
+                <p>Through our structured approach, organisations develop the capabilities, culture, and systems needed for long-term operational excellence and continuous improvement success.</p>
+                <div class="about-links">
+                    <a href="https://midulstermega.com/" target="_blank">🌐 MEGA Website</a>
+                    <a href="https://kaizenacademy.education/" target="_blank">🎓 Kaizen Academy</a>
                 </div>
             </div>
-        </div>
-
-        <!-- Footer -->
-        <div style="background: #033d5c; color: white; padding: 40px; text-align: center; border-radius: 15px;">
-            <h3 style="margin-bottom: 20px;">Start Your Continuous Improvement Journey Today</h3>
-            <p style="margin-bottom: 30px; opacity: 0.9;">Join organizations across the region in achieving operational excellence through LEAN principles</p>
-            
-            <a href="https://mega.kaizenacademy.education/" class="cta-button" style="background: white; color: #821874;">🚀 Begin Assessment Now</a>
-            
-            <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.2);">
-                <p style="margin: 0 0 10px 0;">
-                    <strong>MEGA - Mid Ulster Enterprises Group</strong><br>
-                    Continuous Improvement Training & Coaching
-                </p>
-                <div style="margin: 20px 0;">
-                    <a href="https://midulstermega.com/" target="_blank" style="color: white; text-decoration: none; margin: 0 10px;">MEGA Website</a> | 
-                    <a href="https://kaizenacademy.education/" target="_blank" style="color: white; text-decoration: none; margin: 0 10px;">Kaizen Academy</a>
+            <div>
+                <img src="https://mega.kaizenacademy.education/images/mega_logo.png" alt="MEGA Logo" class="about-logo">
+                <div class="contact-box">
+                    <h4>📞 Contact Us</h4>
+                    <p><strong>Barry Taylor</strong></p>
+                    <p><a href="mailto:barry.taylor@midulstermega.com">barry.taylor@midulstermega.com</a></p>
+                    <p>For training programmes and coaching services</p>
                 </div>
-                <p style="margin: 20px 0 0 0; font-size: 12px; opacity: 0.7;">
-                    © 2026 MEGA. All rights reserved. | Privacy Policy | Terms of Service
-                </p>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+    <h3>Start Your Continuous Improvement Journey Today</h3>
+    <p>Join organisations across the region in achieving operational excellence through LEAN principles</p>
+    <a href="https://mega.kaizenacademy.education/" class="cta-button">🚀 Begin Assessment Now</a>
+    <hr class="footer-divider">
+    <div class="footer-meta">
+        <p><strong>MEGA — Mid Ulster Enterprises Group</strong><br>Continuous Improvement Training &amp; Coaching</p>
+        <div class="footer-links">
+            <a href="https://midulstermega.com/" target="_blank">MEGA Website</a> |
+            <a href="https://kaizenacademy.education/" target="_blank">Kaizen Academy</a>
+        </div>
+    </div>
+    <p class="footer-copy">© 2026 MEGA. All rights reserved. | Privacy Policy | Terms of Service</p>
+</footer>
+```
+
+</div>
 </body>
 </html>
