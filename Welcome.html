@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEGA Lean Maturity Assessment | Start Your Transformation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #821874;
+            letter-spacing: -0.5px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #821874;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #821874 0%, #7B1565 50%, #159eda 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .hero .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 18px;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            background: white;
+            color: #821874;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        /* Visual Element Placeholder - Hero Hero Image */
+        .hero-visual {
+            max-width: 600px;
+            margin: 60px auto 0;
+            aspect-ratio: 16/9;
+            background: rgba(255,255,255,0.1);
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Assessment Card Section */
+        .assessment-section {
+            padding: 80px 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 36px;
+            color: #821874;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .section-title p {
+            font-size: 16px;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Assessment Cards Grid */
+        .assessment-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border-top: 4px solid #159eda;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: #f0f5fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        .card h3 {
+            color: #821874;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 7 Dimensions Section */
+        .dimensions-section {
+            background: linear-gradient(135deg, #f0f5fa 0%, #f5f0f5 100%);
+            padding: 60px 20px;
+            border-radius: 8px;
+            margin-bottom: 60px;
+        }
+
+        .dimensions-section h3 {
+            text-align: center;
+            color: #821874;
+            margin-bottom: 40px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .dimension-item {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid #159eda;
+            text-align: center;
+        }
+
+        .dimension-item p {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        /* Radar Chart Placeholder */
+        .radar-placeholder {
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1;
+            background: rgba(129, 24, 116, 0.05);
+            border: 2px dashed #821874;
+            border-radius: 8px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 14px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Program Timeline Section */
+        .timeline-section {
+            padding: 60px 20px;
+            margin-bottom: 60px;
+        }
+
+        .timeline-section h3 {
+            text-align: center;
+            color: #821874;
+            margin-bottom: 40px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #821874 0%, #159eda 100%);
+            z-index: 0;
+        }
+
+        .timeline-item {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-dot {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 4px solid #821874;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #821874;
+        }
+
+        .timeline-item p {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Timeline Visual Placeholder */
+        .timeline-visual {
+            width: 100%;
+            max-width: 900px;
+            aspect-ratio: 3/1;
+            background: rgba(129, 24, 116, 0.05);
+            border: 2px dashed #821874;
+            border-radius: 8px;
+            margin: 0 auto 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Value Props Section */
+        .value-props {
+            background: white;
+            padding: 60px 20px;
+            margin-bottom: 60px;
+            border-radius: 8px;
+            border-top: 4px solid #159eda;
+        }
+
+        .value-props h3 {
+            text-align: center;
+            color: #821874;
+            margin-bottom: 40px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .value-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .value-item {
+            display: flex;
+            gap: 15px;
+        }
+
+        .value-check {
+            width: 24px;
+            height: 24px;
+            background: #159eda;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .value-item p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #821874 0%, #159eda 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 60px;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            opacity: 0.95;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #821874;
+            padding: 16px 50px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        /* Footer */
+        footer {
+            background: #2d3748;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        footer p {
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            nav ul {
+                gap: 15px;
+                font-size: 12px;
+            }
+
+            .section-title h2 {
+                font-size: 28px;
+            }
+
+            .timeline {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .timeline::before {
+                display: none;
+            }
+
+            .cta-section h2 {
+                font-size: 28px;
+            }
+        }
+
+        /* Gemini Prompt Indicator */
+        .gemini-prompt {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 12px;
+            color: #856404;
+        }
+
+        .gemini-prompt-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .gemini-prompt-code {
+            background: #fff;
+            border: 1px solid #ffc107;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #333;
+            overflow-x: auto;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+    <div class="container">
+        <div class="logo">
+            <img src="https://firebasestorage.googleapis.com/v0/b/image-upload-ka.firebasestorage.app/o/MEGA%2Fmega_logo_web3.png?alt=media&token=e785ddf4-1e2d-4863-95ba-fe92ccf50fe2" alt="MEGA Logo" style="height: 30px; width: auto;">
+        </div>
+        <ul>
+            <li><a href="#assessment">Assessment</a></li>
+            <li><a href="#program">Program</a></li>
+            <li><a href="#dimensions">Dimensions</a></li>
+            <li><a href="#cta">Get Started</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <h1>Know Your Lean Maturity</h1>
+        <p>Discover where your organization stands on the lean manufacturing journey. Take the free MEGA Lean Maturity Assessment and unlock a personalized roadmap to operational excellence.</p>
+        <button class="hero-cta" onclick="window.location.href='https://mega.kaizenacademy.education/'">
+            Start Assessment
+        </button>
+        
+        <!-- Hero Image -->
+        <div style="max-width: 600px; margin: 60px auto 0; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+            <img src="https://firebasestorage.googleapis.com/v0/b/image-upload-ka.firebasestorage.app/o/MEGA%2Fdashboard%20spider.png?alt=media&token=5d150a33-4ed6-43b8-9b0f-54f047f1675a" alt="MEGA Dashboard Spider Chart" style="width: 100%; display: block;">
+        </div>
+    </div>
+</section>
+
+<!-- Assessment Overview -->
+<section class="assessment-section" id="assessment">
+    <div class="container">
+        <div class="section-title">
+            <h2>What You'll Discover</h2>
+            <p>The assessment evaluates your organization across 7 critical lean capability areas, revealing strengths and identifying opportunities for improvement.</p>
+        </div>
+
+        <div class="assessment-cards">
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <h3>Current State Snapshot</h3>
+                <p>Understand your lean maturity level across all capability areas with a clear, visual assessment.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🎯</div>
+                <h3>Gap Analysis</h3>
+                <p>Identify specific gaps between your current state and operational excellence targets.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🚀</div>
+                <h3>Personalized Roadmap</h3>
+                <p>Receive a tailored action plan designed for your organization's unique challenges and goals.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">💡</div>
+                <h3>Training Recommendations</h3>
+                <p>Get role-specific training recommendations aligned with your maturity assessment results.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">📈</div>
+                <h3>Benchmark Comparison</h3>
+                <p>See how your organization compares across industry standards for lean manufacturing.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">⏱️</div>
+                <h3>Time-Bound Results</h3>
+                <p>Clear timelines and milestones to track progress toward operational excellence.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Seven Dimensions -->
+<section class="assessment-section" id="dimensions">
+    <div class="container">
+        <div class="dimensions-section">
+            <h3>The 7 Lean Capability Dimensions</h3>
+            
+            <div class="dimensions-grid">
+                <div class="dimension-item">
+                    <p>Leadership & Culture</p>
+                </div>
+                <div class="dimension-item">
+                    <p>Customer Value Focus</p>
+                </div>
+                <div class="dimension-item">
+                    <p>Process Efficiency</p>
+                </div>
+                <div class="dimension-item">
+                    <p>Waste Elimination</p>
+                </div>
+                <div class="dimension-item">
+                    <p>Continuous Improvement</p>
+                </div>
+                <div class="dimension-item">
+                    <p>Flow & Pull Systems</p>
+                </div>
+                <div class="dimension-item">
+                    <p>Problem Solving & RCA</p>
+                </div>
+            </div>
+
+            <!-- Spider Diagram -->
+            <div style="width: 100%; max-width: 400px; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <img src="https://firebasestorage.googleapis.com/v0/b/image-upload-ka.firebasestorage.app/o/MEGA%2FSpider%20Assessment.png?alt=media&token=3f7530c5-29e8-4683-95ba-fe92ccf50fe2" alt="7 Lean Dimensions Spider Chart" style="width: 100%; display: block;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Program Timeline -->
+<section class="timeline-section" id="program">
+    <div class="container">
+        <h3>Your 6-Month Transformation</h3>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-dot">1</div>
+                <p><strong>Assessment</strong><br>Week 1-2</p>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot">2</div>
+                <p><strong>Gap Analysis</strong><br>Week 3-4</p>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot">3</div>
+                <p><strong>Training Plan</strong><br>Week 5-6</p>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot">4</div>
+                <p><strong>Training Delivery</strong><br>Week 7-18</p>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot">5</div>
+                <p><strong>Impact Coaching</strong><br>Week 19-24</p>
+            </div>
+        </div>
+
+        <!-- Coaching Timeline -->
+        <div style="width: 100%; max-width: 900px; margin: 0 auto 40px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <img src="https://firebasestorage.googleapis.com/v0/b/image-upload-ka.firebasestorage.app/o/MEGA%2Fphases%20and%20timeline.png?alt=media&token=80e5f619-6e26-45a6-931a-a272dcfc4b1a" alt="6-Month Coaching Timeline" style="width: 100%; display: block;">
+        </div>
+    </div>
+</section>
+
+<!-- Value Propositions -->
+<section class="assessment-section">
+    <div class="container">
+        <div class="value-props">
+            <h3>Why Take the Assessment?</h3>
+            
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <p><strong>No cost.</strong> The assessment is completely free and takes 15-20 minutes to complete.</p>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <p><strong>Instant results.</strong> Receive your maturity score and radar chart immediately upon completion.</p>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <p><strong>Confidential.</strong> Your assessment data is secure and used only to inform your personalized recommendations.</p>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <p><strong>Actionable insights.</strong> Get specific, role-based training recommendations tailored to your gaps.</p>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <p><strong>Benchmark comparison.</strong> See how your organization compares to industry standards and best practices.</p>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <p><strong>No commitment required.</strong> Assessment is the first step toward transformation—how you proceed is entirely your choice.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main CTA Section -->
+<section class="cta-section" id="cta">
+    <div class="container">
+        <h2>Ready to Transform?</h2>
+        <p>Start your lean maturity assessment now and discover your path to operational excellence. It takes just 15-20 minutes.</p>
+        <button class="cta-button" onclick="window.location.href='https://mega.kaizenacademy.education/'">
+            Start Your Free Assessment
+        </button>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <p><strong>MEGA Lean Maturity Assessment</strong> | Powered by Kaizen Academy</p>
+    <p>© 2026 MEGA (Manufacturing & Engineering Growth & Advancement). All rights reserved.</p>
+    <p>Questions? Contact us at <a href="mailto:learn@continuousimprovement.education" style="color: #159eda; text-decoration: none;">learn@continuousimprovement.education</a></p>
+</footer>
+
+</body>
+</html>
