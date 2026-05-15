@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lean Essentials Certificate | MEGA × Kaizen Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple:   #821874;
+      --blue:     #159eda;
+      --teal:     #7EBEC5;
+      --dark:     #033d5c;
+      --white:    #ffffff;
+      --light:    #f0f6f8;
+      --charcoal: #1e3a4a;
+      --grey:     #5a7080;
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+      --max: 1100px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--white); color: var(--dark); line-height: 1.6; overflow-x: hidden; }
+    .container { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+    .eyebrow {
+      font-family: var(--font-body);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .eyebrow::before { content: ''; display: inline-block; width: 24px; height: 2px; background: var(--purple); flex-shrink: 0; }
+    .eyebrow--light { color: rgba(126,190,197,0.7); }
+    .eyebrow--center { justify-content: center; }
+    .eyebrow--center::before { display: none; }
+
+    /* ── TOPBAR ── */
+    .topbar { background: var(--purple); padding: 10px 24px; text-align: center; }
+    .topbar p { font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; color: var(--white); letter-spacing: 0.03em; }
+
+    /* ── NAV ── */
+    nav { background: var(--dark); padding: 16px 24px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(126,190,197,0.12); }
+    .nav-inner { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+
+    /* MEGA logo lockup */
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .mega-wordmark { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; color: var(--white); letter-spacing: 0.12em; text-transform: uppercase; }
+    .mega-wordmark em { color: var(--teal); font-style: normal; }
+    .nav-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.2); }
+    .nav-sub { font-family: var(--font-body); font-size: 0.72rem; color: rgba(255,255,255,0.45); letter-spacing: 0.04em; }
+
+    .nav-cta {
+      font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
+      color: var(--white); background: var(--purple);
+      padding: 9px 22px; text-decoration: none; letter-spacing: 0.04em;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: #9c1e8a; }
+
+    /* ── HERO ── */
+    .hero { background: var(--dark); position: relative; overflow: hidden; padding: 96px 24px 80px; }
+
+    /* Geometric decoration — MEGA palette */
+    .geo-wrap { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .g-circle-1 { position: absolute; width: 520px; height: 520px; border: 60px solid rgba(130,24,116,0.1); right: -120px; top: -100px; border-radius: 50%; }
+    .g-circle-2 { position: absolute; width: 200px; height: 200px; border: 2px solid rgba(126,190,197,0.12); right: 160px; bottom: -50px; border-radius: 50%; }
+    .g-square   { position: absolute; width: 70px; height: 70px; background: rgba(21,158,218,0.05); transform: rotate(45deg); left: 50%; top: 18%; }
+    .g-line-v   { position: absolute; width: 1px; top: 0; bottom: 0; right: 34%; background: linear-gradient(to bottom, transparent, rgba(126,190,197,0.14), transparent); }
+    .g-dots     { position: absolute; width: 150px; height: 150px; left: 52%; top: 8%; background-image: radial-gradient(circle, rgba(126,190,197,0.25) 1px, transparent 1px); background-size: 16px 16px; opacity: 0.6; }
+    .g-arc      { position: absolute; bottom: -30px; left: -60px; width: 280px; height: 280px; border: 3px solid rgba(21,158,218,0.07); border-radius: 50%; }
+
+    .hero__inner { max-width: var(--max); margin: 0 auto; position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 340px; gap: 60px; align-items: center; }
+
+    .hero__badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(130,24,116,0.15); border: 1px solid rgba(130,24,116,0.35); padding: 6px 14px; margin-bottom: 1.5rem; }
+    .hero__badge-dot { width: 6px; height: 6px; background: var(--teal); border-radius: 50%; }
+    .hero__badge span { font-family: var(--font-body); font-size: 0.7rem; font-weight: 600; color: var(--teal); letter-spacing: 0.14em; text-transform: uppercase; }
+
+    .hero h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.2rem, 4vw, 3.3rem); color: var(--white); line-height: 1.08; margin-bottom: 1.2rem; letter-spacing: -0.02em; }
+    .hero h1 .accent-purple { color: var(--teal); }
+    .hero h1 .accent-blue   { color: var(--blue); }
+
+    .hero__sub { font-size: 1rem; color: rgba(255,255,255,0.52); line-height: 1.72; margin-bottom: 2rem; max-width: 460px; }
+
+    .hero__pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2.5rem; }
+    .hero__pill { font-size: 0.74rem; color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.04); border: 1px solid rgba(126,190,197,0.15); padding: 5px 14px; display: flex; align-items: center; gap: 7px; }
+    .pdot { width: 5px; height: 5px; flex-shrink: 0; border-radius: 50%; }
+    .pdot--purple { background: var(--purple); }
+    .pdot--teal   { background: var(--teal); }
+    .pdot--blue   { background: var(--blue); }
+
+    .hero__actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .btn { display: inline-block; padding: 15px 34px; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; letter-spacing: 0.04em; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border: none; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.22); }
+    .btn--purple { background: var(--purple); color: var(--white); }
+    .btn--ghost  { background: transparent; color: rgba(255,255,255,0.65); border: 1px solid rgba(126,190,197,0.2); }
+    .btn--ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* Hero price card */
+    .hero__card { background: var(--white); padding: 36px 30px; position: relative; }
+    .hero__card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--purple), var(--blue)); }
+    .hero__card-label { font-size: 0.63rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.16em; color: var(--grey); margin-bottom: 0.4rem; }
+    .hero__card-price { font-family: var(--font-display); font-weight: 800; font-size: 2.8rem; color: var(--dark); line-height: 1; margin-bottom: 0.2rem; }
+    .hero__card-per { font-size: 0.78rem; color: var(--grey); margin-bottom: 1.5rem; }
+    .card-items { list-style: none; margin-bottom: 1.6rem; display: flex; flex-direction: column; gap: 9px; }
+    .card-items li { font-size: 0.82rem; color: var(--charcoal); display: flex; align-items: center; gap: 10px; }
+    .chk { width: 15px; height: 15px; background: var(--purple); flex-shrink: 0; position: relative; border-radius: 2px; }
+    .chk::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; color: var(--white); }
+    .hero__card-btn { display: block; width: 100%; text-align: center; padding: 14px; background: var(--purple); color: var(--white); font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; text-decoration: none; letter-spacing: 0.04em; transition: background 0.2s; }
+    .hero__card-btn:hover { background: #9c1e8a; }
+    .hero__card-note { text-align: center; margin-top: 9px; font-size: 0.68rem; color: var(--grey); }
+
+    /* MEGA co-brand strip */
+    .cobrand { background: var(--white); border-top: 3px solid var(--purple); border-bottom: 1px solid rgba(3,61,92,0.08); padding: 12px 24px; }
+    .cobrand__inner { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; }
+    .cobrand__logo { display: flex; align-items: center; gap: 10px; }
+    .cobrand__logo img { height: 32px; width: auto; }
+    .cobrand__logo-text { font-family: var(--font-display); font-weight: 800; font-size: 1rem; color: var(--dark); letter-spacing: 0.1em; }
+    .cobrand__x { font-family: var(--font-body); font-size: 1rem; color: var(--grey); }
+    .cobrand__ka { font-family: var(--font-body); font-size: 0.8rem; color: var(--grey); }
+    .cobrand__ka strong { color: var(--dark); }
+
+    /* ── TRUSTBAR ── */
+    .trustbar { background: var(--purple); padding: 14px 24px; }
+    .trustbar__inner { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 36px; flex-wrap: wrap; }
+    .titem { display: flex; align-items: center; gap: 9px; }
+    .tmark { width: 8px; height: 8px; background: var(--teal); transform: rotate(45deg); flex-shrink: 0; }
+    .titem span { font-size: 0.77rem; font-weight: 600; color: rgba(255,255,255,0.88); }
+    .tsep { width: 1px; height: 18px; background: rgba(255,255,255,0.18); }
+
+    /* ── INCLUDED ── */
+    .included { padding: 96px 24px; background: var(--white); }
+    .section-header { text-align: center; margin-bottom: 52px; }
+    .section-header h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.7rem, 2.8vw, 2.3rem); color: var(--dark); margin-bottom: 0.7rem; letter-spacing: -0.02em; }
+    .section-header p { font-size: 0.98rem; color: var(--grey); max-width: 440px; margin: 0 auto; line-height: 1.7; }
+
+    .included-grid { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+    .inc-item { background: var(--light); padding: 36px 26px; position: relative; overflow: hidden; transition: background 0.2s; }
+    .inc-item:hover { background: #daedf2; }
+    .inc-item::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--purple), var(--blue)); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
+    .inc-item:hover::after { transform: scaleX(1); }
+
+    /* SVG icons */
+    .ig { margin-bottom: 1.25rem; width: 44px; height: 44px; }
+    .ig svg { width: 44px; height: 44px; }
+
+    .inc-item h3 { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: var(--dark); margin-bottom: 0.5rem; }
+    .inc-item p  { font-size: 0.8rem; color: var(--grey); line-height: 1.65; }
+
+    /* ── COURSES ── */
+    .courses { padding: 96px 24px; background: var(--dark); position: relative; overflow: hidden; }
+    .courses::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(126,190,197,0.06) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; }
+
+    .courses__inner { max-width: var(--max); margin: 0 auto; position: relative; z-index: 2; }
+    .courses__hd { margin-bottom: 44px; }
+    .courses__hd h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.7rem, 2.8vw, 2.3rem); color: var(--white); margin-bottom: 0.7rem; letter-spacing: -0.02em; }
+    .courses__hd p  { font-size: 0.98rem; color: rgba(255,255,255,0.42); max-width: 440px; }
+
+    /* Foundation course */
+    .course-found {
+      background: linear-gradient(135deg, var(--purple) 0%, #9e1f8f 100%);
+      padding: 36px 40px; margin-bottom: 20px;
+      display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: center;
+      position: relative; overflow: hidden;
+    }
+    .course-found::after { content: '01'; position: absolute; right: 44px; top: 50%; transform: translateY(-50%); font-family: var(--font-display); font-weight: 800; font-size: 7rem; color: rgba(255,255,255,0.06); line-height: 1; pointer-events: none; }
+    .found-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.12); padding: 4px 12px; margin-bottom: 0.7rem; }
+    .course-found h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: var(--white); margin-bottom: 0.5rem; }
+    .course-found p  { font-size: 0.87rem; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 420px; }
+    .found-badge { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: var(--white); font-family: var(--font-display); font-weight: 700; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 18px; white-space: nowrap; position: relative; z-index: 1; }
+
+    /* Electives */
+    .elec-lbl { font-size: 0.67rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(126,190,197,0.5); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+    .elec-lbl::after { content: ''; flex: 1; height: 1px; background: rgba(126,190,197,0.1); }
+
+    .elec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+
+    /* ── Rich gradient card base ── */
+    .elec-card {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      padding: 32px 28px 28px;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease;
+      cursor: default;
+      isolation: isolate;
+    }
+    .elec-card:hover { transform: translateY(-10px); }
+
+    /* Per-card gradient backgrounds */
+    .elec-card--purple {
+      background:
+        radial-gradient(ellipse at 110% -10%, rgba(255,255,255,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at -20% 110%, rgba(0,0,0,0.25) 0%, transparent 50%),
+        linear-gradient(145deg, #821874 0%, #5a0f52 60%, #3d0938 100%);
+      box-shadow: 0 8px 32px rgba(130,24,116,0.35);
+    }
+    .elec-card--purple:hover { box-shadow: 0 24px 56px rgba(130,24,116,0.5); }
+
+    .elec-card--blue {
+      background:
+        radial-gradient(ellipse at 110% -10%, rgba(255,255,255,0.14) 0%, transparent 55%),
+        radial-gradient(ellipse at -20% 110%, rgba(0,0,0,0.2) 0%, transparent 50%),
+        linear-gradient(145deg, #159eda 0%, #0b6fa8 60%, #054d78 100%);
+      box-shadow: 0 8px 32px rgba(21,158,218,0.3);
+    }
+    .elec-card--blue:hover { box-shadow: 0 24px 56px rgba(21,158,218,0.45); }
+
+    .elec-card--teal {
+      background:
+        radial-gradient(ellipse at 110% -10%, rgba(255,255,255,0.15) 0%, transparent 55%),
+        radial-gradient(ellipse at -20% 110%, rgba(0,0,0,0.2) 0%, transparent 50%),
+        linear-gradient(145deg, #5fa9b4 0%, #3d8a94 60%, #1e5f68 100%);
+      box-shadow: 0 8px 32px rgba(126,190,197,0.28);
+    }
+    .elec-card--teal:hover { box-shadow: 0 24px 56px rgba(126,190,197,0.42); }
+
+    /* Large ghost number watermark */
+    .elec-card::before {
+      content: attr(data-num);
+      position: absolute;
+      bottom: -18px;
+      right: -8px;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 7.5rem;
+      line-height: 1;
+      color: rgba(255,255,255,0.06);
+      pointer-events: none;
+      z-index: 0;
+      letter-spacing: -0.04em;
+    }
+
+    /* Decorative geometric ring — top-right */
+    .elec-card::after {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: 22px solid rgba(255,255,255,0.07);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Inner diagonal stripe pattern */
+    .elec-stripe {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 18px,
+        rgba(255,255,255,0.018) 18px,
+        rgba(255,255,255,0.018) 19px
+      );
+      pointer-events: none;
+      z-index: 0;
+      border-radius: 18px;
+    }
+
+    /* Content sits above all decorative layers */
+    .elec-num,
+    .elec-card h3,
+    .elec-card p,
+    .elec-topics { position: relative; z-index: 1; }
+
+    .elec-num {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .elec-num::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .elec-card h3 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--white);
+      margin-bottom: 0.7rem;
+      line-height: 1.2;
+    }
+
+    .elec-card p {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.65;
+      margin-bottom: 1.4rem;
+    }
+
+    .elec-topics {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-top: auto;
+    }
+    .elec-topics li {
+      font-size: 0.77rem;
+      color: rgba(255,255,255,0.6);
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      line-height: 1.4;
+    }
+    .elec-topics li::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .elec-link { display: none; }
+
+    /* Exam row */
+    .exam-row { background: rgba(130,24,116,0.08); border: 1px solid rgba(130,24,116,0.2); padding: 24px 32px; display: flex; align-items: center; gap: 22px; }
+    .exam-icon { width: 54px; height: 54px; flex-shrink: 0; }
+    .exam-row h3 { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: var(--white); margin-bottom: 0.2rem; }
+    .exam-row p  { font-size: 0.79rem; color: rgba(255,255,255,0.4); }
+
+    /* ── INSTRUCTOR ── */
+    .instructor { padding: 96px 24px; background: var(--light); }
+    .instructor__inner { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 340px 1fr; gap: 72px; align-items: center; }
+
+    .photo-wrap { position: relative; }
+    .photo-bg   { position: absolute; bottom: -16px; right: -16px; width: 100%; height: 100%; background: var(--purple); z-index: 0; opacity: 0.18; }
+    .photo-bar  { position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--purple), var(--blue)); z-index: 2; }
+    .photo-img  { position: relative; z-index: 1; display: block; width: 100%; aspect-ratio: 3/4; object-fit: cover; object-position: top; }
+
+    .inst-content h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 2.4vw, 2rem); color: var(--dark); margin-bottom: 0.25rem; letter-spacing: -0.02em; }
+    .inst-title { font-size: 0.84rem; color: var(--grey); margin-bottom: 1.5rem; }
+    .inst-bio   { font-size: 0.95rem; color: var(--charcoal); line-height: 1.78; margin-bottom: 1.2rem; }
+    .inst-creds { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.5rem; }
+    .cred { font-size: 0.7rem; font-weight: 600; color: var(--dark); background: var(--white); border: 1px solid rgba(3,61,92,0.15); padding: 5px 13px; letter-spacing: 0.04em; display: flex; align-items: center; gap: 6px; }
+    .cdot { width: 5px; height: 5px; background: var(--purple); flex-shrink: 0; border-radius: 50%; }
+
+    /* ── PRICE ── */
+    .price-sec { padding: 96px 24px; background: var(--dark); position: relative; overflow: hidden; }
+    .price-geo1 { position: absolute; left: -80px; top: 50%; transform: translateY(-50%); width: 340px; height: 340px; border: 44px solid rgba(130,24,116,0.08); border-radius: 50%; pointer-events: none; }
+    .price-geo2 { position: absolute; right: 80px; bottom: -40px; width: 110px; height: 110px; background: rgba(21,158,218,0.04); transform: rotate(45deg); pointer-events: none; }
+
+    .price-inner { max-width: 640px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
+    .price-inner h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.7rem, 2.8vw, 2.4rem); color: var(--white); margin-bottom: 0.7rem; letter-spacing: -0.02em; }
+    .price-sub { font-size: 0.98rem; color: rgba(255,255,255,0.42); margin-bottom: 3rem; }
+
+    .price-card { background: var(--white); padding: 48px; position: relative; margin-bottom: 20px; overflow: hidden; }
+    .price-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--purple), var(--blue), var(--teal)); }
+
+    .price-amount { font-family: var(--font-display); font-weight: 800; font-size: 3.8rem; color: var(--dark); line-height: 1; margin-bottom: 0.25rem; }
+    .price-per    { font-size: 0.83rem; color: var(--grey); margin-bottom: 2rem; }
+
+    .price-features { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-bottom: 2.5rem; text-align: left; }
+    .pf { display: flex; align-items: center; gap: 10px; font-size: 0.84rem; color: var(--charcoal); }
+    .pf-icon { width: 16px; height: 16px; background: var(--purple); flex-shrink: 0; position: relative; border-radius: 2px; }
+    .pf-icon::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; color: var(--white); }
+
+    .price-btn { display: block; width: 100%; text-align: center; padding: 17px; background: var(--purple); color: var(--white); font-family: var(--font-display); font-weight: 700; font-size: 1rem; text-decoration: none; letter-spacing: 0.04em; margin-bottom: 12px; transition: background 0.2s; }
+    .price-btn:hover { background: #9c1e8a; }
+    .price-note { font-size: 0.72rem; color: var(--grey); }
+
+    /* ── FOOTER ── */
+    footer { background: var(--dark); border-top: 1px solid rgba(126,190,197,0.1); padding: 36px 24px; }
+    .foot-inner { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .foot-mega { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; color: rgba(255,255,255,0.5); letter-spacing: 0.12em; text-transform: uppercase; }
+    .foot-mega em { color: var(--teal); font-style: normal; }
+    .foot-copy { font-size: 0.7rem; color: rgba(255,255,255,0.22); }
+    .foot-ka   { font-size: 0.7rem; color: rgba(255,255,255,0.28); }
+    .foot-contact { font-size: 0.7rem; color: rgba(126,190,197,0.6); text-decoration: none; transition: color 0.2s; }
+    .foot-contact:hover { color: var(--teal); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .included-grid { grid-template-columns: repeat(2, 1fr); }
+      .elec-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .hero__inner { grid-template-columns: 1fr; }
+      .hero { padding: 60px 24px; }
+      .g-line-v, .g-dots { display: none; }
+      .course-found { grid-template-columns: 1fr; }
+      .course-found::after { display: none; }
+      .elec-grid { grid-template-columns: 1fr; }
+      .included-grid { grid-template-columns: 1fr; }
+      .instructor__inner { grid-template-columns: 1fr; }
+      .photo-wrap { max-width: 280px; }
+      .price-features { grid-template-columns: 1fr; }
+      .price-card { padding: 32px 24px; }
+      .foot-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .trustbar__inner { gap: 18px; }
+      .tsep { display: none; }
+    }
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 2rem; }
+      .price-amount { font-size: 3rem; }
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-1 { animation: fadeUp 0.6s ease both; }
+    .anim-2 { animation: fadeUp 0.6s 0.15s ease both; }
+    .anim-3 { animation: fadeUp 0.6s 0.3s ease both; }
+
+    /* ── COURSE DETAIL BUTTONS ── */
+    .detail-btn {
+      display: inline-flex; align-items: center; gap: 7px; margin-top: 18px;
+      font-family: var(--font-body); font-size: 0.74rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.22); padding: 8px 16px;
+      cursor: pointer; border-radius: 5px; position: relative; z-index: 1;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .detail-btn:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.45); color: #fff; }
+    .detail-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .found-detail-btn {
+      display: inline-flex; align-items: center; gap: 7px; margin-top: 14px;
+      font-family: var(--font-body); font-size: 0.74rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9);
+      border: 1px solid rgba(255,255,255,0.28); padding: 9px 18px;
+      cursor: pointer; border-radius: 5px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .found-detail-btn:hover { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); }
+    .found-detail-btn svg { width: 13px; height: 13px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: rgba(3,20,35,0.82); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    @keyframes modalIn { from { opacity:0; transform:translateY(28px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+    .modal {
+      background: #fff; border-radius: 16px; width: 100%; max-width: 680px;
+      max-height: 88vh; overflow-y: auto; position: relative;
+      animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1) both;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+    }
+    .modal--purple .modal-head { background: linear-gradient(135deg,#821874,#5a0f52); }
+    .modal--blue   .modal-head { background: linear-gradient(135deg,#159eda,#054d78); }
+    .modal--teal   .modal-head { background: linear-gradient(135deg,#5fa9b4,#1e5f68); }
+    .modal--dark   .modal-head { background: linear-gradient(135deg,#033d5c,#01263a); }
+    .modal-head { padding: 0 0 0; border-radius: 16px 16px 0 0; position: relative; overflow: hidden; }
+    .modal-head-img {
+      width: 100%; height: 170px; object-fit: cover; object-position: center;
+      display: block; opacity: 0.55;
+    }
+    .modal-head-content { padding: 20px 32px 24px; }
+    .modal-tag { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 6px; }
+    .modal-head h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; color: #fff; line-height: 1.2; margin: 0; }
+    .modal-close {
+      position: absolute; top: 14px; right: 14px; width: 32px; height: 32px;
+      background: rgba(255,255,255,0.15); border: none; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.1rem; transition: background 0.2s; z-index: 10;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.3); }
+    .modal-body { padding: 28px 32px 36px; }
+    .modal-section { margin-bottom: 26px; }
+    .modal-section:last-child { margin-bottom: 0; }
+    .modal-section-title {
+      font-family: var(--font-display); font-size: 0.68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em; color: var(--grey);
+      margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+    }
+    .modal-section-title::after { content:''; flex:1; height:1px; background:#e5e7eb; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .modal-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .modal-list li { font-size: 0.86rem; color: var(--charcoal); line-height: 1.5; display: flex; align-items: flex-start; gap: 9px; }
+    .modal-list li::before { content:''; width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:6px; }
+    .modal--purple .modal-list li::before { background: var(--purple); }
+    .modal--blue   .modal-list li::before { background: var(--blue); }
+    .modal--teal   .modal-list li::before { background: #3d8a94; }
+    .modal--dark   .modal-list li::before { background: var(--dark); }
+    .modal-curriculum { display: flex; flex-direction: column; gap: 7px; }
+    .modal-module { border-left: 3px solid #e5e7eb; padding: 7px 12px; background: #f8f9fb; border-radius: 0 6px 6px 0; }
+    .modal--purple .modal-module { border-color: var(--purple); }
+    .modal--blue   .modal-module { border-color: var(--blue); }
+    .modal--teal   .modal-module { border-color: #3d8a94; }
+    .modal--dark   .modal-module { border-color: var(--dark); }
+    .modal-module strong { font-family: var(--font-display); font-size: 0.79rem; font-weight: 700; color: var(--dark); display: block; margin-bottom: 1px; }
+    .modal-module span { font-size: 0.78rem; color: var(--grey); line-height: 1.4; }
+    .modal-enrol {
+      display: block; width: 100%; text-align: center; padding: 14px;
+      font-family: var(--font-display); font-weight: 700; font-size: 0.95rem;
+      letter-spacing: 0.04em; color: #fff; text-decoration: none;
+      border-radius: 8px; margin-top: 26px; border: none; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .modal-enrol:hover { opacity: 0.88; }
+    .modal--purple .modal-enrol { background: var(--purple); }
+    .modal--blue   .modal-enrol { background: var(--blue); }
+    .modal--teal   .modal-enrol { background: #3d8a94; }
+    .modal--dark   .modal-enrol { background: var(--dark); }
+    @media (max-width: 640px) {
+      .modal-head-content { padding: 16px 20px 20px; }
+      .modal-body { padding: 20px 20px 28px; }
+      .modal-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <p>MEGA Lean Essentials Certificate &mdash; Delivered in partnership with Kaizen Academy &middot; 6 Months' Access &middot; Participant Support Included</p>
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <span class="mega-wordmark">ME<em>GA</em></span>
+        <div class="nav-divider"></div>
+        <span class="nav-sub">Lean Coaching Program</span>
+      </a>
+      <a href="https://academy.continuousimprovement.education/purchase?product_id=6739335" class="nav-cta">Enrol Now &mdash; £299</a>
+    </div>
+  </nav>
+
+  <!-- ════ HERO ════ -->
+  <section class="hero">
+    <div class="geo-wrap">
+      <div class="g-circle-1"></div>
+      <div class="g-circle-2"></div>
+      <div class="g-square"></div>
+      <div class="g-line-v"></div>
+      <div class="g-dots"></div>
+      <div class="g-arc"></div>
+    </div>
+
+    <div class="hero__inner">
+      <!-- Left: copy -->
+      <div class="anim-1">
+        <div class="hero__badge">
+          <div class="hero__badge-dot"></div>
+          <span>MEGA Lean Coaching Program</span>
+        </div>
+
+        <h1>
+          Get lean-certified.<br />
+          <span class="accent-purple">At your own pace.</span>
+        </h1>
+
+        <p class="hero__sub">
+          A structured, self-paced certification that takes your team from lean fundamentals to a recognised credential — with practical tools they can apply from day one.
+        </p>
+
+        <div class="hero__pills">
+          <span class="hero__pill"><span class="pdot pdot--purple"></span>3 Courses Included</span>
+          <span class="hero__pill"><span class="pdot pdot--teal"></span>Certification Exam</span>
+          <span class="hero__pill"><span class="pdot pdot--blue"></span>Lean Toolkit Access</span>
+          <span class="hero__pill"><span class="pdot pdot--purple"></span>Participant Support</span>
+          <span class="hero__pill"><span class="pdot pdot--teal"></span>6 Months' Access</span>
+        </div>
+
+        <div class="hero__actions">
+          <a href="https://academy.continuousimprovement.education/purchase?product_id=6739335" class="btn btn--purple">Enrol Now &mdash; £299</a>
+          <button onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})" class="btn btn--ghost">See the Courses &darr;</button>
+        </div>
+      </div>
+
+      <!-- Right: price card -->
+      <div class="anim-2">
+        <div class="hero__card">
+          <div class="hero__card-label">Per licence / per person</div>
+          <div class="hero__card-price">£299</div>
+          <div class="hero__card-per">One-time &middot; 6 months' access</div>
+          <ul class="card-items">
+            <li><span class="chk"></span>TPS &amp; Lean Fundamentals</li>
+            <li><span class="chk"></span>2 Elective Courses of Choice</li>
+            <li><span class="chk"></span>Certification Exam</li>
+            <li><span class="chk"></span>Official Certificate</li>
+            <li><span class="chk"></span>Lean Toolkit Access</li>
+            <li><span class="chk"></span>Participant Support</li>
+            <li><span class="chk"></span>6 Months' Access</li>
+          </ul>
+          <a href="https://academy.continuousimprovement.education/purchase?product_id=6739335" class="hero__card-btn">Enrol Now &rarr;</a>
+          <p class="hero__card-note">Certified by Kaizen Academy Australia</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CO-BRAND STRIP -->
+  <div class="cobrand">
+    <div class="cobrand__inner">
+      <div class="cobrand__logo">
+        <span class="cobrand__logo-text" style="color:var(--purple); font-family:var(--font-display); font-weight:800; font-size:1.1rem; letter-spacing:0.12em;">MEGA</span>
+      </div>
+      <span class="cobrand__x">&times;</span>
+      <span class="cobrand__ka">Delivered in partnership with <strong>Kaizen Academy Australia</strong></span>
+    </div>
+  </div>
+
+  <!-- ════ TRUST BAR ════ -->
+  <div class="trustbar">
+    <div class="trustbar__inner">
+      <div class="titem"><div class="tmark"></div><span>Mid Ulster MEGA</span></div>
+      <div class="tsep"></div>
+      <div class="titem"><div class="tmark"></div><span>Kaizen Academy Australia</span></div>
+      <div class="tsep"></div>
+      <div class="titem"><div class="tmark"></div><span>5,000+ Professionals Trained</span></div>
+      <div class="tsep"></div>
+      <div class="titem"><div class="tmark"></div><span>15+ Years Industry Experience</span></div>
+    </div>
+  </div>
+
+  <!-- ════ WHAT'S INCLUDED ════ -->
+  <section class="included">
+    <div class="section-header">
+      <div class="eyebrow eyebrow--center">Everything in the programme</div>
+      <h2>One price. Everything included.</h2>
+      <p>No hidden extras, no expiry dates, no renewal fees. A clear path to lean certification for your team.</p>
+    </div>
+
+    <div class="included-grid">
+      <div class="inc-item">
+        <!-- Books / courses icon -->
+        <div class="ig">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="8" width="14" height="28" rx="2" fill="#821874"/>
+            <rect x="6" y="10" width="10" height="2" rx="1" fill="white" opacity="0.5"/>
+            <rect x="6" y="14" width="10" height="1.5" rx="0.75" fill="white" opacity="0.35"/>
+            <rect x="6" y="17" width="7" height="1.5" rx="0.75" fill="white" opacity="0.35"/>
+            <rect x="20" y="6" width="14" height="28" rx="2" fill="#033d5c"/>
+            <rect x="22" y="8" width="10" height="2" rx="1" fill="white" opacity="0.5"/>
+            <rect x="22" y="12" width="10" height="1.5" rx="0.75" fill="white" opacity="0.35"/>
+            <rect x="22" y="15" width="7" height="1.5" rx="0.75" fill="white" opacity="0.35"/>
+            <rect x="22" y="18" width="9" height="1.5" rx="0.75" fill="white" opacity="0.35"/>
+            <rect x="4" y="34" width="30" height="3" rx="1.5" fill="#159eda" opacity="0.5"/>
+          </svg>
+        </div>
+        <h3>3 Full Courses</h3>
+        <p>TPS &amp; Lean Fundamentals as your shared foundation, plus two elective courses each learner selects for their role.</p>
+      </div>
+
+      <div class="inc-item">
+        <!-- Certificate / badge icon -->
+        <div class="ig">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="5" width="34" height="26" rx="2" fill="#033d5c"/>
+            <rect x="9" y="9" width="18" height="2" rx="1" fill="white" opacity="0.5"/>
+            <rect x="9" y="13" width="26" height="1.5" rx="0.75" fill="white" opacity="0.3"/>
+            <rect x="9" y="16" width="22" height="1.5" rx="0.75" fill="white" opacity="0.3"/>
+            <rect x="9" y="19" width="26" height="1.5" rx="0.75" fill="white" opacity="0.3"/>
+            <circle cx="22" cy="35" r="7" fill="#821874"/>
+            <circle cx="22" cy="35" r="5" fill="#9c1e8a" stroke="white" stroke-width="1"/>
+            <path d="M19.5 35l1.8 1.8 3.2-3.6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="18" y="30" width="8" height="2" rx="1" fill="#821874"/>
+          </svg>
+        </div>
+        <h3>Certification Exam</h3>
+        <p>A comprehensive assessment covering all core competencies. Pass it and earn your official Lean Essentials Certificate.</p>
+      </div>
+
+      <div class="inc-item">
+        <!-- Toolkit / wrench + templates icon -->
+        <div class="ig">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="6" width="22" height="28" rx="2" fill="#033d5c"/>
+            <rect x="7" y="10" width="13" height="1.5" rx="0.75" fill="white" opacity="0.5"/>
+            <rect x="7" y="13.5" width="16" height="1.5" rx="0.75" fill="white" opacity="0.3"/>
+            <rect x="7" y="17" width="11" height="1.5" rx="0.75" fill="white" opacity="0.3"/>
+            <rect x="7" y="20.5" width="14" height="1.5" rx="0.75" fill="white" opacity="0.3"/>
+            <path d="M30 14c3.3 0 6 2.7 6 6 0 1.2-.4 2.4-1 3.3l2.7 2.7-2.1 2.1-2.7-2.7c-.9.6-2.1 1-3.3 1A6 6 0 0124 20c0-3.3 2.7-6 6-6z" fill="#159eda"/>
+            <circle cx="30" cy="20" r="3" fill="#033d5c"/>
+            <path d="M26 32l8-8" stroke="#7EBEC5" stroke-width="2" stroke-linecap="round"/>
+            <rect x="23.5" y="31" width="5" height="8" rx="1" transform="rotate(-45 23.5 31)" fill="#821874"/>
+          </svg>
+        </div>
+        <h3>Lean Toolkit Access</h3>
+        <p>Practical templates, calculators, and tools to apply what you learn directly on the shop floor — from day one.</p>
+      </div>
+
+      <div class="inc-item">
+        <!-- Headset / support person icon -->
+        <div class="ig">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="22" cy="14" r="7" fill="#033d5c"/>
+            <circle cx="22" cy="14" r="4.5" fill="#821874" opacity="0.7"/>
+            <path d="M8 36c0-7.7 6.3-14 14-14s14 6.3 14 14" stroke="#033d5c" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <circle cx="8" cy="36" r="3.5" fill="#159eda"/>
+            <circle cx="36" cy="36" r="3.5" fill="#159eda"/>
+            <path d="M5 33.5C5 28 13 24 22 24s17 4 17 9.5" stroke="#7EBEC5" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <rect x="4.5" y="33" width="7" height="5" rx="2" fill="#821874"/>
+            <rect x="32.5" y="33" width="7" height="5" rx="2" fill="#821874"/>
+            <path d="M39 36.5c0 2-1.5 3.5-3.5 3.5" stroke="#033d5c" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <h3>Participant Support</h3>
+        <p>Questions about content, concepts, or access? Reach out and we'll get back to you — no scheduling required.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ COURSES ════ -->
+  <section class="courses" id="courses">
+    <div class="courses__inner">
+      <div class="courses__hd">
+        <div class="eyebrow eyebrow--light">Your learning path</div>
+        <h2>Three courses.<br />One clear direction.</h2>
+        <p>Every learner starts with the same foundation, then chooses their specialist path from three elective courses.</p>
+      </div>
+
+      <!-- Foundation -->
+      <div class="course-found">
+        <div>
+          <div class="found-tag">&#9733; Mandatory Foundation</div>
+          <h3>Toyota Production System &amp; Lean Fundamentals</h3>
+          <p>The bedrock of the entire programme. Master lean principles, TPS pillars, Just-in-Time, Jidoka, and how to apply them at the Gemba. Every participant starts here — building the shared language and lean thinking your team needs.</p>
+          <button class="found-detail-btn" onclick="openModal('modal-tps')">
+            <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 6v4M7 4.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Course Details
+          </button>
+        </div>
+        <div class="found-badge">Foundation Course</div>
+      </div>
+
+      <!-- Electives -->
+      <div class="elec-lbl">Choose 2 elective courses</div>
+      <div class="elec-grid">
+
+        <div class="elec-card elec-card--purple" data-num="01">
+          <div class="elec-stripe"></div>
+          <div class="elec-num">Elective 01</div>
+          <h3>Value Stream Mapping</h3>
+          <p>Visually map and analyse your entire production process to pinpoint waste and design a leaner future state. Built for operations, supply chain, and process improvement roles.</p>
+          <ul class="elec-topics">
+            <li>Current &amp; future state mapping</li>
+            <li>Customer requirements &amp; takt time</li>
+            <li>Supermarket pull systems</li>
+            <li>Digital VSM (Excel, Visio, iGrafx)</li>
+            <li>Lean value stream guidelines</li>
+            <li>Implementation work plan</li>
+          </ul>
+          <button class="detail-btn" onclick="openModal('modal-vsm')">
+            <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 6v4M7 4.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Course Details
+          </button>
+        </div>
+
+        <div class="elec-card elec-card--blue" data-num="02">
+          <div class="elec-stripe"></div>
+          <div class="elec-num">Elective 02</div>
+          <h3>Scientific Problem Solving</h3>
+          <p>Master A3 thinking and the 7 QC tools for structured, evidence-based problem resolution. Ideal for quality, engineering, and team leaders.</p>
+          <ul class="elec-topics">
+            <li>4 types of problems</li>
+            <li>A3 problem solving methodology</li>
+            <li>Histogram &amp; Pareto diagrams</li>
+            <li>Fishbone diagram &amp; 5 Whys</li>
+            <li>Control charts (X-bar, P, U, C)</li>
+            <li>Scatter diagrams &amp; check sheets</li>
+          </ul>
+          <button class="detail-btn" onclick="openModal('modal-sps')">
+            <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 6v4M7 4.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Course Details
+          </button>
+        </div>
+
+        <div class="elec-card elec-card--teal" data-num="03">
+          <div class="elec-stripe"></div>
+          <div class="elec-num">Elective 03</div>
+          <h3>Business Process Management</h3>
+          <p>Apply lean thinking to administrative and service processes. Suited to finance, HR, logistics, and operational support teams.</p>
+          <ul class="elec-topics">
+            <li>7 types of waste in service industries</li>
+            <li>A3 problem solving for processes</li>
+            <li>SIPOC &amp; BPMN swimlane diagrams</li>
+            <li>Process metrics &amp; SMART targets</li>
+            <li>Root cause analysis tools</li>
+            <li>Standardisation &amp; sustainability</li>
+          </ul>
+          <button class="detail-btn" onclick="openModal('modal-bpm')">
+            <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 6v4M7 4.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Course Details
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Exam -->
+      <div class="exam-row">
+        <!-- Certificate + medal SVG -->
+        <svg class="exam-icon" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Document body -->
+          <rect x="6" y="4" width="30" height="36" rx="3" fill="#033d5c"/>
+          <!-- Top-right fold -->
+          <path d="M28 4 L36 12 L28 12 Z" fill="#022a40"/>
+          <rect x="28" y="4" width="8" height="8" rx="0" fill="#011e2e"/>
+          <!-- Text lines on doc -->
+          <rect x="10" y="16" width="14" height="2" rx="1" fill="white" opacity="0.55"/>
+          <rect x="10" y="21" width="20" height="1.5" rx="0.75" fill="white" opacity="0.3"/>
+          <rect x="10" y="25" width="17" height="1.5" rx="0.75" fill="white" opacity="0.3"/>
+          <rect x="10" y="29" width="20" height="1.5" rx="0.75" fill="white" opacity="0.3"/>
+          <!-- Seal / ribbon circle -->
+          <circle cx="38" cy="40" r="12" fill="#821874"/>
+          <circle cx="38" cy="40" r="9.5" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+          <!-- Star burst rays -->
+          <g stroke="#ffd6f5" stroke-width="1" opacity="0.5">
+            <line x1="38" y1="27" x2="38" y2="30"/>
+            <line x1="38" y1="50" x2="38" y2="53"/>
+            <line x1="25" y1="40" x2="28" y2="40"/>
+            <line x1="48" y1="40" x2="51" y2="40"/>
+            <line x1="29.2" y1="31.2" x2="31.3" y2="33.3"/>
+            <line x1="44.7" y1="46.7" x2="46.8" y2="48.8"/>
+            <line x1="46.8" y1="31.2" x2="44.7" y2="33.3"/>
+            <line x1="31.3" y1="46.7" x2="29.2" y2="48.8"/>
+          </g>
+          <!-- Checkmark inside medal -->
+          <path d="M33.5 40.5 L36.5 43.5 L43 37" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Ribbon tails -->
+          <path d="M34 49 L36 52 L38 50 L40 52 L42 49" fill="none" stroke="#9c1e8a" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <h3>Certification Exam + Official Certificate</h3>
+          <p>After completing all three courses, sit the final certification exam. Pass and receive your official Lean Essentials Certificate — issued by Kaizen Academy Australia.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ INSTRUCTOR ════ -->
+  <section class="instructor">
+    <div class="instructor__inner">
+      <div class="photo-wrap">
+        <div class="photo-bg"></div>
+        <div class="photo-bar"></div>
+        <img
+          class="photo-img"
+          src="https://firebasestorage.googleapis.com/v0/b/image-upload-ka.firebasestorage.app/o/Default%2Fprofile-pic10.png?alt=media&token=2f5c5060-7eb3-40b6-8e13-a4fffc2042d2"
+          alt="Ahmed Radwan — Lead Instructor"
+        />
+      </div>
+
+      <div class="inst-content">
+        <div class="eyebrow">Your Instructor</div>
+        <h2>Ahmed Radwan</h2>
+        <p class="inst-title">Lean Six Sigma Master Black Belt &middot; Founder, Kaizen Academy</p>
+        <p class="inst-bio">
+          Ahmed has spent over 15 years in lean manufacturing and operational excellence — working with teams across manufacturing, logistics, healthcare, and professional services. He has trained more than 5,000 professionals and collaborated with some of the most respected names in the lean world, including Dr. Jeffrey Liker and Tracey Richardson of Toyota.
+        </p>
+        <p class="inst-bio">
+          His courses are built for practitioners, not theorists. Every concept is grounded in real-world application and structured for learners who need to deliver results — not just pass an exam.
+        </p>
+        <div class="inst-creds">
+          <span class="cred"><span class="cdot"></span>LSS Master Black Belt (CSSC)</span>
+          <span class="cred"><span class="cdot"></span>Lean Bronze — Shingo Institute</span>
+          <span class="cred"><span class="cdot"></span>MBA</span>
+          <span class="cred"><span class="cdot"></span>PMP</span>
+          <span class="cred"><span class="cdot"></span>PSM I</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ PRICE + CTA ════ -->
+  <section class="price-sec">
+    <div class="price-geo1"></div>
+    <div class="price-geo2"></div>
+
+    <div class="price-inner">
+      <div class="eyebrow eyebrow--light eyebrow--center">Ready to get started?</div>
+      <h2>One investment.<br />6 months' access.</h2>
+      <p class="price-sub">Everything your team needs to go from lean curious to lean certified.</p>
+
+      <div class="price-card">
+        <div class="price-amount">£299</div>
+        <div class="price-per">per person &middot; one-time payment &middot; 6 months' access</div>
+
+        <div class="price-features">
+          <div class="pf"><span class="pf-icon"></span>TPS &amp; Lean Fundamentals</div>
+          <div class="pf"><span class="pf-icon"></span>2 Elective Courses</div>
+          <div class="pf"><span class="pf-icon"></span>Certification Exam</div>
+          <div class="pf"><span class="pf-icon"></span>Official Certificate</div>
+          <div class="pf"><span class="pf-icon"></span>Lean Toolkit Access</div>
+          <div class="pf"><span class="pf-icon"></span>Participant Support</div>
+          <div class="pf"><span class="pf-icon"></span>6 Months' Access</div>
+          <div class="pf"><span class="pf-icon"></span>Fully Self-Paced</div>
+        </div>
+
+        <a href="https://academy.continuousimprovement.education/purchase?product_id=6739335" class="price-btn">Enrol Now &mdash; £299</a>
+        <p class="price-note">MEGA Lean Coaching Program &middot; Delivered by Kaizen Academy Australia &middot; Questions? Contact MEGA or Barry.Taylor@midulstermega.com</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ FOOTER ════ -->
+  <footer>
+    <div class="foot-inner">
+      <span class="foot-mega">ME<em>GA</em></span>
+      <p class="foot-copy">MEGA Lean Coaching Program &middot; Delivered in partnership with Kaizen Academy Pty Ltd</p>
+      <p class="foot-ka">Certificates issued by Kaizen Academy Australia &middot; ABN 44 682 421 745</p>
+      <a href="mailto:Barry.Taylor@midulstermega.com" class="foot-contact">Barry.Taylor@midulstermega.com</a>
+    </div>
+  </footer>
+
+  <!-- ════ MODALS ════ -->
+
+  <!-- TPS Modal -->
+  <div class="modal-overlay" id="modal-tps" onclick="handleOverlayClick(event,'modal-tps')">
+    <div class="modal modal--dark">
+      <div class="modal-head">
+        <img class="modal-head-img" src="https://firebasestorage.googleapis.com/v0/b/image-upload-ka.firebasestorage.app/o/Default%2FTPS%20hero.png?alt=media&token=77bb25f4-15d0-418e-8c65-245d4f7826bb" alt="TPS">
+        <button class="modal-close" onclick="closeModal('modal-tps')">&#x2715;</button>
+        <div class="modal-head-content">
+          <div class="modal-tag">&#9733; Mandatory Foundation Course</div>
+          <h2>Toyota Production System &amp; Lean Fundamentals</h2>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="modal-section">
+            <div class="modal-section-title">Learning Objectives</div>
+            <ul class="modal-list">
+              <li>Understand Toyota's foundational values and The Toyota Way philosophy</li>
+              <li>Master TPS pillars: Jidoka (automation with human touch) and Just-In-Time</li>
+              <li>Apply Heijunka, Kaizen, and standardised work principles</li>
+              <li>Implement quality, cost &amp; delivery management at the Gemba</li>
+              <li>Use lean tools: 5S, SMED, TPM, Kanban, Andon, Poka Yoke</li>
+              <li>Develop lean leadership and coaching kata skills</li>
+              <li>Learn the Toyota Way 14 Principles for organisational transformation</li>
+            </ul>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">Who Is This For?</div>
+            <ul class="modal-list">
+              <li>Operations directors and plant leaders</li>
+              <li>Lean champions and improvement leaders</li>
+              <li>Manufacturing and process engineers</li>
+              <li>Executive teams pursuing lean transformation</li>
+              <li>Continuous improvement professionals</li>
+              <li>Anyone seeking lean leadership mastery</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-section" style="margin-top:22px;">
+          <div class="modal-section-title">Curriculum Overview</div>
+          <div class="modal-curriculum">
+            <div class="modal-module"><strong>TPS Foundations</strong><span>Introduction, Toyota Key Values, The Toyota Way, 14 Principles</span></div>
+            <div class="modal-module"><strong>TPS Concepts</strong><span>Heijunka (Levelling), Kaizen, Standards, Continuous improvement culture</span></div>
+            <div class="modal-module"><strong>Jidoka Pillar</strong><span>Introduction, Andon systems, Poka Yoke (error-proofing)</span></div>
+            <div class="modal-module"><strong>Just-In-Time Pillar</strong><span>Flow, Waste elimination, Takt time, Kanban systems</span></div>
+            <div class="modal-module"><strong>Lean Fundamentals</strong><span>5 Principles, Value vs non-value, 5S, TPM, SMED, Coaching Kata, Gemba walks</span></div>
+            <div class="modal-module"><strong>Advanced Topics</strong><span>Quality/Cost/Delivery at Gemba, Toyota Way 14 Principles deep dive, Leadership transformation</span></div>
+          </div>
+        </div>
+        <a href="https://academy.continuousimprovement.education/purchase?product_id=6739335" class="modal-enrol">Enrol Now — £299 &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- VSM Modal -->
+  <div class="modal-overlay" id="modal-vsm" onclick="handleOverlayClick(event,'modal-vsm')">
+    <div class="modal modal--purple">
+      <div class="modal-head">
+        <img class="modal-head-img" src="https://firebasestorage.googleapis.com/v0/b/image-upload-ka.firebasestorage.app/o/Default%2Fvsm%20hero.png?alt=media&token=ff292302-d7e1-4872-aa15-48c109cae325" alt="VSM">
+        <button class="modal-close" onclick="closeModal('modal-vsm')">&#x2715;</button>
+        <div class="modal-head-content">
+          <div class="modal-tag">Elective 01</div>
+          <h2>Advanced Value Stream Mapping</h2>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="modal-section">
+            <div class="modal-section-title">Learning Objectives</div>
+            <ul class="modal-list">
+              <li>Master the fundamentals of value stream mapping and lean thinking</li>
+              <li>Draw comprehensive current-state value stream maps from scratch</li>
+              <li>Identify value-adding and non-value-adding activities</li>
+              <li>Use professional tools (Excel, Visio, iGrafx) for digital VSM</li>
+              <li>Apply lean guidelines: Takt time, continuous flow, supermarkets, EPE</li>
+              <li>Design future-state maps using lean principles</li>
+              <li>Develop implementation workplans for process transformation</li>
+            </ul>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">Who Is This For?</div>
+            <ul class="modal-list">
+              <li>Manufacturing and operations leaders</li>
+              <li>Supply chain and logistics professionals</li>
+              <li>Process improvement consultants</li>
+              <li>Lean practitioners and transformation teams</li>
+              <li>Production managers and plant leaders</li>
+              <li>Anyone designing lean value streams</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-section" style="margin-top:22px;">
+          <div class="modal-section-title">Curriculum Overview</div>
+          <div class="modal-curriculum">
+            <div class="modal-module"><strong>Getting Started</strong><span>What is VSM, product family selection, key tips &amp; quizzes</span></div>
+            <div class="modal-module"><strong>Current State Map</strong><span>5-step drawing process: customer requirements, production flow, logistics, information flow, timeline</span></div>
+            <div class="modal-module"><strong>Digital VSM Tools</strong><span>Excel templates, Visio tutorials, iGrafx techniques, export &amp; documentation</span></div>
+            <div class="modal-module"><strong>Lean Value Stream Guidelines</strong><span>Produce to Takt, continuous flow, supermarket systems, schedule optimisation, level production</span></div>
+            <div class="modal-module"><strong>Future State Design</strong><span>8-question methodology, takt time calculations, flow &amp; supermarket decisions</span></div>
+            <div class="modal-module"><strong>Implementation</strong><span>Workplan development, implementation strategies, real case studies</span></div>
+          </div>
+        </div>
+        <a href="https://academy.continuousimprovement.education/purchase?product_id=6739335" class="modal-enrol">Enrol Now — £299 &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPS Modal -->
+  <div class="modal-overlay" id="modal-sps" onclick="handleOverlayClick(event,'modal-sps')">
+    <div class="modal modal--blue">
+      <div class="modal-head">
+        <img class="modal-head-img" src="https://firebasestorage.googleapis.com/v0/b/image-upload-ka.firebasestorage.app/o/Default%2FSPS%20Hero.png?alt=media&token=c720be78-74b7-49b7-95c8-1d40f74f3255" alt="SPS">
+        <button class="modal-close" onclick="closeModal('modal-sps')">&#x2715;</button>
+        <div class="modal-head-content">
+          <div class="modal-tag">Elective 02</div>
+          <h2>Scientific Problem Solving Using the 7 Quality Control Tools</h2>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="modal-section">
+            <div class="modal-section-title">Learning Objectives</div>
+            <ul class="modal-list">
+              <li>Master the 7 Quality Control Tools pioneered by Kaoru Ishikawa</li>
+              <li>Learn A3 Problem-Solving methodology for systematic improvement</li>
+              <li>Apply quantitative measures to stabilise quality and solve problems</li>
+              <li>Use Excel to create histograms, Pareto diagrams &amp; scatter diagrams</li>
+              <li>Develop control charts to monitor process performance</li>
+              <li>Identify root causes using fishbone diagrams and 5 Whys</li>
+            </ul>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">Who Is This For?</div>
+            <ul class="modal-list">
+              <li>Quality engineers and improvement specialists</li>
+              <li>Operations and production managers</li>
+              <li>Business analysts and data professionals</li>
+              <li>Lean practitioners and Six Sigma candidates</li>
+              <li>Anyone seeking data-driven problem solving mastery</li>
+              <li>Organisations implementing continuous improvement</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-section" style="margin-top:22px;">
+          <div class="modal-section-title">Curriculum Overview</div>
+          <div class="modal-curriculum">
+            <div class="modal-module"><strong>Introduction</strong><span>Why the 7 Tools, four types of problems, A3 thinking methodology</span></div>
+            <div class="modal-module"><strong>Tool 1 — Histogram</strong><span>Creation, Excel methods, reading &amp; interpretation</span></div>
+            <div class="modal-module"><strong>Tool 2 — Fishbone Diagram</strong><span>Construction, 5 Whys bonus, root cause analysis</span></div>
+            <div class="modal-module"><strong>Tool 3 &amp; 4 — Check Sheets &amp; Pareto</strong><span>Data collection, Pareto diagrams, vital few vs trivial many</span></div>
+            <div class="modal-module"><strong>Tool 5 — Graphs</strong><span>Line, bar, pie charts and data visualisation techniques</span></div>
+            <div class="modal-module"><strong>Tool 6 — Control Charts</strong><span>6 types: X̄R, X̄S, P, PN, U, C — process monitoring &amp; interpretation</span></div>
+            <div class="modal-module"><strong>Tool 7 — Scatter Diagram</strong><span>Creation, Excel methods, correlation analysis</span></div>
+          </div>
+        </div>
+        <a href="https://academy.continuousimprovement.education/purchase?product_id=6739335" class="modal-enrol">Enrol Now — £299 &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- BPM Modal -->
+  <div class="modal-overlay" id="modal-bpm" onclick="handleOverlayClick(event,'modal-bpm')">
+    <div class="modal modal--teal">
+      <div class="modal-head">
+        <img class="modal-head-img" src="https://firebasestorage.googleapis.com/v0/b/image-upload-ka.firebasestorage.app/o/Default%2Fbpm%20hero.png?alt=media&token=a8df3280-9a30-4370-b6db-c8d68a8b89de" alt="BPM">
+        <button class="modal-close" onclick="closeModal('modal-bpm')">&#x2715;</button>
+        <div class="modal-head-content">
+          <div class="modal-tag">Elective 03</div>
+          <h2>Business Process Management</h2>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="modal-section">
+            <div class="modal-section-title">Learning Objectives</div>
+            <ul class="modal-list">
+              <li>Master A3 Problem-Solving for structured business improvement</li>
+              <li>Map current and target business process conditions</li>
+              <li>Identify and analyse the 7 wastes in business processes</li>
+              <li>Perform root cause analysis using 5 Whys and fishbone diagrams</li>
+              <li>Design future-state processes using creative problem-solving</li>
+              <li>Build process documentation and centralised process repositories</li>
+            </ul>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">Who Is This For?</div>
+            <ul class="modal-list">
+              <li>Process improvement managers</li>
+              <li>Business operations leaders</li>
+              <li>Lean and Six Sigma professionals</li>
+              <li>Business process analysts</li>
+              <li>Quality assurance and compliance teams</li>
+              <li>Organisations standardising processes</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-section" style="margin-top:22px;">
+          <div class="modal-section-title">Curriculum Overview</div>
+          <div class="modal-curriculum">
+            <div class="modal-module"><strong>Module 1 — Foundations</strong><span>What is BPM, process types, performance metrics, common problems, A3 methodology</span></div>
+            <div class="modal-module"><strong>Module 2 — Current State &amp; RCA</strong><span>7 Wastes, Gemba walks, process mapping (Draw.io), target conditions, 5 Whys, fishbone diagrams</span></div>
+            <div class="modal-module"><strong>Module 3 — Countermeasures</strong><span>Creative problem-solving, future state design, solution evaluation, implementation support</span></div>
+            <div class="modal-module"><strong>Module 4 — Implementation</strong><span>Execution strategy, A3 Section 7, communication strategies, results monitoring</span></div>
+            <div class="modal-module"><strong>Module 5 — Documentation</strong><span>Process repository building, multi-level documentation, Notion integration, templates</span></div>
+            <div class="modal-module"><strong>Capstone</strong><span>Case studies, course exam, lessons learned, certification</span></div>
+          </div>
+        </div>
+        <a href="https://academy.continuousimprovement.education/purchase?product_id=6739335" class="modal-enrol">Enrol Now — £299 &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function handleOverlayClick(e, id) {
+      if (e.target === document.getElementById(id)) closeModal(id);
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open').forEach(function(m) {
+          m.classList.remove('open');
+          document.body.style.overflow = '';
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
